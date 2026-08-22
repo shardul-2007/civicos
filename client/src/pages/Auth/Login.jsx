@@ -76,20 +76,57 @@ export default function Login() {
   };
 
   return (
-    <div style={{ background: 'var(--bg-app)', minHeight: '85vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5.5rem 1rem 3rem', color: 'var(--text-primary)' }}>
-      <div className="natural-glass-card" style={{ width: '100%', maxWidth: '450px', padding: '2.5rem', background: '#121722', borderRadius: '1rem' }}>
-        
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)', width: '50px', height: '50px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '1rem', boxShadow: '0 0 15px rgba(16, 185, 129, 0.3)' }}>
-            <Shield size={28} />
+    <div
+      style={{
+        background: 'var(--bg-app)',
+        minHeight: 'calc(100vh - 90px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1.5rem 1rem',
+        boxSizing: 'border-box',
+        color: 'var(--text-primary)',
+      }}
+    >
+      <div
+        className="natural-glass-card"
+        style={{
+          width: '100%',
+          maxWidth: '440px',
+          padding: '1.75rem 1.5rem',
+          background: '#121722',
+          borderRadius: '1rem',
+          boxSizing: 'border-box',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.8)',
+          border: '1px solid rgba(16, 185, 129, 0.25)',
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+              width: '46px',
+              height: '46px',
+              borderRadius: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              marginBottom: '0.75rem',
+              boxShadow: '0 0 15px rgba(16, 185, 129, 0.3)',
+            }}
+          >
+            <Shield size={24} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', color: '#ffffff', fontWeight: 800 }}>CivicOS Authentication</h2>
+          <h2 style={{ fontSize: '1.5rem', color: '#ffffff', fontWeight: 800, marginBottom: '0.25rem' }}>
+            CivicOS Authentication
+          </h2>
           <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Sign in to access Officer Desk or Command Portal</p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.5rem' }}>
+          <div style={{ marginBottom: '1.1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
               Email Address
             </label>
             <div style={{ position: 'relative' }}>
@@ -97,7 +134,7 @@ export default function Login() {
               <input
                 type="email"
                 className="form-input-dark"
-                style={{ paddingLeft: '2.5rem', width: '100%' }}
+                style={{ paddingLeft: '2.5rem', width: '100%', boxSizing: 'border-box' }}
                 placeholder="officer@civicos.gov"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -105,8 +142,8 @@ export default function Login() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '1.75rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.5rem' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
               Password
             </label>
             <div style={{ position: 'relative' }}>
@@ -114,7 +151,7 @@ export default function Login() {
               <input
                 type="password"
                 className="form-input-dark"
-                style={{ paddingLeft: '2.5rem', width: '100%' }}
+                style={{ paddingLeft: '2.5rem', width: '100%', boxSizing: 'border-box' }}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -122,23 +159,28 @@ export default function Login() {
             </div>
           </div>
 
-          <button type="submit" className="btn-sage" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '1rem' }} disabled={loading}>
+          <button
+            type="submit"
+            className="btn-sage"
+            style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700 }}
+            disabled={loading}
+          >
             {loading ? 'Authenticating...' : 'Sign In to Portal'}
           </button>
         </form>
 
-        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
-            Hackathon Quick Fill Demo Accounts:
+        <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, textAlign: 'center' }}>
+            1-Click Quick Fill Demo Accounts:
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-            <button type="button" onClick={() => fillAndSubmit('admin')} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.45rem', justifyContent: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
+            <button type="button" onClick={() => fillAndSubmit('admin')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
               Admin
             </button>
-            <button type="button" onClick={() => fillAndSubmit('officer')} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.45rem', justifyContent: 'center' }}>
+            <button type="button" onClick={() => fillAndSubmit('officer')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
               Officer
             </button>
-            <button type="button" onClick={() => fillAndSubmit('citizen')} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.45rem', justifyContent: 'center' }}>
+            <button type="button" onClick={() => fillAndSubmit('citizen')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
               Citizen
             </button>
           </div>
