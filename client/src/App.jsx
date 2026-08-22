@@ -10,6 +10,7 @@ import NotificationDrawer from './components/NotificationDrawer';
 import ReportExportModal from './components/ReportExportModal';
 import Footer from './layouts/Footer';
 import { ToastProvider } from './context/ToastContext';
+import FluidWaterCursor from './components/FluidWaterCursor';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -71,6 +72,7 @@ export default function App() {
 
   return (
     <ToastProvider>
+      <FluidWaterCursor />
       <div className="app-shell">
 
         {/* Top Navbar for Public & Citizen pages */}
