@@ -69,14 +69,16 @@ export default function LandingPage() {
       <div style={{
         position: 'fixed',
         pointerEvents: 'none',
-        top: mousePos.y - 250,
-        left: mousePos.x - 250,
-        width: 500,
-        height: 500,
+        top: mousePos.y - 300,
+        left: mousePos.x - 300,
+        width: 600,
+        height: 600,
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.03) 40%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(16,185,129,0.32) 0%, rgba(59,130,246,0.2) 35%, rgba(139,92,246,0.1) 60%, transparent 80%)',
+        boxShadow: '0 0 60px rgba(16,185,129,0.25)',
         zIndex: 0,
-        transition: 'top 0.08s ease-out, left 0.08s ease-out',
+        transition: 'top 0.04s ease-out, left 0.04s ease-out',
+        filter: 'blur(15px)',
       }} />
 
       {/* ═══════════════════════════════════════
