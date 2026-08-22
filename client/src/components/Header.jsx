@@ -66,7 +66,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', position: 'relative', maxWidth: '100%' }}>
         
         {/* Language Selector Dropdown (English / Hindi / Marathi) */}
-        <LanguageSelector compact />
+        <LanguageSelector compact alignLeft />
 
         {/* Global Search Bar (Triggers Ctrl+K Command Palette) */}
         <button

@@ -4,6 +4,17 @@ const LanguageContext = createContext();
 
 export const TRANSLATIONS = {
   en: {
+    // Sidebar Navigation Keys
+    navOverview: "Command Overview",
+    navComplaints: "Complaints Queue",
+    navMap: "Live Incident Map",
+    navDepartments: "Department Oversight",
+    navAnalytics: "City Analytics",
+    navAi: "AI Intelligence",
+    navPredictions: "Predictive Intelligence",
+    navSla: "SLA Performance",
+    navOfficer: "Field Officer Desk",
+
     // Navbar & Common
     platform: "Platform",
     howItWorks: "How It Works",
@@ -123,6 +134,17 @@ export const TRANSLATIONS = {
   },
 
   hi: {
+    // Sidebar Navigation Keys
+    navOverview: "कमांड ओवरव्यू",
+    navComplaints: "शिकायत कतार",
+    navMap: "लाइव घटना नक्शा",
+    navDepartments: "विभाग निगरानी",
+    navAnalytics: "शहर विश्लेषिकी",
+    navAi: "एआई इंटेलिजेंस",
+    navPredictions: "पूर्वानुमान इंटेलिजेंस",
+    navSla: "समय-सीमा प्रदर्शन",
+    navOfficer: "फील्ड अधिकारी डेस्क",
+
     // Navbar & Common
     platform: "प्लेटफ़ॉर्म",
     howItWorks: "यह कैसे काम करता है",
@@ -242,6 +264,17 @@ export const TRANSLATIONS = {
   },
 
   mr: {
+    // Sidebar Navigation Keys
+    navOverview: "कमांड सर्व्हालोकन",
+    navComplaints: "तक्रार रांग",
+    navMap: "स्मार्ट सिटी जीआयएस नकाशा",
+    navDepartments: "महानगरपालिका विभाग देखरेख",
+    navAnalytics: "शहर-स्तरीय कामगिरी मोजमाप",
+    navAi: "इंटेलिजन्स",
+    navPredictions: "पूर्वानुमान इंटेलिजन्स",
+    navSla: "मुदत कार्यक्षमता",
+    navOfficer: "फील्ड अधिकारी डेस्क",
+
     // Navbar & Common
     platform: "प्लॅटफॉर्म",
     howItWorks: "हे कसे कार्य करते",

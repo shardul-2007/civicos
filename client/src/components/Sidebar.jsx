@@ -31,30 +31,30 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
 
   if (role === 'ADMIN') {
     navItems = [
-      { label: t('totalComplaints').replace('Total ', '') || 'Overview', path: '/admin', icon: LayoutDashboard },
-      { label: t('trackIssue') || 'Complaints', path: '/complaints', icon: FileText },
-      { label: t('mapViewTitle') || 'Map View', path: '/map', icon: MapPin },
-      { label: t('deptEyebrow') || 'Departments', path: '/departments', icon: Building2 },
-      { label: t('analyticsTitle') || 'Analytics', path: '/admin/analytics', icon: TrendingUp },
-      { label: t('intelligence') || 'AI Intelligence', path: '/ai', icon: Brain },
-      { label: t('commandCenter') || 'City Intelligence', path: '/admin/predictions', icon: ZapIcon },
-      { label: t('slaBreached') || 'SLA Monitor', path: '/sla', icon: Clock },
-      { label: t('fieldDesk') || 'Field Desk', path: '/officer', icon: Users },
+      { label: t('navOverview'), path: '/admin', icon: LayoutDashboard },
+      { label: t('navComplaints'), path: '/complaints', icon: FileText },
+      { label: t('navMap'), path: '/map', icon: MapPin },
+      { label: t('navDepartments'), path: '/departments', icon: Building2 },
+      { label: t('navAnalytics'), path: '/admin/analytics', icon: TrendingUp },
+      { label: t('navAi'), path: '/ai', icon: Brain },
+      { label: t('navPredictions'), path: '/admin/predictions', icon: ZapIcon },
+      { label: t('navSla'), path: '/sla', icon: Clock },
+      { label: t('navOfficer'), path: '/officer', icon: Users },
     ];
   } else if (role === 'OFFICER') {
     navItems = [
-      { label: t('fieldDesk') || 'Field Desk', path: '/officer', icon: Users },
-      { label: t('trackIssue') || 'Complaints Queue', path: '/complaints', icon: FileText },
-      { label: t('mapViewTitle') || 'Smart City Map', path: '/map', icon: MapPin },
-      { label: t('slaBreached') || 'SLA Monitor', path: '/sla', icon: Clock },
+      { label: t('navOfficer'), path: '/officer', icon: Users },
+      { label: t('navComplaints'), path: '/complaints', icon: FileText },
+      { label: t('navMap'), path: '/map', icon: MapPin },
+      { label: t('navSla'), path: '/sla', icon: Clock },
     ];
   } else {
     // CITIZEN or Guest Navigation
     navItems = [
-      { label: t('reportIssue') || 'Report Problem', path: '/report', icon: PlusCircle },
-      { label: t('trackIssue') || 'Track Complaint', path: '/citizen/track', icon: Search },
-      { label: t('recentIncidents') || 'My Reports', path: '/complaints', icon: FileText },
-      { label: t('mapViewTitle') || 'Smart City Map', path: '/map', icon: MapPin },
+      { label: t('reportIssue'), path: '/report', icon: PlusCircle },
+      { label: t('trackIssue'), path: '/citizen/track', icon: Search },
+      { label: t('navComplaints'), path: '/complaints', icon: FileText },
+      { label: t('navMap'), path: '/map', icon: MapPin },
     ];
   }
 
