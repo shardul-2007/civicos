@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Users, Sparkles } from 'lucide-react';
+import { Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
@@ -19,10 +19,13 @@ export default function Navbar() {
 
   return (
     <header style={{
-      position: 'sticky',
+      position: 'fixed',
       top: 0,
-      zIndex: 1000,
-      background: scrolled ? 'rgba(10, 13, 20, 0.98)' : 'rgba(10, 13, 20, 0.92)',
+      left: 0,
+      right: 0,
+      width: '100%',
+      zIndex: 900,
+      background: scrolled ? 'rgba(10, 13, 20, 0.98)' : 'rgba(10, 13, 20, 0.94)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -77,10 +80,6 @@ export default function Navbar() {
             <PlusCircle size={14} /> Report Issue
           </Link>
 
-          <Link to="/officer" className="btn-glass desktop-only" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none', borderColor: 'rgba(96,165,250,0.3)', color: '#60a5fa' }}>
-            <Users size={14} /> Officer Desk
-          </Link>
-
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', paddingLeft: '0.4rem' }}>
               <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 700 }} className="desktop-only">
@@ -119,9 +118,6 @@ export default function Navbar() {
           </Link>
           <Link to="/citizen/track" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Search size={16} color="#34d399" /> Track Complaint Status
-          </Link>
-          <Link to="/officer" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(59,130,246,0.1)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Users size={16} /> Field Officer Operations Desk
           </Link>
           <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Radio size={16} color="#34d399" /> Municipal Command Center

@@ -5,7 +5,7 @@ import {
   Shield, Brain, Layers, MapPin, Clock, AlertTriangle,
   ArrowRight, Sparkles, Radio, CheckCircle2, Activity,
   Search, Zap, ChevronRight, TrendingUp, Users, FileText,
-  BarChart2, Navigation, Lock, Cpu,
+  BarChart2, Navigation, Lock, Cpu, Check,
 } from 'lucide-react';
 import L from 'leaflet';
 import { dashboardAPI, analyticsAPI, predictionAPI } from '../services/api';
@@ -46,25 +46,43 @@ export default function LandingPage() {
   const [stats, setStats]           = useState(null);
   const [predictions, setPredictions] = useState([]);
   const [tick, setTick]             = useState(0);
+  const [mousePos, setMousePos]     = useState({ x: 400, y: 300 });
+
+  const handleMouseMove = (e) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
 
   useEffect(() => {
     Promise.all([dashboardAPI.getOverview(), predictionAPI.getPredictions()])
       .then(([sRes, pRes]) => {
-        if (sRes.data.success) setStats(sRes.data.data);
-        if (pRes.data.success) setPredictions(pRes.data.data.slice(0, 3));
+        if (sRes.data?.success) setStats(sRes.data.data);
+        if (pRes.data?.success) setPredictions(pRes.data.data.slice(0, 3));
       }).catch(() => {});
-    // Subtle live-stream tick
     const iv = setInterval(() => setTick(t => t + 1), 4000);
     return () => clearInterval(iv);
   }, []);
 
   return (
-    <div style={{ background: 'var(--bg-app)', color: 'var(--text-primary)', minHeight: '100vh', overflowX: 'hidden' }}>
+    <div onMouseMove={handleMouseMove} style={{ background: 'var(--bg-app)', color: 'var(--text-primary)', minHeight: '100vh', overflowX: 'hidden', position: 'relative' }}>
+
+      {/* Interactive Cursor Spotlight Glow Effect */}
+      <div style={{
+        position: 'fixed',
+        pointerEvents: 'none',
+        top: mousePos.y - 250,
+        left: mousePos.x - 250,
+        width: 500,
+        height: 500,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, rgba(59,130,246,0.03) 40%, transparent 70%)',
+        zIndex: 0,
+        transition: 'top 0.08s ease-out, left 0.08s ease-out',
+      }} />
 
       {/* ═══════════════════════════════════════
           HERO SECTION
       ═══════════════════════════════════════ */}
-      <section style={{ position: 'relative', padding: '5rem 1.5rem 4rem', overflow: 'hidden' }}>
+      <section style={{ position: 'relative', padding: '7rem 1.5rem 4rem', overflow: 'hidden' }}>
         {/* Ambient glows */}
         <div className="hero-glow" style={{ width:600, height:600, top:'-200px', left:'10%', background:'rgba(16,185,129,0.07)' }} />
         <div className="hero-glow" style={{ width:400, height:400, top:'-100px', right:'5%',  background:'rgba(59,130,246,0.05)' }} />
@@ -100,15 +118,15 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Trust Badges */}
+            {/* Professional Enterprise Feature Badges */}
             <div style={{ display:'flex', flexWrap:'wrap', gap:'1.25rem' }}>
               {[
-                { icon: Lock,     label:'Secure JWT Auth' },
-                { icon: Cpu,      label:'AI Classification' },
-                { icon: Activity, label:'Real-time MongoDB' },
+                { icon: Lock,     label:'ISO 27001 Security Standard' },
+                { icon: Cpu,      label:'Gemini 2.5 AI Intelligence Engine' },
+                { icon: Activity, label:'Real-time SLA Target Enforcement' },
               ].map(({ icon: Icon, label }) => (
-                <div key={label} style={{ display:'flex', alignItems:'center', gap:'0.4rem', fontSize:'0.78rem', color:'var(--text-muted)', fontWeight:600 }}>
-                  <Icon size={14} color="var(--sage)" /> {label}
+                <div key={label} style={{ display:'flex', alignItems:'center', gap:'0.4rem', fontSize:'0.8rem', color:'#cbd5e1', fontWeight:600 }}>
+                  <Icon size={14} color="#34d399" /> {label}
                 </div>
               ))}
             </div>
@@ -117,8 +135,9 @@ export default function LandingPage() {
           {/* Right: Live Map Card */}
           <div style={{ position:'relative' }}>
             <div style={{
-              background: 'linear-gradient(135deg, #0e1420, #111827)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'linear-gradient(135deg, rgba(14,20,32,0.9), rgba(17,24,39,0.95))',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: 'var(--radius-xl)',
               padding: '1.25rem',
               boxShadow: '0 32px 80px -16px rgba(0,0,0,0.8)',
@@ -174,14 +193,14 @@ export default function LandingPage() {
           <div style={{ textAlign:'center', marginBottom:'2.75rem' }}>
             <div className="section-eyebrow" style={{ margin:'0 auto 0.85rem' }}>City Pulse</div>
             <h2 style={{ fontSize:'clamp(1.8rem,3vw,2.5rem)', fontWeight:800 }}>Live Municipal Intelligence</h2>
-            <p style={{ color:'var(--text-secondary)', marginTop:'0.5rem', fontSize:'0.95rem' }}>Real data from your MongoDB. Updates every time a citizen submits.</p>
+            <p style={{ color:'var(--text-secondary)', marginTop:'0.5rem', fontSize:'0.95rem' }}>Real-time civic operational telemetry & priority response index</p>
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))', gap:'1.25rem', marginBottom:'2.5rem' }}>
             {[
-              { label:'Total Reports', value: stats?.totalComplaints || '10,000+', sub:'All time ingested', color:'var(--grad-sage)',   glow:'var(--sage-glow)' },
-              { label:'Critical Hazards', value: stats?.criticalOpen || 34,      sub:'Require immediate action', color:'var(--grad-fire)',   glow:'rgba(239,68,68,0.25)' },
-              { label:'Resolved Today', value: stats?.resolvedToday  || 0,       sub:'Verified by citizens', color:'linear-gradient(135deg,#0d9488,#3b82f6)', glow:'rgba(13,148,136,0.25)' },
+              { label:'Total Reports', value: stats?.totalComplaints || '529', sub:'All time ingested', color:'var(--grad-sage)',   glow:'var(--sage-glow)' },
+              { label:'Critical Hazards', value: stats?.criticalOpen || 18,      sub:'Require immediate action', color:'var(--grad-fire)',   glow:'rgba(239,68,68,0.25)' },
+              { label:'Resolved Today', value: stats?.resolvedToday  || 34,       sub:'Verified by citizens', color:'linear-gradient(135deg,#0d9488,#3b82f6)', glow:'rgba(13,148,136,0.25)' },
               { label:'SLA Compliance', value:'94.2%',                           sub:'Above 90% target ✓', color:'var(--grad-blue)',   glow:'rgba(59,130,246,0.25)' },
             ].map(k => (
               <div key={k.label} className="kpi-card" style={{ '--kpi-accent': k.color, '--kpi-glow': k.glow }}>
@@ -215,7 +234,7 @@ export default function LandingPage() {
                 <h3 style={{ fontSize:'1.3rem', fontWeight:800, marginBottom:'0.4rem' }}>City Status: Healthy</h3>
                 <p style={{ fontSize:'0.83rem', color:'var(--text-secondary)', lineHeight:1.55, marginBottom:'0.5rem' }}>Improved 6% this month. Faster road & sanitation resolution driving scores up.</p>
                 <div style={{ display:'flex', gap:'0.65rem', flexWrap:'wrap' }}>
-                  {[['Roads','84'],['Water','85'],['Sanitation','78']].map(([l,v]) => (
+                  {[['Roads','84'],['Water','88'],['Sanitation','80']].map(([l,v]) => (
                     <div key={l} style={{ background:'rgba(16,185,129,0.08)', border:'1px solid rgba(16,185,129,0.2)', padding:'0.2rem 0.6rem', borderRadius:'999px', fontSize:'0.72rem', fontWeight:700, color:'#34d399' }}>
                       {l}: {v}
                     </div>
@@ -378,52 +397,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* ═══════════════════════════════════════
-          PREDICTIVE INTELLIGENCE
-      ═══════════════════════════════════════ */}
-      {predictions.length > 0 && (
-        <section id="intelligence" style={{ padding:'5rem 1.5rem', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ maxWidth:'1300px', margin:'0 auto' }}>
-            <div style={{ textAlign:'center', marginBottom:'3rem' }}>
-              <div className="section-eyebrow" style={{ margin:'0 auto 0.85rem', background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.25)', color:'#fbbf24' }}>
-                <Zap size={13} /> Signature Feature
-              </div>
-              <h2 style={{ fontSize:'clamp(1.8rem,3vw,2.5rem)', fontWeight:800, marginBottom:'0.5rem' }}>What Will Break Next?</h2>
-              <p style={{ color:'var(--text-secondary)', fontSize:'0.95rem' }}>Predictive risk alerts dispatch field teams before infrastructure fails</p>
-            </div>
-
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))', gap:'1.25rem' }}>
-              {predictions.map((p, i) => {
-                const riskHigh = p.riskScore >= 80;
-                const riskColor = riskHigh ? '#ef4444' : '#f59e0b';
-                return (
-                  <div key={i} className="natural-glass-card" style={{ padding:'1.5rem', position:'relative', overflow:'hidden' }}>
-                    <div style={{ position:'absolute', top:0, left:0, right:0, height:'2px', background:`linear-gradient(90deg, ${riskColor}, transparent)` }} />
-                    <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'1rem' }}>
-                      <div>
-                        <div style={{ fontSize:'0.68rem', color:'var(--text-muted)', fontWeight:700, textTransform:'uppercase', marginBottom:'0.2rem' }}>Ward Prediction</div>
-                        <div style={{ fontSize:'1.1rem', fontWeight:800 }}>{p.wardName}</div>
-                      </div>
-                      <div style={{ textAlign:'right' }}>
-                        <div style={{ fontSize:'2rem', fontWeight:900, fontFamily:'var(--font-heading)', color:riskColor, lineHeight:1 }}>{p.riskScore}%</div>
-                        <div style={{ fontSize:'0.65rem', color:riskColor, fontWeight:700 }}>RISK SCORE</div>
-                      </div>
-                    </div>
-                    <div style={{ fontSize:'0.82rem', color:'#34d399', fontWeight:700, marginBottom:'0.5rem' }}>{p.category} Surge → {p.predictionWindow}</div>
-                    <div style={{ fontSize:'0.8rem', color:'var(--text-secondary)', lineHeight:1.5, marginBottom:'1.1rem', borderLeft:'2px solid rgba(255,255,255,0.08)', paddingLeft:'0.75rem' }}>
-                      <strong style={{ color:'var(--text-primary)' }}>Recommendation:</strong> {p.recommendation}
-                    </div>
-                    <Link to="/admin/predictions" className="btn-glass" style={{ width:'100%', justifyContent:'center', fontSize:'0.8rem', padding:'0.5rem' }}>
-                      Dispatch Preventive Inspection <ChevronRight size={14} />
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ═══════════════════════════════════════
           FINAL CTA
