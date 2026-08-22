@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import L from 'leaflet';
 import { complaintAPI, aiAPI } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 const pinIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -37,6 +38,7 @@ const STEPS = [
 
 export default function ReportComplaint() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [step, setStep] = useState(1);
 
   // Form fields
@@ -226,28 +228,28 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <FileText size={12} /> Step 1 of 4 — Describe the Problem
+                  <FileText size={12} /> {t('stepProblem')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>What's the issue?</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('reportHeaderTitle')}</h2>
               </div>
 
               <div>
-                <label className="form-label">Complaint Title *</label>
+                <label className="form-label">{t('issueTitleLabel')} *</label>
                 <input
                   type="text"
                   className="form-input-dark"
-                  placeholder="e.g. Streetlight out near college main gate"
+                  placeholder={t('issueTitlePlace')}
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="form-label">Detailed Description *</label>
+                <label className="form-label">{t('descLabel')} *</label>
                 <textarea
                   className="form-input-dark"
                   rows={4}
-                  placeholder="Describe what you saw — exact location, hazards, when it started..."
+                  placeholder={t('descPlace')}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   style={{ resize: 'vertical', minHeight: '100px' }}
@@ -277,14 +279,14 @@ export default function ReportComplaint() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label className="form-label">Category</label>
+                  <label className="form-label">{t('catLabel')}</label>
                   <select className="form-input-dark" value={category} onChange={e => setCategory(e.target.value)}>
-                    <option value="">Select Category</option>
+                    <option value="">{t('catLabel')}</option>
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">Ward Number</label>
+                  <label className="form-label">{t('wardLabel')}</label>
                   <select className="form-input-dark" value={ward} onChange={e => setWard(e.target.value)}>
                     {Array.from({ length: 20 }, (_, i) => (
                       <option key={i+1} value={i+1}>Ward {i+1}</option>
@@ -296,7 +298,7 @@ export default function ReportComplaint() {
               {/* Photo Evidence Section with Camera & File Upload */}
               <div style={{ background: '#0a0d14', border: '1px solid rgba(255,255,255,0.1)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
                 <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#34d399', fontWeight: 700 }}>
-                  <Camera size={16} /> Capture or Upload Photo Evidence (Optional)
+                  <Camera size={16} /> {t('photoLabel')} (Optional)
                 </label>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
                   <label className="btn-sage" style={{ cursor: 'pointer', padding: '0.5rem 1rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -326,7 +328,7 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <MapPin size={12} /> Step 2 of 4 — Pin the Location
+                  <MapPin size={12} /> {t('stepLocation')}
                 </div>
                 <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Where is the problem?</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Click on the map to pin the exact location, or use your GPS.</p>
@@ -368,7 +370,7 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <User size={12} /> Step 3 of 4 — Contact Info (Optional)
+                  <User size={12} /> {t('stepContact')}
                 </div>
                 <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Who are you?</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Anonymous submissions are accepted. Contact info helps us send you resolution alerts.</p>
@@ -404,7 +406,7 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <CheckCircle2 size={12} /> Step 4 of 4 — Review & Submit
+                  <CheckCircle2 size={12} /> {t('stepConfirm')}
                 </div>
                 <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Confirm your report</h2>
               </div>
@@ -442,7 +444,7 @@ export default function ReportComplaint() {
 
             {step < 4 ? (
               <button type="button" onClick={goNext} className="btn-sage" style={{ fontSize: '0.9rem', padding: '0.7rem 1.75rem' }}>
-                Continue <ArrowRight size={16} />
+                {t('nextBtn')} <ArrowRight size={16} />
               </button>
             ) : (
               <button
@@ -455,10 +457,10 @@ export default function ReportComplaint() {
                 {submitting ? (
                   <>
                     <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.8s linear infinite' }} />
-                    Submitting to Municipal OS...
+                    Submitting...
                   </>
                 ) : (
-                  <><Send size={16} /> Submit Complaint</>
+                  <><Send size={16} /> {t('submitBtn')}</>
                 )}
               </button>
             )}
