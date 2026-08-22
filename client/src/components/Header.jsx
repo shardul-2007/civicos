@@ -15,49 +15,52 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
     <header style={{
       background: '#0c101a',
       borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-      padding: '1rem 1.5rem',
+      padding: '0.75rem 1rem',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       flexWrap: 'wrap',
-      gap: '1rem',
+      gap: '0.65rem',
       position: 'sticky',
       top: 0,
+      width: '100%',
+      maxWidth: '100vw',
+      boxSizing: 'border-box',
       zIndex: 900,
     }}>
       {/* Left Title & Mobile/Desktop Menu Toggle Button */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', maxWidth: '100%' }}>
         <button
           onClick={onToggleMobileSidebar}
           style={{
             background: 'rgba(255,255,255,0.08)',
             border: '1px solid rgba(255,255,255,0.15)',
             color: '#ffffff',
-            padding: '0.5rem',
+            padding: '0.45rem',
             borderRadius: '0.5rem',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'background 0.2s',
+            flexShrink: 0,
           }}
           title="Toggle Navigation Menu"
         >
-          <Menu size={22} />
+          <Menu size={20} />
         </button>
 
-        <div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>
-            {title || 'CivicOS Municipal Operating System'}
+        <div style={{ overflow: 'hidden' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {title || 'CivicOS Operating System'}
           </h2>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-            Good evening, {user?.name || 'Chief Officer Rajesh Kumar'} • Here's what is happening across your city today.
+          <div className="desktop-only" style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+            Good evening, {user?.name || 'Chief Officer Rajesh Kumar'} • City Operations Overview
           </div>
         </div>
       </div>
 
-      {/* Quick Search & Actions */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap', position: 'relative' }}>
+      {/* Quick Search & Actions Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', position: 'relative', maxWidth: '100%' }}>
         
         {/* Global Search Bar (Triggers Ctrl+K Command Palette) */}
         <button
@@ -65,20 +68,20 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
+            gap: '0.4rem',
             background: '#0f141f',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            padding: '0.45rem 0.85rem',
+            padding: '0.4rem 0.65rem',
             borderRadius: '0.5rem',
             color: '#94a3b8',
-            fontSize: '0.85rem',
+            fontSize: '0.8rem',
             cursor: 'pointer',
-            minWidth: '200px',
+            maxWidth: '180px',
           }}
         >
-          <Search size={15} />
-          <span style={{ flex: 1, textAlign: 'left' }}>Search complaints, wards...</span>
-          <kbd style={{ background: '#121722', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#cbd5e1', borderRadius: '4px', padding: '0.1rem 0.35rem', fontSize: '0.7rem', fontWeight: 700 }}>
+          <Search size={14} />
+          <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Search...</span>
+          <kbd className="desktop-only" style={{ background: '#121722', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#cbd5e1', borderRadius: '4px', padding: '0.1rem 0.3rem', fontSize: '0.65rem', fontWeight: 700 }}>
             Ctrl K
           </kbd>
         </button>
@@ -87,10 +90,11 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
         <button
           onClick={onOpenExport}
           className="btn-glass"
-          style={{ padding: '0.45rem 0.85rem', fontSize: '0.85rem' }}
+          style={{ padding: '0.4rem 0.65rem', fontSize: '0.8rem' }}
           title="Export Municipal Report"
         >
-          <FileSpreadsheet size={16} /> Export Report
+          <FileSpreadsheet size={15} />
+          <span className="desktop-only">Export</span>
         </button>
 
         {/* Notifications Trigger */}
@@ -100,24 +104,25 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
             position: 'relative',
             background: '#0f141f',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            width: '38px',
-            height: '38px',
+            width: '36px',
+            height: '36px',
             borderRadius: '0.5rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#cbd5e1',
             cursor: 'pointer',
+            flexShrink: 0,
           }}
           title="Notifications"
         >
-          <Bell size={18} />
-          <span style={{ position: 'absolute', top: '6px', right: '6px', width: '8px', height: '8px', background: '#ef4444', borderRadius: '50%' }}></span>
+          <Bell size={16} />
+          <span style={{ position: 'absolute', top: '5px', right: '5px', width: '7px', height: '7px', background: '#ef4444', borderRadius: '50%' }}></span>
         </button>
 
         {/* Quick Report Issue Button */}
-        <Link to="/report" className="btn-sage" style={{ padding: '0.45rem 0.9rem', fontSize: '0.85rem', textDecoration: 'none' }}>
-          <Plus size={16} /> Report Problem
+        <Link to="/report" className="btn-sage" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          <Plus size={15} /> <span className="desktop-only">Report</span>
         </Link>
 
         {/* User Badge Avatar Button (Interactive Modal Trigger) */}
@@ -125,8 +130,8 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
           <button
             onClick={() => setUserDropdownOpen(!userDropdownOpen)}
             style={{
-              width: '38px',
-              height: '38px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
               color: 'white',
@@ -134,11 +139,11 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
               alignItems: 'center',
               justifyContent: 'center',
               fontWeight: 800,
-              fontSize: '1rem',
+              fontSize: '0.9rem',
               border: '2px solid rgba(16, 185, 129, 0.5)',
-              boxShadow: '0 0 12px rgba(16, 185, 129, 0.3)',
+              boxShadow: '0 0 10px rgba(16, 185, 129, 0.3)',
               cursor: 'pointer',
-              transition: 'transform 0.2s ease',
+              flexShrink: 0,
             }}
             title="User Profile & Quick Actions"
           >
@@ -149,38 +154,38 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
           {userDropdownOpen && (
             <div style={{
               position: 'absolute',
-              top: '50px',
+              top: '46px',
               right: 0,
-              width: '260px',
+              width: '240px',
               background: '#121722',
               border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: '0.75rem',
               boxShadow: '0 20px 40px rgba(0, 0, 0, 0.8)',
-              padding: '1rem',
+              padding: '0.85rem',
               zIndex: 1100,
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.85rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#059669', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.75rem', paddingBottom: '0.65rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#059669', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1rem' }}>
                   {initial}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '0.9rem' }}>
+                  <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '0.85rem' }}>
                     {user?.name || 'Chief Officer Rajesh Kumar'}
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 700, textTransform: 'uppercase' }}>
+                  <div style={{ fontSize: '0.7rem', color: '#34d399', fontWeight: 700, textTransform: 'uppercase' }}>
                     {role} • Ward 14
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '0.85rem' }}>
-                <Link to="/officer" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.82rem', padding: '0.4rem 0.6rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.75rem' }}>
+                <Link to="/officer" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.8rem', padding: '0.35rem 0.5rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                   <Shield size={14} color="#60a5fa" /> Field Officer Desk
                 </Link>
-                <Link to="/admin" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.82rem', padding: '0.4rem 0.6rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Link to="/admin" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.8rem', padding: '0.35rem 0.5rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                   <Sparkles size={14} color="#34d399" /> Command Overview
                 </Link>
-                <Link to="/report" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.82rem', padding: '0.4rem 0.6rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Link to="/report" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.8rem', padding: '0.35rem 0.5rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
                   <Plus size={14} color="#f59e0b" /> Report Civic Problem
                 </Link>
               </div>
@@ -192,7 +197,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
                   navigate('/login');
                 }}
                 className="btn-glass"
-                style={{ width: '100%', justifyContent: 'center', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.3)', fontSize: '0.8rem', padding: '0.4rem' }}
+                style={{ width: '100%', justifyContent: 'center', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.3)', fontSize: '0.78rem', padding: '0.35rem' }}
               >
                 <LogOut size={14} /> Log Out
               </button>
