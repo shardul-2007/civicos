@@ -24,6 +24,14 @@ const markersBySeverity = {
   LOW:      createCustomMarker('#10b981'),
 };
 
+const LIVE_STREAM = [
+  { time:'09:42', text:'AI classified road complaint as HIGH priority — safety risk flagged.',       cat:'AI Classification', color:'#f97316' },
+  { time:'09:39', text:'3 nearby pothole complaints merged into Incident Cluster #INC-1042.',        cat:'Clustering',        color:'#8b5cf6' },
+  { time:'09:35', text:'Water pipeline cluster detected in Ward 14 — 37 citizen reports ingested.',  cat:'Hotspot Alert',     color:'#ef4444' },
+  { time:'09:31', text:'Complaint #CIV-2847 auto-routed to Public Works & Sanitation Department.',   cat:'Department Routing',color:'#10b981' },
+  { time:'09:27', text:'4 complaints predicted to breach SLA within 2 hours — escalating now.',      cat:'SLA Alert',         color:'#f59e0b' },
+];
+
 export default function LandingPage() {
   const { t } = useLanguage();
   const [stats, setStats] = useState({ totalComplaints: 1420, activeIncidents: 38, slaBreached: 4, resolvedToday: 114, resolutionRate: '96.2%' });
