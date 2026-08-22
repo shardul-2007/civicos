@@ -826,3 +826,58 @@ h1,h2,h3,h4,h5,h6 {
   .admin-overview-main-grid { grid-template-columns: 1fr !important; }
   .tablet-2-col             { grid-template-columns: repeat(2,1fr) !important; }
 }
+
+/* ─────────────────────────────────
+   WHITE & BLUE LIGHT THEME SYSTEM
+───────────────────────────────── */
+body.light-theme,
+body.light-theme #root,
+body.light-theme .app-shell,
+body.light-theme .main-wrapper,
+body.light-theme main {
+  background-color: #f8fafc !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+body.light-theme header,
+body.light-theme nav,
+body.light-theme aside,
+body.light-theme .sidebar,
+body.light-theme .kpi-card,
+body.light-theme .natural-glass-card,
+body.light-theme .glass-drawer-content,
+body.light-theme .form-input-dark {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light-theme h1,
+body.light-theme h2,
+body.light-theme h3,
+body.light-theme h4,
+body.light-theme h5,
+body.light-theme h6,
+body.light-theme strong,
+body.light-theme b,
+body.light-theme .sidebar-nav-item {
+  color: #0f172a !important;
+}
+
+body.light-theme p,
+body.light-theme span,
+body.light-theme td,
+body.light-theme th,
+body.light-theme label {
+  color: #334155 !important;
+}
+
+body.light-theme button:not(.btn-sage),
+body.light-theme .btn-glass,
+body.light-theme select {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
