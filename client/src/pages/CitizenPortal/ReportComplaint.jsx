@@ -195,10 +195,10 @@ export default function ReportComplaint() {
             <FileText size={26} />
           </div>
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.5rem' }}>
-            Report a Civic Problem
+            {t('reportHeaderTitle')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '500px', margin: '0 auto' }}>
-            Under 60 seconds. AI classifies severity, routes to the right department, and generates a live tracking code.
+            {t('reportHeaderSub')}
           </p>
         </div>
 

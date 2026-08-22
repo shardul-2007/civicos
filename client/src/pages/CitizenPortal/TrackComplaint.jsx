@@ -148,10 +148,10 @@ export default function TrackComplaint() {
             <ShieldCheck size={28} />
           </div>
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.4rem' }}>
-            Track Your Complaint Status
+            {t('trackHeaderTitle')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-            Enter your Municipal Tracking Code (e.g. <span style={{ fontFamily: 'var(--font-mono)', color: '#34d399' }}>CIV-138987-644E</span>)
+            {t('trackHeaderSub')}
           </p>
 
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.6rem', maxWidth: '560px', margin: '0 auto', flexWrap: 'wrap' }}>

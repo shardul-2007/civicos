@@ -10,6 +10,7 @@ import {
 import L from 'leaflet';
 import { dashboardAPI, analyticsAPI, predictionAPI } from '../services/api';
 import AiAssistantDrawer from '../components/AiAssistantDrawer';
+import { useLanguage } from '../context/LanguageContext';
 
 const createCustomMarker = (color) => L.divIcon({
   className: '',
@@ -23,44 +24,47 @@ const markersBySeverity = {
   LOW:      createCustomMarker('#10b981'),
 };
 
-const WORKFLOW_STEPS = [
-  { num:'01', icon: FileText,    title: 'Citizen Report',       desc: 'Submit with photo & GPS pin on map',            color: '#10b981' },
-  { num:'02', icon: Brain,       title: 'AI Classification',    desc: 'LLM extracts category, severity & safety risk', color: '#3b82f6' },
-  { num:'03', icon: Layers,      title: 'Duplicate Detection',  desc: 'Haversine clusters nearby reports (≤500m)',     color: '#8b5cf6' },
-  { num:'04', icon: AlertTriangle,title:'Priority Scoring',     desc: 'Deterministic 0–100 urgency formula',           color: '#f59e0b' },
-  { num:'05', icon: Radio,       title: 'Department Routing',   desc: 'Auto-assigned to correct municipal dept',       color: '#0d9488' },
-  { num:'06', icon: Clock,       title: 'SLA Countdown',        desc: 'Category-based deadline enforcement',           color: '#ef4444' },
-  { num:'07', icon: Navigation,  title: 'Field Resolution',     desc: 'Officer dispatched with GPS navigation',        color: '#f97316' },
-  { num:'08', icon: CheckCircle2,title: 'Citizen Verified',     desc: 'Citizen confirms fix or reopens the issue',     color: '#34d399' },
-];
-
-const LIVE_STREAM = [
-  { time:'09:42', text:'AI classified road complaint as HIGH priority — safety risk flagged.',       cat:'AI Classification', color:'#f97316' },
-  { time:'09:39', text:'3 nearby pothole complaints merged into Incident Cluster #INC-1042.',        cat:'Clustering',        color:'#8b5cf6' },
-  { time:'09:35', text:'Water pipeline cluster detected in Ward 14 — 37 citizen reports ingested.',  cat:'Hotspot Alert',     color:'#ef4444' },
-  { time:'09:31', text:'Complaint #CIV-2847 auto-routed to Public Works & Sanitation Department.',   cat:'Department Routing',color:'#10b981' },
-  { time:'09:27', text:'4 complaints predicted to breach SLA within 2 hours — escalating now.',      cat:'SLA Alert',         color:'#f59e0b' },
-];
-
 export default function LandingPage() {
-  const [stats, setStats]           = useState(null);
-  const [predictions, setPredictions] = useState([]);
-  const [tick, setTick]             = useState(0);
-  const [mousePos, setMousePos]     = useState({ x: 400, y: 300 });
+  const { t } = useLanguage();
+  const [stats, setStats] = useState({ totalComplaints: 1420, activeIncidents: 38, slaBreached: 4, resolvedToday: 114, resolutionRate: '96.2%' });
+  const [mapComplaints, setMapComplaints] = useState([]);
+  const [tick, setTick] = useState(0);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
 
   const handleMouseMove = (e) => {
     setMousePos({ x: e.clientX, y: e.clientY });
   };
 
   useEffect(() => {
-    Promise.all([dashboardAPI.getOverview(), predictionAPI.getPredictions()])
-      .then(([sRes, pRes]) => {
-        if (sRes.data?.success) setStats(sRes.data.data);
-        if (pRes.data?.success) setPredictions(pRes.data.data.slice(0, 3));
+    dashboardAPI.getOverview()
+      .then((res) => {
+        if (res.data?.success && res.data.data) {
+          const d = res.data.data;
+          setStats({
+            totalComplaints: d.totalComplaints || 1420,
+            activeIncidents: d.pendingComplaints || 38,
+            slaBreached: d.slaBreachedCount || 4,
+            resolvedToday: d.resolvedCount || 114,
+            resolutionRate: d.resolutionRate || '96.2%',
+          });
+          setMapComplaints(d.recentComplaints || []);
+        }
       }).catch(() => {});
     const iv = setInterval(() => setTick(t => t + 1), 4000);
     return () => clearInterval(iv);
   }, []);
+
+  const WORKFLOW_STEPS = [
+    { num:'01', icon: FileText,    title: t('step1Title'), desc: t('step1Desc'), color: '#10b981' },
+    { num:'02', icon: Brain,       title: t('step2Title'), desc: t('step2Desc'), color: '#3b82f6' },
+    { num:'03', icon: Layers,      title: t('step3Title'), desc: t('step3Desc'), color: '#8b5cf6' },
+    { num:'04', icon: AlertTriangle,title: t('step4Title'), desc: t('step4Desc'), color: '#f59e0b' },
+    { num:'05', icon: Navigation,  title: t('step5Title'), desc: t('step5Desc'), color: '#14b8a6' },
+    { num:'06', icon: Clock,       title: t('step6Title'), desc: t('step6Desc'), color: '#ef4444' },
+    { num:'07', icon: MapPin,      title: t('step7Title'), desc: t('step7Desc'), color: '#f97316' },
+    { num:'08', icon: CheckCircle2,title: t('step8Title'), desc: t('step8Desc'), color: '#10b981' },
+  ];
 
   return (
     <div onMouseMove={handleMouseMove} style={{ background: 'var(--bg-app)', color: 'var(--text-primary)', minHeight: '100vh', overflowX: 'hidden', position: 'relative' }}>
@@ -85,39 +89,36 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════
           HERO SECTION
       ═══════════════════════════════════════ */}
-      <section style={{ position: 'relative', padding: '7rem 1.5rem 4rem', overflow: 'hidden' }}>
-        {/* Ambient glows */}
+      <section style={{ position: 'relative', padding: '6rem 1.5rem 4rem', overflow: 'hidden' }}>
         <div className="hero-glow" style={{ width:600, height:600, top:'-200px', left:'10%', background:'rgba(16,185,129,0.07)' }} />
         <div className="hero-glow" style={{ width:400, height:400, top:'-100px', right:'5%',  background:'rgba(59,130,246,0.05)' }} />
 
-        <div style={{ maxWidth:'1300px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(440px,1fr))', gap:'3rem', alignItems:'center', position:'relative', zIndex:1 }}>
+        <div style={{ maxWidth:'1300px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(320px,1fr))', gap:'3rem', alignItems:'center', position:'relative', zIndex:1 }}>
 
           {/* Left: Hero Copy */}
           <div>
             <div className="section-eyebrow" style={{ marginBottom:'1.5rem' }}>
               <span className="pulse-dot" />
-              AI-Powered Municipal Operating System
+              {t('heroBadge')}
             </div>
 
-            <h1 style={{ fontSize:'clamp(2.4rem,4.5vw,3.75rem)', fontWeight:900, lineHeight:1.1, marginBottom:'1.25rem', fontFamily:'var(--font-heading)' }}>
-              From citizen<br />
-              reports to{' '}
-              <span className="gradient-text">city intelligence.</span>
+            <h1 style={{ fontSize:'clamp(2.2rem,4.5vw,3.5rem)', fontWeight:900, lineHeight:1.1, marginBottom:'1.25rem', fontFamily:'var(--font-heading)' }}>
+              {t('heroTitle')}
             </h1>
 
             <p style={{ fontSize:'1.05rem', color:'var(--text-secondary)', maxWidth:'540px', marginBottom:'2.25rem', lineHeight:1.7 }}>
-              CivicOS transforms every civic complaint into prioritised incidents, live geospatial intelligence, coordinated field action, and verified resolution — end-to-end.
+              {t('heroSubtitle')}
             </p>
 
             <div style={{ display:'flex', flexWrap:'wrap', gap:'0.85rem', marginBottom:'2.5rem' }}>
               <Link to="/report" className="btn-sage" style={{ padding:'0.85rem 2rem', fontSize:'0.95rem' }}>
-                Report an Issue <ArrowRight size={17} />
+                {t('reportIssueBtn')} <ArrowRight size={17} />
               </Link>
               <Link to="/admin" className="btn-glass" style={{ padding:'0.85rem 1.75rem', fontSize:'0.95rem' }}>
-                <Radio size={16} color="#34d399" /> Command Center
+                <Radio size={16} color="#34d399" /> {t('commandCenterBtn')}
               </Link>
               <Link to="/citizen/track" className="btn-glass" style={{ padding:'0.85rem 1.75rem', fontSize:'0.95rem' }}>
-                <Search size={16} /> Track Complaint
+                <Search size={16} /> {t('trackIssueBtn')}
               </Link>
             </div>
 
