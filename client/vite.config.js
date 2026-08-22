@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: './', // Ensures relative asset paths work seamlessly on GitHub Pages
+  base: '/', // Mandatory for Vercel Single Page Apps with React Router deep routes
 
   server: {
     port: 5173,

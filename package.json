@@ -11,10 +11,10 @@
     "url": "git+https://github.com/shardul-2007/civicos.git"
   },
   "license": "ISC",
-  "author": "",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "server/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "cd client && npm install && npm run build",
+    "start": "node server/server.js"
   }
 }
