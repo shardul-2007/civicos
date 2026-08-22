@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { dashboardAPI } from '../../services/api';
 import { Activity, AlertTriangle, CheckCircle2, Clock, MapPin, TrendingUp, Zap, ArrowRight, Shield, ShieldAlert, Sparkles, Filter, Eye } from 'lucide-react';
 import ComplaintQuickViewDrawer from '../../components/ComplaintQuickViewDrawer';
+import { useLanguage } from '../../context/LanguageContext';
 
 const fallbackOverviewData = {
   totalComplaints: 529,
@@ -99,6 +100,7 @@ const fallbackOverviewData = {
 };
 
 export default function Overview() {
+  const { t } = useLanguage();
   const [data, setData] = useState(fallbackOverviewData);
   const [loading, setLoading] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
@@ -132,13 +134,13 @@ export default function Overview() {
       {/* Top Welcome Title */}
       <div style={{ marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff' }}>City Operations Overview</h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Real-time civic health, priority actions, and municipal intelligence stream</p>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff' }}>{t('overviewTitle')}</h1>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{t('overviewSub')}</p>
         </div>
 
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <Link to="/map" className="btn-sage" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-            <MapPin size={16} /> Open City Map
+            <MapPin size={16} /> {t('mapViewTitle')}
           </Link>
         </div>
       </div>
@@ -147,16 +149,16 @@ export default function Overview() {
       <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '0.75rem', padding: '1.25rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#f87171', fontWeight: 800, fontSize: '0.95rem' }}>
-            <ShieldAlert size={20} /> DEMO SCENARIO: Ward 12 Water Pipeline Failure
+            <ShieldAlert size={20} /> {t('demoScenario')}
           </div>
           <span className="badge badge-critical">CRITICAL INCIDENT #INC-1042</span>
         </div>
         <p style={{ fontSize: '0.85rem', color: '#fca5a5', lineHeight: 1.5, marginBottom: '0.75rem' }}>
-          <strong>37 citizen reports</strong> aggregated within 500m radius in Ward 12. Priority Score <strong>91/100</strong>. SLA countdown active (04:00:00). Auto-assigned to Water Department & Field Inspector Rajesh.
+          {t('demoDesc')}
         </p>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <button onClick={() => setSelectedComplaint(needsAttention?.[0] || { trackingCode: 'CIV-2847', title: 'Water Main Pipeline Burst', severity: 'CRITICAL', priorityScore: 91, ward: 12, category: 'Water Infrastructure', departmentName: 'Water Department', description: 'Water is leaking continuously near Ward 12 bus stop.', address: 'Ward 12 Main Road', incidentCluster: true })} className="btn-sage" style={{ background: '#ef4444', padding: '0.4rem 0.85rem', fontSize: '0.8rem' }}>
-            Inspect Incident Cluster #INC-1042
+            {t('inspectBtn')}
           </button>
         </div>
       </div>
@@ -165,12 +167,12 @@ export default function Overview() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
 
         {[
-          { label:'Total Reports',      value: totalComplaints?.toLocaleString() || '529', sub:'↑ 12.4% this week',        accent:'var(--grad-sage)',   glow:'var(--sage-glow)',            valColor:'var(--text-primary)' },
-          { label:'Open Queue',         value: open?.toLocaleString() || '142',             sub:'Active field dispatch',    accent:'var(--grad-blue)',   glow:'var(--blue-glow)',            valColor:'var(--text-primary)' },
-          { label:'Critical Hazards',   value: critical || '18',                           sub:'Need immediate action',   accent:'var(--grad-fire)',   glow:'rgba(239,68,68,0.25)',        valColor:'#f87171' },
-          { label:'Resolved Today',     value: resolvedToday || 34,                        sub:'Verified resolutions',    accent:'var(--grad-sage)',   glow:'var(--sage-glow)',            valColor:'#34d399' },
-          { label:'SLA At Risk',        value: slaAtRisk || '12',                          sub:'Near deadline (80%+)',    accent:'var(--grad-amber)',  glow:'rgba(245,158,11,0.25)',       valColor:'#fbbf24' },
-          { label:'Avg Resolution',     value: avgResolutionTime || '14.2h',               sub:'↓ 2.1h faster this month',accent:'linear-gradient(135deg,#0d9488,#3b82f6)', glow:'var(--teal-glow)', valColor:'var(--text-primary)' },
+          { label: t('totalComplaints') || 'Total Reports',      value: totalComplaints?.toLocaleString() || '529', sub:'↑ 12.4% this week',        accent:'var(--grad-sage)',   glow:'var(--sage-glow)',            valColor:'var(--text-primary)' },
+          { label: t('activeIncidents') || 'Open Queue',         value: open?.toLocaleString() || '142',             sub:'Active field dispatch',    accent:'var(--grad-blue)',   glow:'var(--blue-glow)',            valColor:'var(--text-primary)' },
+          { label: t('step4Title') || 'Critical Hazards',   value: critical || '18',                           sub:'Need immediate action',   accent:'var(--grad-fire)',   glow:'rgba(239,68,68,0.25)',        valColor:'#f87171' },
+          { label: t('resolvedTodayCount') || 'Resolved Today',     value: resolvedToday || 34,                        sub:'Verified resolutions',    accent:'var(--grad-sage)',   glow:'var(--sage-glow)',            valColor:'#34d399' },
+          { label: t('slaBreached') || 'SLA At Risk',        value: slaAtRisk || '12',                          sub:'Near deadline (80%+)',    accent:'var(--grad-amber)',  glow:'rgba(245,158,11,0.25)',       valColor:'#fbbf24' },
+          { label: t('resolutionRatePct') || 'Avg Resolution',     value: avgResolutionTime || '14.2h',               sub:'↓ 2.1h faster this month',accent:'linear-gradient(135deg,#0d9488,#3b82f6)', glow:'var(--teal-glow)', valColor:'var(--text-primary)' },
         ].map(k => (
           <div key={k.label} className="kpi-card" style={{ '--kpi-accent': k.accent, '--kpi-glow': k.glow }}>
             <div style={{ fontSize: '0.67rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.55rem' }}>{k.label}</div>

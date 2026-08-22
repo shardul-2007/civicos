@@ -81,13 +81,42 @@ export const TRANSLATIONS = {
     yesBtn: "Yes, Issue Resolved",
     noBtn: "No, Reopen Complaint",
 
-    // Dashboard Overview
-    totalComplaints: "Total Complaints",
-    activeIncidents: "Active Field Incidents",
+    // Admin Overview Dashboard
+    overviewTitle: "City Operations Overview",
+    overviewSub: "Real-time civic health, priority actions, and municipal intelligence stream",
+    demoScenario: "DEMO SCENARIO: Ward 12 Water Pipeline Failure",
+    demoDesc: "37 citizen reports aggregated within 500m radius in Ward 12. Priority Score 91/100. SLA countdown active (04:00:00). Auto-routed to Water Department & Field Inspector Rajesh.",
+    inspectBtn: "Inspect Incident Cluster #INC-1042",
+    totalIngested: "Total Ingested",
+    activeIncidents: "Active Incidents",
     slaBreached: "SLA Breached",
-    resolvedRate: "Resolution Rate",
+    resolvedTodayCount: "Resolved Today",
+    resolutionRatePct: "Resolution Rate",
     recentIncidents: "Recent Municipal Complaints",
-    mapViewTitle: "Geospatial Intelligence Map",
+    mapViewTitle: "Smart City Geospatial Command",
+    deptWorkloadRadar: "Department Workload Radar",
+    slaCountdownRadar: "SLA Compliance Countdown",
+    liveAiStream: "Live AI Event Stream",
+
+    // Department Oversight
+    deptEyebrow: "MUNICIPAL DEPARTMENT OVERSIGHT",
+    deptTitle: "Regional Workload & Operating Intelligence",
+    deptSub: "Live capacity tracking, assigned complaints, SLA compliance rates, and active personnel across all municipal departments.",
+
+    // SLA Monitor
+    slaEyebrow: "SERVICE LEVEL AGREEMENT MONITORING",
+    slaTitle: "Real-time SLA Target & Escalation Radar",
+    slaSub: "Category-based deadline enforcement, live countdown timers, and automated breach prevention alerts.",
+
+    // City Analytics
+    analyticsEyebrow: "MUNICIPAL DATA ANALYTICS",
+    analyticsTitle: "City-Wide Performance Metrics",
+    analyticsSub: "Historical complaint trends, ward-level resolution efficiency, and department capacity benchmarks.",
+
+    // Field Officer Desk
+    officerEyebrow: "FIELD OFFICER DISPATCH COMMAND",
+    officerTitle: "Active Incident Dispatch Queue",
+    officerSub: "Manage assigned tasks, update work status, upload proof photos, and confirm field resolution.",
 
     // Footer
     copyright: "© 2026 CivicOS Municipal Operating System. All Rights Reserved.",
@@ -171,13 +200,42 @@ export const TRANSLATIONS = {
     yesBtn: "हाँ, समस्या हल हो गई",
     noBtn: "नहीं, शिकायत पुनः खोलें",
 
-    // Dashboard Overview
-    totalComplaints: "कुल शिकायतें",
+    // Admin Overview Dashboard
+    overviewTitle: "नगर निगम संचालन अवलोकन",
+    overviewSub: "रियल-टाइम नागरिक स्वास्थ्य, प्राथमिकता वाली कार्रवाईयां और नगर निगम इंटेलिजेंस स्ट्रीम",
+    demoScenario: "डेमो परिदृश्य: वार्ड 12 जल पाइपलाइन विफलता",
+    demoDesc: "वार्ड 12 में 500 मीटर के दायरे में 37 नागरिक रिपोर्टें एकत्र की गईं। प्राथमिकता स्कोर 91/100। एसएलए काउंटडाउन सक्रिय (04:00:00)। जल विभाग और फील्ड इंस्पेक्टर राजेश को स्वचालित रूप से आवंटित।",
+    inspectBtn: "घटना क्लस्टर #INC-1042 का निरीक्षण करें",
+    totalIngested: "कुल दर्ज शिकायतें",
     activeIncidents: "सक्रिय फील्ड मामले",
     slaBreached: "समय-सीमा उल्लंघन",
-    resolvedRate: "समाधान दर",
+    resolvedTodayCount: "आज हल की गई शिकायतें",
+    resolutionRatePct: "समाधान दर",
     recentIncidents: "हाल की नगर निगम शिकायतें",
-    mapViewTitle: "जीियोस्पेशियल इंटेलिजेंस मानचित्र",
+    mapViewTitle: "स्मार्ट सिटी जीियोस्पेशियल कमांड",
+    deptWorkloadRadar: "विभाग कार्यभार रडार",
+    slaCountdownRadar: "समय-सीमा अनुपालन काउंटडाउन",
+    liveAiStream: "लाइव एआई इवेंट स्ट्रीम",
+
+    // Department Oversight
+    deptEyebrow: "नगर निगम विभाग निगरानी",
+    deptTitle: "क्षेत्रीय कार्यभार और संचालन इंटेलिजेंस",
+    deptSub: "सभी नगर निगम विभागों में लाइव क्षमता ट्रैकिंग, आवंटित शिकायतें, और सक्रिय कर्मचारी।",
+
+    // SLA Monitor
+    slaEyebrow: "सेवा स्तर समझौता निगरानी",
+    slaTitle: "लाइव समय-सीमा लक्ष्य और एस्केलेशन रडार",
+    slaSub: "श्रेणी-आधारित समय सीमा प्रवर्तन, लाइव काउंटडाउन टाइमर, और स्वचालित उल्लंघन निवारण चेतावनियां।",
+
+    // City Analytics
+    analyticsEyebrow: "नगर निगम डेटा विश्लेषिकी",
+    analyticsTitle: "शहर-स्तरीय प्रदर्शन मेट्रिक्स",
+    analyticsSub: "ऐतिहासिक शिकायत रुझान, वार्ड-स्तरीय समाधान दक्षता, और विभाग क्षमता मानदंड।",
+
+    // Field Officer Desk
+    officerEyebrow: "फील्ड अधिकारी प्रेषण कमांड",
+    officerTitle: "सक्रिय घटना प्रेषण कतार",
+    officerSub: "आवंटित कार्यों का प्रबंधन करें, कार्य स्थिति अपडेट करें, फोटो अपलोड करें और समाधान की पुष्टि करें।",
 
     // Footer
     copyright: "© 2026 सिविक-ओएस नगर निगम ऑपरेटिंग सिस्टम। सर्वाधिकार सुरक्षित।",
@@ -203,7 +261,7 @@ export const TRANSLATIONS = {
     selectLang: "भाषा निवडा",
 
     // Hero & Landing Page
-    heroBadge: "एआय-संचालित महानगरपालिका ऑपरेटिंग सिस्टीम",
+    heroBadge: "एआई-संचालित महानगरपालिका ऑपरेटिंग सिस्टीम",
     heroTitle: "नागरिकांच्या तक्रारींपासून शहराच्या बुद्धिमत्तेपर्यंत.",
     heroSubtitle: "सिव्हिक-ओएस प्रत्येक नागरिक तक्रारीचे प्राधान्यीकृत घटनांमध्ये, थेट जीआयएस नकाशावर, त्वरित कारवाईत आणि सत्यापित निवारणात रूपांतर करते.",
     reportIssueBtn: "समस्या नोंदवा",
@@ -215,8 +273,8 @@ export const TRANSLATIONS = {
     // 8 Workflow Steps
     step1Title: "नागरिक अहवाल",
     step1Desc: "फोटो आणि जीपीएस पिनसह तक्रार नोंदवा",
-    step2Title: "एआय वर्गीकरण",
-    step2Desc: "एआय श्रेणी, तीव्रता आणि सुरक्षिततेचा धोका विश्लेषित करते",
+    step2Title: "एआई वर्गीकरण",
+    step2Desc: "एआई श्रेणी, तीव्रता आणि सुरक्षिततेचा धोका विश्लेषित करते",
     step3Title: "डुप्लिकेट शोध",
     step3Desc: "जवळपासच्या तक्रारींची ओळख आणि क्लस्टरिंग (≤500m)",
     step4Title: "प्राधान्य गुणोत्तर",
@@ -232,7 +290,7 @@ export const TRANSLATIONS = {
 
     // Report Complaint Page
     reportHeaderTitle: "महापालिका समस्या नोंदवा",
-    reportHeaderSub: "एआय स्वयंचलितपणे तुमच्या समस्येचे वर्गीकरण करते आणि अधिकाऱ्यांना सूचित करते.",
+    reportHeaderSub: "एआई स्वयंचलितपणे तुमच्या समस्येचे वर्गीकरण करते आणि अधिकाऱ्यांना सूचित करते.",
     stepProblem: "1. समस्येचा तपशील",
     stepLocation: "2. घटनेचे ठिकाण",
     stepContact: "3. नागरिक संपर्क",
@@ -261,13 +319,42 @@ export const TRANSLATIONS = {
     yesBtn: "होय, समस्या सुटली",
     noBtn: "नाही, तक्रार पुन्हा उघडा",
 
-    // Dashboard Overview
-    totalComplaints: "एकूण तक्रारी",
+    // Admin Overview Dashboard
+    overviewTitle: "शहर महापालिका कामकाज सर्व्हालोकन",
+    overviewSub: "थेट नागरी आरोग्य, प्राधान्य कारवाया आणि महापालिका इंटेलिजन्स स्ट्रीम",
+    demoScenario: "डेमो देखावा: प्रभाग 12 मधील पाणी पुरवठा वाहिनी बिघाड",
+    demoDesc: "प्रभाग 12 मध्ये 500 मीटर परिसरात 37 नागरिक तक्रारी एकत्र आल्या. प्राधान्य स्कोर 91/100. मुदत मोजणी सक्रिय (04:00:00). पाणी पुरवठा विभाग आणि अधिकारी राजेश यांच्याकडे वर्गवारी.",
+    inspectBtn: "घटना क्लस्टर #INC-1042 तपासा",
+    totalIngested: "एकूण प्राप्त तक्रारी",
     activeIncidents: "सक्रिय घटना",
     slaBreached: "मुदत उल्लंघन",
-    resolvedRate: "निवारण दर",
+    resolvedTodayCount: "आज सुटलेल्या तक्रारी",
+    resolutionRatePct: "निवारण दर",
     recentIncidents: "अलीकडील तक्रारी",
-    mapViewTitle: "जीआयएस नकाशे आणि घटना",
+    mapViewTitle: "स्मार्ट सिटी जीआयएस नकाशा",
+    deptWorkloadRadar: "विभाग कार्यभार रडार",
+    slaCountdownRadar: "मुदत कार्यक्षमता मोजणी",
+    liveAiStream: "थेट एआय घटना फीड",
+
+    // Department Oversight
+    deptEyebrow: "महानगरपालिका विभाग देखरेख",
+    deptTitle: "प्रादेशिक कार्यभार आणि कार्यप्रणाली",
+    deptSub: "सर्व महापालिका विभागांमधील थेट क्षमता ट्रॅकिंग, वाटप केलेल्या तक्रारी आणि सक्रिय कर्मचारी.",
+
+    // SLA Monitor
+    slaEyebrow: "सेवा स्तर करार देखरेख",
+    slaTitle: "थेट मुदत उद्दिष्ट आणि एस्कॅलेशन रडार",
+    slaSub: "श्रेणीनुसार मुदत अंमलबजावणी, थेट काउंटडाउन टाइमर आणि स्वयंचलित उल्लंघन सूचना.",
+
+    // City Analytics
+    analyticsEyebrow: "महानगरपालिका डेटा विश्लेषण",
+    analyticsTitle: "शहर-स्तरीय कामगिरी मोजमाप",
+    analyticsSub: "ऐतिहासिक तक्रार ट्रेंड, प्रभाग-स्तरीय निवारण कार्यक्षमता आणि विभाग क्षमता निकष.",
+
+    // Field Officer Desk
+    officerEyebrow: "फील्ड अधिकारी प्रेषण कमांड",
+    officerTitle: "सक्रिय घटना प्रेषण रांग",
+    officerSub: "नियुक्त कामांचे व्यवस्थापन करा, कामाची स्थिती अपडेट करा, फोटो अपलोड करा आणि निवारणाची पुष्टी करा.",
 
     // Footer
     copyright: "© 2026 सिव्हिक-ओएस महानगरपालिका ऑपरेटिंग सिस्टीम. सर्व हक्क राखीव.",
