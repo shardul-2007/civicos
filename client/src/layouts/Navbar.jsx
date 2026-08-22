@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Users } from 'lucide-react';
+import { Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Users, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
@@ -11,33 +11,22 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 15);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToSection = (id) => {
-    setMobileMenuOpen(false);
-    if (location.pathname !== '/') {
-      window.location.href = `/#${id}`;
-      return;
-    }
-    const elem = document.getElementById(id);
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
     <header style={{
       position: 'sticky',
       top: 0,
-      zIndex: 'var(--z-header)',
-      background: scrolled ? 'rgba(10, 13, 20, 0.97)' : 'var(--bg-app)',
+      zIndex: 1000,
+      background: scrolled ? 'rgba(10, 13, 20, 0.98)' : 'rgba(10, 13, 20, 0.92)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: scrolled ? '0 10px 30px -10px rgba(0,0,0,0.8)' : 'none',
       transition: 'all 0.3s ease',
     }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
@@ -53,7 +42,7 @@ export default function Navbar() {
             alignItems: 'center',
             justifyContent: 'center',
             color: 'white',
-            boxShadow: '0 0 12px rgba(16, 185, 129, 0.3)',
+            boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)',
           }}>
             <Shield size={20} />
           </div>
@@ -66,16 +55,16 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <button onClick={() => scrollToSection('platform')} style={{ background: 'none', border: 'none', color: '#cbd5e1', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+        <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <Link to="/admin" style={{ textDecoration: 'none', color: location.pathname === '/admin' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}>
             Platform
-          </button>
-          <button onClick={() => scrollToSection('workflow')} style={{ background: 'none', border: 'none', color: '#cbd5e1', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+          </Link>
+          <Link to="/" style={{ textDecoration: 'none', color: location.pathname === '/' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}>
             How It Works
-          </button>
-          <button onClick={() => scrollToSection('intelligence')} style={{ background: 'none', border: 'none', color: '#cbd5e1', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
-            Intelligence
-          </button>
+          </Link>
+          <Link to="/ai" style={{ textDecoration: 'none', color: location.pathname === '/ai' ? '#34d399' : '#60a5fa', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <Sparkles size={14} color="#60a5fa" /> Intelligence
+          </Link>
         </nav>
 
         {/* Right Action Buttons */}
@@ -94,12 +83,15 @@ export default function Navbar() {
 
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', paddingLeft: '0.4rem' }}>
+              <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 700 }} className="desktop-only">
+                {user.name ? user.name.split(' ')[0] : 'User'}
+              </span>
               <button onClick={logout} title="Logout" className="btn-glass" style={{ padding: '0.4rem', color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}>
                 <LogOut size={14} />
               </button>
             </div>
           ) : (
-            <Link to="/login" style={{ textDecoration: 'none', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600, padding: '0.4rem' }}>
+            <Link to="/login" className="btn-glass" style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.8rem', fontWeight: 600, padding: '0.4rem 0.75rem' }}>
               Login
             </Link>
           )}
@@ -119,6 +111,9 @@ export default function Navbar() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div style={{ background: '#121722', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <Link to="/ai" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+            <Sparkles size={16} /> AI Intelligence Command
+          </Link>
           <Link to="/report" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <PlusCircle size={16} /> Report Civic Issue
           </Link>
