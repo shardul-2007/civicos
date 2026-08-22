@@ -8,6 +8,7 @@ import {
   BarChart2, Navigation, Lock, Cpu, Check,
 } from 'lucide-react';
 import L from 'leaflet';
+import LeafletErrorBoundary from '../components/LeafletErrorBoundary';
 import { dashboardAPI, analyticsAPI, predictionAPI } from '../services/api';
 import AiAssistantDrawer from '../components/AiAssistantDrawer';
 import { useLanguage } from '../context/LanguageContext';
@@ -169,13 +170,15 @@ export default function LandingPage() {
               </div>
 
               <div style={{ height:'280px', borderRadius:'var(--radius-md)', overflow:'hidden', border:'1px solid rgba(255,255,255,0.07)' }}>
-                <MapContainer center={[18.5204,73.8567]} zoom={13} style={{ height:'100%', width:'100%' }} zoomControl={false}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  <Circle center={[18.5304,73.8667]} radius={500} pathOptions={{ color:'#ef4444', fillColor:'#ef4444', fillOpacity:0.15, weight:2 }} />
-                  <Marker position={[18.5304,73.8667]} icon={markersBySeverity.CRITICAL}><Popup><strong>Ward 14:</strong> Water Main Burst – 37 reports</Popup></Marker>
-                  <Marker position={[18.5204,73.8567]} icon={markersBySeverity.HIGH}><Popup><strong>Ward 4:</strong> Pothole Hazard – 18 reports</Popup></Marker>
-                  <Marker position={[18.5104,73.8467]} icon={markersBySeverity.MEDIUM}><Popup><strong>Ward 8:</strong> Waste Overflow</Popup></Marker>
-                </MapContainer>
+                <LeafletErrorBoundary>
+                  <MapContainer key="landing-map" center={[18.5204,73.8567]} zoom={13} style={{ height:'100%', width:'100%' }} zoomControl={false}>
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <Circle center={[18.5304,73.8667]} radius={500} pathOptions={{ color:'#ef4444', fillColor:'#ef4444', fillOpacity:0.15, weight:2 }} />
+                    <Marker position={[18.5304,73.8667]} icon={markersBySeverity.CRITICAL}><Popup><strong>Ward 14:</strong> Water Main Burst – 37 reports</Popup></Marker>
+                    <Marker position={[18.5204,73.8567]} icon={markersBySeverity.HIGH}><Popup><strong>Ward 4:</strong> Pothole Hazard – 18 reports</Popup></Marker>
+                    <Marker position={[18.5104,73.8467]} icon={markersBySeverity.MEDIUM}><Popup><strong>Ward 8:</strong> Waste Overflow</Popup></Marker>
+                  </MapContainer>
+                </LeafletErrorBoundary>
               </div>
 
               {/* Live Complaint Feed below map */}

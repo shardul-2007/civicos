@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import L from 'leaflet';
 import { complaintAPI, analyticsAPI } from '../services/api';
 import ComplaintQuickViewDrawer from '../components/ComplaintQuickViewDrawer';
+import LeafletErrorBoundary from '../components/LeafletErrorBoundary';
 
 const createCustomMarker = (color) => {
   return L.divIcon({
@@ -256,7 +257,8 @@ export default function MapExperience() {
       </div>
 
       {/* Main Map Canvas */}
-      <MapContainer center={[18.5304, 73.8667]} zoom={13} style={{ height: '100%', width: '100%' }}>
+      <LeafletErrorBoundary>
+        <MapContainer key="main-map-exp" center={[18.5304, 73.8667]} zoom={13} style={{ height: '100%', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {/* Hotspot Radii Circles (500m) */}
@@ -304,6 +306,7 @@ export default function MapExperience() {
           );
         })}
       </MapContainer>
+      </LeafletErrorBoundary>
 
       {/* Quick View Drawer Modal on Map Click */}
       <ComplaintQuickViewDrawer

@@ -4,6 +4,7 @@ import { complaintAPI } from '../services/api';
 import { MapPin, User, Clock, CheckCircle2, AlertTriangle, Shield, Layers, ArrowLeft, RefreshCw, Sparkles, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
+import LeafletErrorBoundary from '../components/LeafletErrorBoundary';
 
 const pinIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -205,11 +206,21 @@ export default function ComplaintDetail() {
             <div style={{ fontSize: '1rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.75rem' }}>
               Geospatial Location
             </div>
+
             <div style={{ height: '200px', borderRadius: '0.5rem', overflow: 'hidden', marginBottom: '0.75rem', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <MapContainer center={[complaint.location.coordinates[1], complaint.location.coordinates[0]]} zoom={15} style={{ height: '100%', width: '100%' }}>
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <Marker position={[complaint.location.coordinates[1], complaint.location.coordinates[0]]} icon={pinIcon} />
-              </MapContainer>
+              <LeafletErrorBoundary>
+                {(() => {
+                  const coords = complaint?.location?.coordinates;
+                  const lat = (coords && coords.length >= 2 && !isNaN(coords[1])) ? coords[1] : 18.5304;
+                  const lng = (coords && coords.length >= 2 && !isNaN(coords[0])) ? coords[0] : 73.8667;
+                  return (
+                    <MapContainer key={`cd-map-${lat}-${lng}`} center={[lat, lng]} zoom={15} style={{ height: '100%', width: '100%' }}>
+                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <Marker position={[lat, lng]} icon={pinIcon} />
+                    </MapContainer>
+                  );
+                })()}
+              </LeafletErrorBoundary>
             </div>
             <div style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
               <strong>Address:</strong> {complaint.address}<br />

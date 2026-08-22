@@ -20,6 +20,17 @@ export default class ErrorBoundary extends React.Component {
     window.location.reload();
   };
 
+  handleReset = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {
+      // Ignore
+    }
+    this.setState({ hasError: false, error: null });
+    window.location.href = '/';
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -64,20 +75,39 @@ export default class ErrorBoundary extends React.Component {
               A temporary display sync anomaly occurred. Our automated platform resilience system has safely isolated the state.
             </p>
 
-            <button
-              onClick={this.handleReload}
-              className="btn-sage"
-              style={{
-                width: '100%',
-                justifyContent: 'center',
-                padding: '0.75rem',
-                fontSize: '0.95rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
-            >
-              <RefreshCw size={16} /> Refresh & Restore Portal
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button
+                onClick={this.handleReload}
+                className="btn-sage"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  padding: '0.75rem',
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                <RefreshCw size={16} /> Refresh & Restore Portal
+              </button>
+
+              <button
+                onClick={this.handleReset}
+                className="btn-glass"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  padding: '0.75rem',
+                  fontSize: '0.88rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  borderColor: 'rgba(239, 68, 68, 0.4)',
+                  color: '#f87171',
+                }}
+              >
+                Clear Session Cache & Reset App
+              </button>
+            </div>
           </div>
         </div>
       );

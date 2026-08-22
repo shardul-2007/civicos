@@ -8,6 +8,7 @@ import {
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { complaintAPI } from '../../services/api';
+import LeafletErrorBoundary from '../../components/LeafletErrorBoundary';
 
 const createPinIcon = () => {
   if (typeof window === 'undefined' || !L || !L.divIcon) return null;
@@ -61,6 +62,8 @@ const fallbackComplaintData = {
   ]
 };
 
+import LeafletErrorBoundary from '../../components/LeafletErrorBoundary';
+
 function TrackMap({ location, address }) {
   const coords = location?.coordinates;
   const lat = (coords && coords.length >= 2 && !isNaN(coords[1])) ? coords[1] : 18.5304;
@@ -73,16 +76,18 @@ function TrackMap({ location, address }) {
         <MapPin size={13} color="#34d399" /> Incident Location
       </div>
       <div style={{ height: '200px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.75rem', position: 'relative' }}>
-        <MapContainer
-          key={`track-map-${lat}-${lng}`}
-          center={[lat, lng]}
-          zoom={15}
-          style={{ height: '100%', width: '100%' }}
-          zoomControl={false}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {pin && <Marker position={[lat, lng]} icon={pin} />}
-        </MapContainer>
+        <LeafletErrorBoundary>
+          <MapContainer
+            key={`track-map-${lat}-${lng}`}
+            center={[lat, lng]}
+            zoom={15}
+            style={{ height: '100%', width: '100%' }}
+            zoomControl={false}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {pin && <Marker position={[lat, lng]} icon={pin} />}
+          </MapContainer>
+        </LeafletErrorBoundary>
       </div>
       <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
         <MapPin size={12} /> {address || 'Near College Gate, Main Road, Ward 14'}

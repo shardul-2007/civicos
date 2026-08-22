@@ -9,6 +9,7 @@ import {
 import L from 'leaflet';
 import { complaintAPI, aiAPI } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
+import LeafletErrorBoundary from '../../components/LeafletErrorBoundary';
 
 const pinIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -383,10 +384,12 @@ export default function ReportComplaint() {
 
               {/* Map */}
               <div style={{ height: '300px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-                <MapContainer center={position} zoom={14} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  <LocationPicker position={position} setPosition={setPosition} setAddress={setAddress} />
-                </MapContainer>
+                <LeafletErrorBoundary>
+                  <MapContainer key={`rc-map-${position[0]}-${position[1]}`} center={position} zoom={14} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <LocationPicker position={position} setPosition={setPosition} setAddress={setAddress} />
+                  </MapContainer>
+                </LeafletErrorBoundary>
               </div>
 
               <div style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.15)', padding: '0.65rem 0.9rem', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', color: '#34d399', fontFamily: 'var(--font-mono)', display: 'flex', gap: '0.5rem' }}>

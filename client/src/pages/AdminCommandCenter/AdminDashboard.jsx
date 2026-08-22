@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 import { Shield, Radio, AlertTriangle, Layers, MapPin, Zap, TrendingUp, Clock, Activity, RefreshCw } from 'lucide-react';
 import L from 'leaflet';
 import { dashboardAPI, analyticsAPI, predictionAPI, incidentAPI } from '../../services/api';
+import LeafletErrorBoundary from '../../components/LeafletErrorBoundary';
 
 // Custom Marker Helper
 const createCustomMarker = (color) => {
@@ -193,38 +194,49 @@ export default function AdminDashboard() {
           </div>
 
           <div style={{ height: '440px', borderRadius: '0.5rem', overflow: 'hidden' }}>
-            <MapContainer center={[18.5204, 73.8567]} zoom={13} style={{ height: '100%', width: '100%' }}>
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              
-              {/* Render Hotspot Radii */}
-              {hotspots.map((h, i) => (
-                <Circle
-                  key={i}
-                  center={[h.centroid[1], h.centroid[0]]}
-                  radius={500}
-                  pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.25 }}
-                />
-              ))}
+            <LeafletErrorBoundary>
+              <MapContainer key="admin-dash-map" center={[18.5204, 73.8567]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                
+                {/* Render Hotspot Radii */}
+                {hotspots.map((h, i) => {
+                  if (!h?.centroid || h.centroid.length < 2 || isNaN(h.centroid[0]) || isNaN(h.centroid[1])) return null;
+                  return (
+                    <Circle
+                      key={i}
+                      center={[h.centroid[1], h.centroid[0]]}
+                      radius={500}
+                      pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.25 }}
+                    />
+                  );
+                })}
 
-              {/* Render Critical Incidents */}
-              {overview?.recentCritical?.map((c) => (
-                <Marker
-                  key={c._id}
-                  position={[c.location.coordinates[1], c.location.coordinates[0]]}
-                  icon={markersBySeverity[c.severity] || markersBySeverity.MEDIUM}
-                >
-                  <Popup>
-                    <div style={{ fontSize: '0.85rem', color: '#0f172a' }}>
-                      <strong style={{ color: '#3b82f6' }}>{c.trackingCode}</strong><br />
-                      <strong>{c.title}</strong><br />
-                      Category: {c.category}<br />
-                      Severity: <span style={{ color: c.severity === 'CRITICAL' ? 'red' : 'orange', fontWeight: 700 }}>{c.severity}</span><br />
-                      Ward: {c.ward} • Dept: {c.departmentName}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+                {/* Render Critical Incidents */}
+                {overview?.recentCritical?.map((c) => {
+                  const coords = c.location?.coordinates;
+                  if (!coords || coords.length < 2 || isNaN(coords[0]) || isNaN(coords[1])) return null;
+                  const lat = typeof coords[1] === 'number' ? coords[1] : 18.5204;
+                  const lng = typeof coords[0] === 'number' ? coords[0] : 73.8567;
+                  return (
+                    <Marker
+                      key={c._id}
+                      position={[lat, lng]}
+                      icon={markersBySeverity[c.severity] || markersBySeverity.MEDIUM}
+                    >
+                      <Popup>
+                        <div style={{ fontSize: '0.85rem', color: '#0f172a' }}>
+                          <strong style={{ color: '#3b82f6' }}>{c.trackingCode}</strong><br />
+                          <strong>{c.title}</strong><br />
+                          Category: {c.category}<br />
+                          Severity: <span style={{ color: c.severity === 'CRITICAL' ? 'red' : 'orange', fontWeight: 700 }}>{c.severity}</span><br />
+                          Ward: {c.ward} • Dept: {c.departmentName}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </MapContainer>
+            </LeafletErrorBoundary>
           </div>
         </div>
 
