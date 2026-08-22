@@ -261,38 +261,48 @@ export default function MapExperience() {
 
         {/* Hotspot Radii Circles (500m) */}
         {showHotspots &&
-          hotspots.map((h, i) => (
-            <Circle
-              key={i}
-              center={[h.centroid[1], h.centroid[0]]}
-              radius={500}
-              pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.25 }}
-            />
-          ))}
+          hotspots.map((h, i) => {
+            if (!h?.centroid || h.centroid.length < 2 || isNaN(h.centroid[0]) || isNaN(h.centroid[1])) return null;
+            return (
+              <Circle
+                key={i}
+                center={[h.centroid[1], h.centroid[0]]}
+                radius={500}
+                pathOptions={{ color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.25 }}
+              />
+            );
+          })}
 
         {/* Complaint Glowing Pins */}
-        {filteredComplaints.map((c) => (
-          <Marker
-            key={c._id}
-            position={[c.location.coordinates[1], c.location.coordinates[0]]}
-            icon={markersBySeverity[c.severity] || markersBySeverity.MEDIUM}
-            eventHandlers={{
-              click: () => setSelectedComplaint(c),
-            }}
-          >
-            <Popup>
-              <div style={{ fontSize: '0.85rem', color: '#f8fafc', lineHeight: 1.4 }}>
-                <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#34d399' }}>{c.trackingCode}</div>
-                <strong style={{ color: '#ffffff' }}>{c.title}</strong><br />
-                <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>{c.address} (Ward {c.ward})</span><br />
-                <div style={{ marginTop: '0.3rem', display: 'flex', gap: '0.3rem' }}>
-                  <span className={`badge ${c.severity === 'CRITICAL' ? 'badge-critical' : 'badge-high'}`}>{c.severity}</span>
-                  <span className="badge badge-sage">{c.status}</span>
+        {filteredComplaints.map((c) => {
+          const coords = c.location?.coordinates;
+          if (!coords || coords.length < 2 || isNaN(coords[0]) || isNaN(coords[1])) return null;
+          const lat = typeof coords[1] === 'number' ? coords[1] : 18.5304;
+          const lng = typeof coords[0] === 'number' ? coords[0] : 73.8667;
+
+          return (
+            <Marker
+              key={c._id}
+              position={[lat, lng]}
+              icon={markersBySeverity[c.severity] || markersBySeverity.MEDIUM}
+              eventHandlers={{
+                click: () => setSelectedComplaint(c),
+              }}
+            >
+              <Popup>
+                <div style={{ fontSize: '0.85rem', color: '#f8fafc', lineHeight: 1.4 }}>
+                  <div style={{ fontFamily: 'monospace', fontWeight: 800, color: '#34d399' }}>{c.trackingCode}</div>
+                  <strong style={{ color: '#ffffff' }}>{c.title}</strong><br />
+                  <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>{c.address} (Ward {c.ward})</span><br />
+                  <div style={{ marginTop: '0.3rem', display: 'flex', gap: '0.3rem' }}>
+                    <span className={`badge ${c.severity === 'CRITICAL' ? 'badge-critical' : 'badge-high'}`}>{c.severity}</span>
+                    <span className="badge badge-sage">{c.status}</span>
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
 
       {/* Quick View Drawer Modal on Map Click */}

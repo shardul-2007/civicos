@@ -1,13 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export default function FluidWaterCursor() {
   const canvasRef = useRef(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(() => {
+    return typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 767);
+  });
 
   useEffect(() => {
-    // Disable on mobile touch devices
-    if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 767) {
-      return;
-    }
+    const checkMobile = () => {
+      setIsMobileDevice('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 767);
+    };
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobileDevice) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -19,19 +27,31 @@ export default function FluidWaterCursor() {
     let height = (canvas.height = window.innerHeight);
 
     const handleResize = () => {
+      if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
     window.addEventListener('resize', handleResize);
 
-    // Mouse coordinates & subtle liquid follower position
+    // Mouse coordinates & liquid droplet state
     const mouse = { x: width / 2, y: height / 2 };
-    const liquidFollower = { x: width / 2, y: height / 2, vx: 0, vy: 0, radius: 6 };
+    const liquidBlob = {
+      x: width / 2,
+      y: height / 2,
+      vx: 0,
+      vy: 0,
+      radius: 8,
+      points: Array.from({ length: 8 }, (_, i) => ({
+        angle: (i * Math.PI * 2) / 8,
+        offset: 0,
+      })),
+    };
 
-    // Fluid particles array
-    const particles = [];
+    // Water splash droplets array
+    const droplets = [];
     let lastX = mouse.x;
     let lastY = mouse.y;
+    let time = 0;
 
     const handleMouseMove = (e) => {
       mouse.x = e.clientX;
@@ -39,22 +59,23 @@ export default function FluidWaterCursor() {
 
       const dist = Math.hypot(mouse.x - lastX, mouse.y - lastY);
 
-      // Spawn subtle fluid water ripple particles when moving
-      if (dist > 6) {
-        const count = Math.min(2, Math.floor(dist / 8));
+      // Spawn amorphous fluid water splashes when cursor moves
+      if (dist > 5) {
+        const count = Math.min(3, Math.floor(dist / 6));
         for (let i = 0; i < count; i++) {
           const angle = Math.random() * Math.PI * 2;
-          const speed = Math.random() * 1.0 + 0.3;
-          particles.push({
-            x: mouse.x + (Math.random() - 0.5) * 4,
-            y: mouse.y + (Math.random() - 0.5) * 4,
-            vx: Math.cos(angle) * speed + (mouse.x - lastX) * 0.05,
-            vy: Math.sin(angle) * speed + (mouse.y - lastY) * 0.05,
-            radius: Math.random() * 3 + 2,
-            maxRadius: Math.random() * 10 + 6,
-            alpha: 0.45,
-            decay: Math.random() * 0.03 + 0.02,
-            colorHue: Math.random() > 0.5 ? 160 : 210, // Emerald teal & water blue
+          const speed = Math.random() * 1.8 + 0.6;
+          droplets.push({
+            x: mouse.x + (Math.random() - 0.5) * 6,
+            y: mouse.y + (Math.random() - 0.5) * 6,
+            vx: Math.cos(angle) * speed + (mouse.x - lastX) * 0.08,
+            vy: Math.sin(angle) * speed + (mouse.y - lastY) * 0.08,
+            rx: Math.random() * 4 + 3,
+            ry: Math.random() * 4 + 3,
+            rotation: Math.random() * Math.PI,
+            alpha: 0.55,
+            decay: Math.random() * 0.025 + 0.015,
+            hue: Math.random() > 0.5 ? 160 : 210, // Emerald teal & deep water blue
           });
         }
         lastX = mouse.x;
@@ -64,112 +85,144 @@ export default function FluidWaterCursor() {
 
     window.addEventListener('mousemove', handleMouseMove);
 
-    // Hover state detection for interactive elements
-    let isHoveringInteractive = false;
+    // Interactive element hover detection
+    let isHovering = false;
     const handleMouseOver = (e) => {
-      const target = e.target;
+      const tag = e.target.tagName;
       if (
-        target.tagName === 'BUTTON' ||
-        target.tagName === 'A' ||
-        target.tagName === 'INPUT' ||
-        target.tagName === 'SELECT' ||
-        target.onclick ||
-        target.classList?.contains('btn-glass') ||
-        target.classList?.contains('btn-sage')
+        tag === 'BUTTON' ||
+        tag === 'A' ||
+        tag === 'INPUT' ||
+        tag === 'SELECT' ||
+        e.target.onclick ||
+        e.target.classList?.contains('btn-glass') ||
+        e.target.classList?.contains('btn-sage')
       ) {
-        isHoveringInteractive = true;
+        isHovering = true;
       } else {
-        isHoveringInteractive = false;
+        isHovering = false;
       }
     };
     window.addEventListener('mouseover', handleMouseOver);
 
-    // Main animation loop
+    // Main organic liquid animation loop
     const render = () => {
+      time += 0.05;
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth liquid follower movement with spring physics
-      const dx = mouse.x - liquidFollower.x;
-      const dy = mouse.y - liquidFollower.y;
+      // Smooth liquid spring physics
+      const dx = mouse.x - liquidBlob.x;
+      const dy = mouse.y - liquidBlob.y;
 
-      liquidFollower.vx += dx * 0.15;
-      liquidFollower.vy += dy * 0.15;
-      liquidFollower.vx *= 0.70; // Liquid resistance / damping
-      liquidFollower.vy *= 0.70;
+      liquidBlob.vx += dx * 0.16;
+      liquidBlob.vy += dy * 0.16;
+      liquidBlob.vx *= 0.68; // Liquid viscosity damping
+      liquidBlob.vy *= 0.68;
 
-      liquidFollower.x += liquidFollower.vx;
-      liquidFollower.y += liquidFollower.vy;
+      liquidBlob.x += liquidBlob.vx;
+      liquidBlob.y += liquidBlob.vy;
 
-      // Delicate liquid ring size based on hover (small diameter so text is never hidden)
-      const targetRadius = isHoveringInteractive ? 11 : 6;
-      liquidFollower.radius += (targetRadius - liquidFollower.radius) * 0.2;
+      const speed = Math.hypot(liquidBlob.vx, liquidBlob.vy);
+      const motionAngle = Math.atan2(liquidBlob.vy, liquidBlob.vx);
+      const targetRadius = isHovering ? 13 : 8;
+      liquidBlob.radius += (targetRadius - liquidBlob.radius) * 0.2;
 
-      // Draw expanding subtle water particles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.radius += (p.maxRadius - p.radius) * 0.1;
-        p.alpha -= p.decay;
+      // Draw dynamic organic water splash droplets
+      for (let i = droplets.length - 1; i >= 0; i--) {
+        const d = droplets[i];
+        d.x += d.vx;
+        d.y += d.vy;
+        d.rx += 0.35;
+        d.ry += 0.25;
+        d.alpha -= d.decay;
 
-        if (p.alpha <= 0 || p.radius >= p.maxRadius) {
-          particles.splice(i, 1);
+        if (d.alpha <= 0) {
+          droplets.splice(i, 1);
           continue;
         }
 
         ctx.save();
+        ctx.translate(d.x, d.y);
+        ctx.rotate(d.rotation + time * 0.2);
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
 
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
-        if (p.colorHue === 160) {
-          gradient.addColorStop(0, `rgba(52, 211, 153, ${p.alpha * 0.4})`);
-          gradient.addColorStop(0.6, `rgba(16, 185, 129, ${p.alpha * 0.15})`);
-          gradient.addColorStop(1, `rgba(6, 78, 59, 0)`);
+        // Amorphous fluid shape (ellipse with dynamic sine wave distortion)
+        ctx.ellipse(0, 0, d.rx, d.ry * (1 + Math.sin(time * 3 + i) * 0.25), 0, 0, Math.PI * 2);
+
+        const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.max(d.rx, d.ry));
+        if (d.hue === 160) {
+          grad.addColorStop(0, `rgba(52, 211, 153, ${d.alpha * 0.5})`);
+          grad.addColorStop(0.7, `rgba(16, 185, 129, ${d.alpha * 0.2})`);
+          grad.addColorStop(1, 'rgba(6, 78, 59, 0)');
         } else {
-          gradient.addColorStop(0, `rgba(56, 189, 248, ${p.alpha * 0.4})`);
-          gradient.addColorStop(0.6, `rgba(59, 130, 246, ${p.alpha * 0.18})`);
-          gradient.addColorStop(1, `rgba(30, 58, 138, 0)`);
+          grad.addColorStop(0, `rgba(56, 189, 248, ${d.alpha * 0.5})`);
+          grad.addColorStop(0.7, `rgba(59, 130, 246, ${d.alpha * 0.2})`);
+          grad.addColorStop(1, 'rgba(30, 58, 138, 0)');
         }
 
-        ctx.fillStyle = gradient;
+        ctx.fillStyle = grad;
         ctx.fill();
         ctx.restore();
       }
 
-      // Draw outer delicate liquid droplet ring
+      // Draw main organic liquid water blob (non-circular amorphous metaball shape)
       ctx.save();
       ctx.beginPath();
-      ctx.arc(liquidFollower.x, liquidFollower.y, liquidFollower.radius, 0, Math.PI * 2);
 
-      const ringGrad = ctx.createRadialGradient(
-        liquidFollower.x,
-        liquidFollower.y,
-        liquidFollower.radius * 0.2,
-        liquidFollower.x,
-        liquidFollower.y,
-        liquidFollower.radius
+      const numPoints = liquidBlob.points.length;
+      const points = [];
+
+      for (let i = 0; i < numPoints; i++) {
+        const angle = (i * Math.PI * 2) / numPoints;
+        // Motion directional stretch + organic wave oscillation
+        const stretch = Math.cos(angle - motionAngle) * Math.min(1.2, speed * 0.25);
+        const wave = Math.sin(time * 4 + i * 1.5) * 1.5;
+        const r = liquidBlob.radius + stretch * 3 + wave;
+
+        const px = liquidBlob.x + Math.cos(angle) * r;
+        const py = liquidBlob.y + Math.sin(angle) * r;
+        points.push({ x: px, y: py });
+      }
+
+      // Draw smooth closed bezier curve through points
+      ctx.moveTo((points[0].x + points[numPoints - 1].x) / 2, (points[0].y + points[numPoints - 1].y) / 2);
+      for (let i = 0; i < numPoints; i++) {
+        const p1 = points[i];
+        const p2 = points[(i + 1) % numPoints];
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
+        ctx.quadraticCurveTo(p1.x, p1.y, midX, midY);
+      }
+      ctx.closePath();
+
+      const blobGrad = ctx.createRadialGradient(
+        liquidBlob.x,
+        liquidBlob.y,
+        0,
+        liquidBlob.x,
+        liquidBlob.y,
+        liquidBlob.radius * 1.8
       );
-      ringGrad.addColorStop(0, 'rgba(52, 211, 153, 0.08)');
-      ringGrad.addColorStop(0.7, 'rgba(56, 189, 248, 0.25)');
-      ringGrad.addColorStop(1, 'rgba(16, 185, 129, 0.5)');
+      blobGrad.addColorStop(0, 'rgba(52, 211, 153, 0.2)');
+      blobGrad.addColorStop(0.6, 'rgba(56, 189, 248, 0.35)');
+      blobGrad.addColorStop(1, 'rgba(16, 185, 129, 0.6)');
 
-      ctx.fillStyle = ringGrad;
+      ctx.fillStyle = blobGrad;
       ctx.lineWidth = 1.2;
-      ctx.strokeStyle = 'rgba(52, 211, 153, 0.55)';
-      ctx.shadowColor = 'rgba(52, 211, 153, 0.35)';
-      ctx.shadowBlur = 6;
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.65)';
+      ctx.shadowColor = 'rgba(52, 211, 153, 0.4)';
+      ctx.shadowBlur = 8;
       ctx.fill();
       ctx.stroke();
       ctx.restore();
 
-      // Draw central precise water dot core
+      // Central precise fluid pointer dot
       ctx.save();
       ctx.beginPath();
-      ctx.arc(mouse.x, mouse.y, 2.5, 0, Math.PI * 2);
+      ctx.arc(mouse.x, mouse.y, 2, 0, Math.PI * 2);
       ctx.fillStyle = '#34d399';
       ctx.shadowColor = '#34d399';
-      ctx.shadowBlur = 5;
+      ctx.shadowBlur = 6;
       ctx.fill();
       ctx.restore();
 
@@ -184,7 +237,9 @@ export default function FluidWaterCursor() {
       window.removeEventListener('mouseover', handleMouseOver);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isMobileDevice]);
+
+  if (isMobileDevice) return null;
 
   return (
     <canvas
