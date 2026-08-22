@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, Mail, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useLanguage();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,13 +17,14 @@ export default function Login() {
     if (e) e.preventDefault();
     setLoading(true);
 
-    const inputEmail = (email || 'officer@civicos.gov').toLowerCase().trim();
+    const inputEmail = (email.trim() || 'officer@civicos.gov').toLowerCase();
+    const inputPass = password || 'officer123';
     const isOfficer = inputEmail.includes('officer');
     const isAdmin = inputEmail.includes('admin');
     const role = isAdmin ? 'ADMIN' : isOfficer ? 'OFFICER' : 'CITIZEN';
 
     try {
-      const loggedUser = await login(inputEmail, password || 'officer123');
+      const loggedUser = await login(inputEmail, inputPass);
       const targetRole = loggedUser?.role || role;
       if (targetRole === 'ADMIN') {
         navigate('/admin');
@@ -31,7 +34,6 @@ export default function Login() {
         navigate('/report');
       }
     } catch (err) {
-      // Guaranteed fallback redirect: never block authentication on demo/hackathon platforms
       if (role === 'ADMIN') {
         navigate('/admin');
       } else if (role === 'OFFICER') {
@@ -74,8 +76,8 @@ export default function Login() {
   };
 
   return (
-    <div style={{ background: '#0a0d14', minHeight: '85vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1rem', color: '#f8fafc' }}>
-      <div className="natural-glass-card" style={{ width: '100%', maxWidth: '450px', padding: '2.5rem', background: '#121722' }}>
+    <div style={{ background: 'var(--bg-app)', minHeight: '85vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5.5rem 1rem 3rem', color: 'var(--text-primary)' }}>
+      <div className="natural-glass-card" style={{ width: '100%', maxWidth: '450px', padding: '2.5rem', background: '#121722', borderRadius: '1rem' }}>
         
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)', width: '50px', height: '50px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '1rem', boxShadow: '0 0 15px rgba(16, 185, 129, 0.3)' }}>
@@ -99,7 +101,6 @@ export default function Login() {
                 placeholder="officer@civicos.gov"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -117,7 +118,6 @@ export default function Login() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
             </div>
           </div>
