@@ -20,6 +20,26 @@ const createPinIcon = () => {
   });
 };
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return 'Active';
+  try {
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? 'Active' : d.toLocaleDateString();
+  } catch (e) {
+    return 'Active';
+  }
+};
+
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return 'Just now';
+  try {
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? 'Just now' : d.toLocaleString();
+  } catch (e) {
+    return 'Just now';
+  }
+};
+
 const STATUS_STEPS = [
   { label: 'Submitted',    key: 'SUBMITTED',    icon: FileText,     color: '#3b82f6' },
   { label: 'Assigned',     key: 'ASSIGNED',     icon: Building,     color: '#8b5cf6' },
@@ -185,10 +205,10 @@ export default function TrackComplaint() {
             <ShieldCheck size={28} />
           </div>
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.4rem' }}>
-            {t('trackHeaderTitle')}
+            Track Complaint Status
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-            {t('trackHeaderSub')}
+            Enter your tracking code or phone number to view live SLA progress and field officer updates.
           </p>
 
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.6rem', maxWidth: '560px', margin: '0 auto', flexWrap: 'wrap' }}>
@@ -241,10 +261,10 @@ export default function TrackComplaint() {
                 </div>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.7rem', fontWeight: 700, color: sevColor, background: `${sevColor}18`, border: `1px solid ${sevColor}33`, padding: '0.25rem 0.7rem', borderRadius: '999px', textTransform: 'uppercase' }}>
-                    {complaint.severity}
+                    {complaint.severity || 'MEDIUM'}
                   </span>
                   <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#34d399', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', padding: '0.25rem 0.7rem', borderRadius: '999px', textTransform: 'uppercase' }}>
-                    {complaint.status?.replace('_', ' ')}
+                    {complaint.status?.replace('_', ' ') || 'IN PROGRESS'}
                   </span>
                 </div>
               </div>
@@ -254,12 +274,12 @@ export default function TrackComplaint() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '0.6rem', fontSize: '0.8rem', marginBottom: '1.5rem' }}>
                 {[
-                  { label: 'Category',    value: complaint.category },
+                  { label: 'Category',    value: complaint.category || 'General Civic' },
                   { label: 'Department',  value: complaint.departmentName || 'Electrical & Infrastructure' },
-                  { label: 'Ward',        value: `Ward ${complaint.ward}` },
+                  { label: 'Ward',        value: `Ward ${complaint.ward || 14}` },
                   { label: 'Officer',     value: complaint.assignedOfficer?.name || 'Inspector Rajesh Kumar' },
-                  { label: 'Submitted',   value: new Date(complaint.createdAt).toLocaleDateString() },
-                  { label: 'Target Date', value: complaint.dueAt ? new Date(complaint.dueAt).toLocaleDateString() : 'Active Target' },
+                  { label: 'Submitted',   value: formatDate(complaint.createdAt) },
+                  { label: 'Target Date', value: formatDate(complaint.dueAt) },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ background: 'rgba(255,255,255,0.025)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.65rem', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{label}</div>
@@ -347,9 +367,9 @@ export default function TrackComplaint() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '280px', overflowY: 'auto', paddingRight: '0.25rem' }}>
                   {complaint.history?.length > 0 ? complaint.history.map((h, i) => (
                     <div key={i} style={{ borderLeft: '2px solid #059669', paddingLeft: '0.65rem' }}>
-                      <div style={{ fontSize: '0.83rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.15rem', lineHeight: 1.4 }}>{h.note}</div>
+                      <div style={{ fontSize: '0.83rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.15rem', lineHeight: 1.4 }}>{h.note || 'Status updated'}</div>
                       <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                        By {h.actorName} • {new Date(h.createdAt).toLocaleString()}
+                        By {h.actorName || 'System'} • {formatDateTime(h.createdAt)}
                       </div>
                     </div>
                   )) : (
