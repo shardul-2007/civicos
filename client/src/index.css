@@ -931,14 +931,14 @@ body.light-theme input {
 .app-shell > main,
 .main-wrapper > main,
 .main-wrapper {
-  padding-top: 76px !important;
+  padding-top: 92px !important;
 }
 
 @media (max-width: 767px) {
   .app-shell > main,
   .main-wrapper > main,
   .main-wrapper {
-    padding-top: 70px !important;
+    padding-top: 86px !important;
   }
 }
 

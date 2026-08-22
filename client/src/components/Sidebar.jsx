@@ -17,10 +17,12 @@ import {
   Search,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const location = useLocation();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const role = user?.role || 'CITIZEN';
 
@@ -29,30 +31,30 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
 
   if (role === 'ADMIN') {
     navItems = [
-      { label: 'Overview', path: '/admin', icon: LayoutDashboard },
-      { label: 'Complaints', path: '/complaints', icon: FileText },
-      { label: 'Map View', path: '/map', icon: MapPin },
-      { label: 'Departments', path: '/departments', icon: Building2 },
-      { label: 'Analytics', path: '/admin/analytics', icon: TrendingUp },
-      { label: 'AI Intelligence', path: '/ai', icon: Brain },
-      { label: 'City Intelligence', path: '/admin/predictions', icon: ZapIcon },
-      { label: 'SLA Monitor', path: '/sla', icon: Clock },
-      { label: 'Field Desk', path: '/officer', icon: Users },
+      { label: t('totalComplaints').replace('Total ', '') || 'Overview', path: '/admin', icon: LayoutDashboard },
+      { label: t('trackIssue') || 'Complaints', path: '/complaints', icon: FileText },
+      { label: t('mapViewTitle') || 'Map View', path: '/map', icon: MapPin },
+      { label: t('deptEyebrow') || 'Departments', path: '/departments', icon: Building2 },
+      { label: t('analyticsTitle') || 'Analytics', path: '/admin/analytics', icon: TrendingUp },
+      { label: t('intelligence') || 'AI Intelligence', path: '/ai', icon: Brain },
+      { label: t('commandCenter') || 'City Intelligence', path: '/admin/predictions', icon: ZapIcon },
+      { label: t('slaBreached') || 'SLA Monitor', path: '/sla', icon: Clock },
+      { label: t('fieldDesk') || 'Field Desk', path: '/officer', icon: Users },
     ];
   } else if (role === 'OFFICER') {
     navItems = [
-      { label: 'Field Desk', path: '/officer', icon: Users },
-      { label: 'Complaints Queue', path: '/complaints', icon: FileText },
-      { label: 'Smart City Map', path: '/map', icon: MapPin },
-      { label: 'SLA Monitor', path: '/sla', icon: Clock },
+      { label: t('fieldDesk') || 'Field Desk', path: '/officer', icon: Users },
+      { label: t('trackIssue') || 'Complaints Queue', path: '/complaints', icon: FileText },
+      { label: t('mapViewTitle') || 'Smart City Map', path: '/map', icon: MapPin },
+      { label: t('slaBreached') || 'SLA Monitor', path: '/sla', icon: Clock },
     ];
   } else {
     // CITIZEN or Guest Navigation
     navItems = [
-      { label: 'Report Problem', path: '/report', icon: PlusCircle },
-      { label: 'Track Complaint', path: '/citizen/track', icon: Search },
-      { label: 'My Reports', path: '/complaints', icon: FileText },
-      { label: 'Smart City Map', path: '/map', icon: MapPin },
+      { label: t('reportIssue') || 'Report Problem', path: '/report', icon: PlusCircle },
+      { label: t('trackIssue') || 'Track Complaint', path: '/citizen/track', icon: Search },
+      { label: t('recentIncidents') || 'My Reports', path: '/complaints', icon: FileText },
+      { label: t('mapViewTitle') || 'Smart City Map', path: '/map', icon: MapPin },
     ];
   }
 

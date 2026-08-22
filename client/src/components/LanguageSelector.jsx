@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Globe, Check, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
-export default function LanguageSelector({ compact = false }) {
+export default function LanguageSelector({ compact = false, alignLeft = false }) {
   const { lang, changeLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -26,7 +26,7 @@ export default function LanguageSelector({ compact = false }) {
   }, []);
 
   return (
-    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block', zIndex: 9999 }}>
       <button
         onClick={() => setOpen(!open)}
         className="btn-glass"
@@ -55,14 +55,15 @@ export default function LanguageSelector({ compact = false }) {
         <div style={{
           position: 'absolute',
           top: '42px',
-          right: 0,
+          left: alignLeft ? 0 : 'auto',
+          right: alignLeft ? 'auto' : 0,
           width: '150px',
           background: '#121722',
-          border: '1px solid rgba(255, 255, 255, 0.15)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
           borderRadius: '0.625rem',
-          boxShadow: '0 15px 35px rgba(0,0,0,0.8)',
+          boxShadow: '0 20px 45px rgba(0,0,0,0.95)',
           padding: '0.35rem',
-          zIndex: 1200,
+          zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
           gap: '0.2rem',
@@ -81,10 +82,10 @@ export default function LanguageSelector({ compact = false }) {
                 width: '100%',
                 padding: '0.45rem 0.65rem',
                 borderRadius: '0.375rem',
-                background: lang === item.code ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: lang === item.code ? '#34d399' : '#cbd5e1',
+                background: lang === item.code ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+                color: lang === item.code ? '#34d399' : '#ffffff',
                 border: 'none',
-                fontSize: '0.82rem',
+                fontSize: '0.85rem',
                 fontWeight: lang === item.code ? 700 : 500,
                 cursor: 'pointer',
                 textAlign: 'left',
