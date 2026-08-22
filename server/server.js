@@ -29,25 +29,44 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health Check API
-app.get('/api/health', (req, res) => {
+const healthHandler = (req, res) => {
   res.json({
     status: 'OPERATIONAL',
     service: 'CivicOS AI Municipal Command API',
     timestamp: new Date().toISOString(),
     aiEngine: process.env.AI_API_KEY ? 'Gemini 2.5 Active' : 'Deterministic Rule Engine Fallback',
   });
-});
+};
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
 
-// API Routes
+// Dual Mounting: Mount both /api/path and /path so Vercel Serverless Functions match regardless of path prefix stripping
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/complaints', complaintRoutes);
+app.use('/complaints', complaintRoutes);
+
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/dashboard', dashboardRoutes);
+
 app.use('/api/analytics', analyticsRoutes);
+app.use('/analytics', analyticsRoutes);
+
 app.use('/api/predictions', predictionRoutes);
+app.use('/predictions', predictionRoutes);
+
 app.use('/api/incidents', incidentRoutes);
+app.use('/incidents', incidentRoutes);
+
 app.use('/api/departments', departmentRoutes);
+app.use('/departments', departmentRoutes);
+
 app.use('/api/wards', wardRoutes);
+app.use('/wards', wardRoutes);
+
 app.use('/api/ai', aiRoutes);
+app.use('/ai', aiRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
