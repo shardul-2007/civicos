@@ -126,7 +126,7 @@ export default function App() {
 
               {/* Citizen Portal Routes */}
               <Route path="/report" element={<ReportComplaint />} />
-              <Route path="/citizen" element={<Navigate to="/report" replace />} />
+              <Route path="/citizen" element={<CitizenHistory />} />
               <Route path="/citizen/report" element={<ReportComplaint />} />
               <Route path="/citizen/track" element={<TrackComplaint />} />
               <Route path="/citizen/history" element={<CitizenHistory />} />
