@@ -847,13 +847,21 @@ body.light-theme .sidebar,
 body.light-theme .kpi-card,
 body.light-theme .natural-glass-card,
 body.light-theme .glass-drawer-content,
-body.light-theme .form-input-dark {
+body.light-theme .form-input-dark,
+body.light-theme div[style*="background: '#0c101a'"],
+body.light-theme div[style*="background: '#0a0d14'"],
+body.light-theme div[style*="background: '#121722'"],
+body.light-theme div[style*="background: '#0f141f'"],
+body.light-theme div[style*="background: '#111827'"],
+body.light-theme header[style*="background: '#0c101a'"],
+body.light-theme header[style*="background: '#0a0d14'"] {
   background: #ffffff !important;
   color: #0f172a !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
+/* Force ALL white or light text to crisp dark slate in Light Theme */
 body.light-theme h1,
 body.light-theme h2,
 body.light-theme h3,
@@ -862,7 +870,17 @@ body.light-theme h5,
 body.light-theme h6,
 body.light-theme strong,
 body.light-theme b,
-body.light-theme .sidebar-nav-item {
+body.light-theme .sidebar-nav-item,
+body.light-theme *[style*="color: '#ffffff'"],
+body.light-theme *[style*="color: 'white'"],
+body.light-theme *[style*="color: '#f8fafc'"],
+body.light-theme *[style*="color: '#cbd5e1'"],
+body.light-theme *[style*="color: '#94a3b8'"],
+body.light-theme *[style*="color:#ffffff"],
+body.light-theme *[style*="color:white"],
+body.light-theme *[style*="color:#f8fafc"],
+body.light-theme *[style*="color:#cbd5e1"],
+body.light-theme *[style*="color:#94a3b8"] {
   color: #0f172a !important;
 }
 
@@ -870,14 +888,57 @@ body.light-theme p,
 body.light-theme span,
 body.light-theme td,
 body.light-theme th,
-body.light-theme label {
-  color: #334155 !important;
+body.light-theme label,
+body.light-theme div {
+  color: #334155;
+}
+
+body.light-theme .gradient-text {
+  background: linear-gradient(135deg, #0284c7 0%, #0d9488 50%, #2563eb 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
 }
 
 body.light-theme button:not(.btn-sage),
 body.light-theme .btn-glass,
-body.light-theme select {
+body.light-theme select,
+body.light-theme input {
   background: #f1f5f9 !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
+}
+
+/* ─────────────────────────────────
+   MOBILE RESPONSIVENESS FIX (< 768px)
+───────────────────────────────── */
+@media (max-width: 767px) {
+  html, body, #root, .app-shell, .main-wrapper, main {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  *, *::before, *::after {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  div[style*="gridTemplateColumns"],
+  div[style*="grid-template-columns"],
+  div[style*="repeat("],
+  .admin-overview-main-grid,
+  .metrics-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  div[style*="minWidth"],
+  div[style*="min-width"],
+  button[style*="minWidth"],
+  button[style*="min-width"] {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
 }
