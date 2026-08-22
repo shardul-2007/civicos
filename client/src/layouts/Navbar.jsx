@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Sparkles } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Sparkles, Home, Clock, Layers
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import LanguageSelector from '../components/LanguageSelector';
@@ -9,6 +11,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const { lang, changeLanguage, t } = useLanguage();
   const location = useLocation();
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -19,6 +22,14 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = () => {
+    setMobileMenuOpen(false);
+    logout();
+    navigate('/login');
+  };
+
+  const role = user?.role || 'CITIZEN';
 
   return (
     <header
@@ -46,7 +57,7 @@ export default function Navbar() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'nowrap', // Prevent vertical overexpansion on mobile
+          flexWrap: 'nowrap',
           gap: '0.5rem',
         }}
       >
@@ -106,7 +117,7 @@ export default function Navbar() {
               <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 700 }} className="desktop-only">
                 {user.name ? user.name.split(' ')[0] : 'User'}
               </span>
-              <button onClick={logout} title="Logout" className="btn-glass" style={{ padding: '0.4rem', color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}>
+              <button onClick={handleLogout} title="Logout" className="btn-glass" style={{ padding: '0.4rem', color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}>
                 <LogOut size={14} />
               </button>
             </div>
@@ -128,9 +139,23 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu (Contains Laptop-equivalent options cleanly structured) */}
+      {/* Mobile Drawer Menu (Contains ALL Laptop-equivalent functions fully operational) */}
       {mobileMenuOpen && (
-        <div style={{ background: '#121722', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', boxShadow: '0 20px 40px rgba(0,0,0,0.9)' }}>
+        <div style={{ background: '#121722', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '0.85rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem', boxShadow: '0 20px 40px rgba(0,0,0,0.9)', maxHeight: '85vh', overflowY: 'auto' }}>
+          
+          {/* User Profile Banner if Logged In */}
+          {user && (
+            <div style={{ padding: '0.6rem 0.75rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '0.85rem' }}>{user.name || 'User Account'}</div>
+                <div style={{ fontSize: '0.7rem', color: '#34d399', fontWeight: 700 }}>{role} • Ward 14</div>
+              </div>
+              <button onClick={handleLogout} className="btn-glass" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}>
+                <LogOut size={12} /> {t('logout')}
+              </button>
+            </div>
+          )}
+
           {/* Language Selector Row */}
           <div style={{ paddingBottom: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.35rem', letterSpacing: '0.05em' }}>
@@ -165,13 +190,9 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Navigation & Action Links */}
-          <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
-            <Radio size={16} color="#34d399" /> {t('platform')} / {t('commandCenter')}
-          </Link>
-
-          <Link to="/ai" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
-            <Sparkles size={16} color="#60a5fa" /> {t('intelligence')} Command
+          {/* Complete Navigation Links */}
+          <Link to="/" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
+            <Home size={16} color="#34d399" /> {t('howItWorks')}
           </Link>
 
           <Link to="/report" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: '#059669', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
@@ -182,10 +203,43 @@ export default function Navbar() {
             <Search size={16} color="#34d399" /> {t('trackIssue')}
           </Link>
 
-          {!user && (
+          <Link to="/citizen/history" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
+            <Clock size={16} color="#34d399" /> Citizen Portal & History
+          </Link>
+
+          <Link to="/officer" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
+            <Shield size={16} color="#60a5fa" /> Field Officer Desk
+          </Link>
+
+          <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
+            <Radio size={16} color="#34d399" /> {t('platform')} / {t('commandCenter')}
+          </Link>
+
+          <Link to="/ai" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+            <Sparkles size={16} color="#60a5fa" /> {t('intelligence')} Command
+          </Link>
+
+          {!user ? (
             <Link to="/login" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)' }}>
               <User size={16} color="#34d399" /> {t('login')}
             </Link>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="btn-glass"
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                color: '#f87171',
+                borderColor: 'rgba(239, 68, 68, 0.4)',
+                fontSize: '0.88rem',
+                padding: '0.6rem',
+                fontWeight: 700,
+                marginTop: '0.25rem',
+              }}
+            >
+              <LogOut size={16} /> {t('logout')}
+            </button>
           )}
         </div>
       )}
