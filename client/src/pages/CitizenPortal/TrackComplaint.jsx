@@ -132,7 +132,7 @@ export default function TrackComplaint() {
   const sevColor = complaint ? (SEV_COLOR[complaint.severity] || '#f97316') : '#f97316';
 
   return (
-    <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '2.5rem 1rem', overflowX: 'hidden' }}>
+    <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '5.5rem 1rem 3rem', overflowX: 'hidden' }}>
       <div style={{ maxWidth: '860px', margin: '0 auto' }}>
 
         {/* ── Hero Search ── */}

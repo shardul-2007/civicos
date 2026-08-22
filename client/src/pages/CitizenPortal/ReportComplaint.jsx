@@ -179,7 +179,7 @@ export default function ReportComplaint() {
   const sevColor = sev === 'CRITICAL' ? '#ef4444' : sev === 'HIGH' ? '#f97316' : sev === 'MEDIUM' ? '#f59e0b' : '#10b981';
 
   return (
-    <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '2rem 1rem', overflowX: 'hidden' }}>
+    <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '5.5rem 1rem 3rem', overflowX: 'hidden' }}>
       <div style={{ maxWidth: '720px', margin: '0 auto' }}>
 
         {/* ── Page Header ── */}
