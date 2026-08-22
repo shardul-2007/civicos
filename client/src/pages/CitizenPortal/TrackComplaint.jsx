@@ -62,8 +62,6 @@ const fallbackComplaintData = {
   ]
 };
 
-import LeafletErrorBoundary from '../../components/LeafletErrorBoundary';
-
 function TrackMap({ location, address }) {
   const coords = location?.coordinates;
   const lat = (coords && coords.length >= 2 && !isNaN(coords[1])) ? coords[1] : 18.5304;
