@@ -61,6 +61,36 @@ const fallbackComplaintData = {
   ]
 };
 
+function TrackMap({ location, address }) {
+  const coords = location?.coordinates;
+  const lat = (coords && coords.length >= 2 && !isNaN(coords[1])) ? coords[1] : 18.5304;
+  const lng = (coords && coords.length >= 2 && !isNaN(coords[0])) ? coords[0] : 73.8667;
+  const pin = createPinIcon();
+
+  return (
+    <div className="natural-glass-card" style={{ padding: '1.5rem' }}>
+      <div style={{ fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.72rem' }}>
+        <MapPin size={13} color="#34d399" /> Incident Location
+      </div>
+      <div style={{ height: '200px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.75rem', position: 'relative' }}>
+        <MapContainer
+          key={`track-map-${lat}-${lng}`}
+          center={[lat, lng]}
+          zoom={15}
+          style={{ height: '100%', width: '100%' }}
+          zoomControl={false}
+        >
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {pin && <Marker position={[lat, lng]} icon={pin} />}
+        </MapContainer>
+      </div>
+      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+        <MapPin size={12} /> {address || 'Near College Gate, Main Road, Ward 14'}
+      </div>
+    </div>
+  );
+}
+
 export default function TrackComplaint() {
   const [searchParams]  = useSearchParams();
   const [trackingCode, setTrackingCode] = useState(searchParams.get('code') || '');
@@ -77,7 +107,7 @@ export default function TrackComplaint() {
     // Check localStorage first
     try {
       const stored = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
-      const found = stored.find((c) => c.trackingCode.toUpperCase() === cleanCode);
+      const found = stored.find((c) => c && c.trackingCode && c.trackingCode.toUpperCase() === cleanCode);
       if (found) {
         setComplaint(found);
         setLoading(false);
@@ -303,33 +333,7 @@ export default function TrackComplaint() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '1.25rem' }}>
 
               {/* Location Map */}
-              <div className="natural-glass-card" style={{ padding: '1.5rem' }}>
-                <div style={{ fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.72rem' }}>
-                  <MapPin size={13} color="#34d399" /> Incident Location
-                </div>
-                <div style={{ height: '200px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.75rem' }}>
-                  {(() => {
-                    const coords = complaint?.location?.coordinates;
-                    const lat = (coords && coords.length >= 2 && !isNaN(coords[1])) ? coords[1] : 18.5304;
-                    const lng = (coords && coords.length >= 2 && !isNaN(coords[0])) ? coords[0] : 73.8667;
-                    const pin = createPinIcon();
-                    return (
-                      <MapContainer
-                        center={[lat, lng]}
-                        zoom={15}
-                        style={{ height: '100%', width: '100%' }}
-                        zoomControl={false}
-                      >
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        {pin && <Marker position={[lat, lng]} icon={pin} />}
-                      </MapContainer>
-                    );
-                  })()}
-                </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <MapPin size={12} /> {complaint.address || 'Near College Gate, Main Road, Ward 14'}
-                </div>
-              </div>
+              <TrackMap location={complaint.location} address={complaint.address} />
 
               {/* Audit History Timeline */}
               <div className="natural-glass-card" style={{ padding: '1.5rem' }}>
