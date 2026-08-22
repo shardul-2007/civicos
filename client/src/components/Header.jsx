@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Bell, Plus, User, Command, FileSpreadsheet, Menu, LogOut, Shield, CheckCircle2, ChevronDown, Sparkles } from 'lucide-react';
+import { Search, Bell, Plus, User, Command, FileSpreadsheet, Menu, LogOut, Shield, CheckCircle2, ChevronDown, Sparkles, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import LanguageSelector from './LanguageSelector';
