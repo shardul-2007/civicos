@@ -9,11 +9,15 @@ import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { complaintAPI } from '../../services/api';
 
-const pinIcon = new L.Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41], iconAnchor: [12, 41],
-});
+const createPinIcon = () => {
+  if (typeof window === 'undefined' || !L || !L.divIcon) return null;
+  return L.divIcon({
+    className: 'custom-leaflet-pin',
+    html: `<div style="background:#10b981; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow:0 0 14px #10b981;"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+};
 
 const STATUS_STEPS = [
   { label: 'Submitted',    key: 'SUBMITTED',    icon: FileText,     color: '#3b82f6' },
@@ -304,15 +308,23 @@ export default function TrackComplaint() {
                   <MapPin size={13} color="#34d399" /> Incident Location
                 </div>
                 <div style={{ height: '200px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.75rem' }}>
-                  <MapContainer
-                    center={[18.5304, 73.8667]}
-                    zoom={15}
-                    style={{ height: '100%', width: '100%' }}
-                    zoomControl={false}
-                  >
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                    <Marker position={[18.5304, 73.8667]} icon={pinIcon} />
-                  </MapContainer>
+                  {(() => {
+                    const coords = complaint?.location?.coordinates;
+                    const lat = (coords && coords.length >= 2 && !isNaN(coords[1])) ? coords[1] : 18.5304;
+                    const lng = (coords && coords.length >= 2 && !isNaN(coords[0])) ? coords[0] : 73.8667;
+                    const pin = createPinIcon();
+                    return (
+                      <MapContainer
+                        center={[lat, lng]}
+                        zoom={15}
+                        style={{ height: '100%', width: '100%' }}
+                        zoomControl={false}
+                      >
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        {pin && <Marker position={[lat, lng]} icon={pin} />}
+                      </MapContainer>
+                    );
+                  })()}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <MapPin size={12} /> {complaint.address || 'Near College Gate, Main Road, Ward 14'}
