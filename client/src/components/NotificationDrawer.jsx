@@ -19,7 +19,7 @@ export default function NotificationDrawer({ isOpen, onClose }) {
         background: 'rgba(5, 8, 15, 0.75)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        zIndex: 400, // --z-drawer
+        zIndex: 2500,
         display: 'flex',
         justifyContent: 'flex-end',
         animation: 'fadeIn 0.2s ease',
@@ -123,4 +123,3 @@ export default function NotificationDrawer({ isOpen, onClose }) {
     </div>
   );
 }
-

@@ -23,7 +23,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
       gap: '1rem',
       position: 'sticky',
       top: 0,
-      zIndex: 1000,
+      zIndex: 900,
     }}>
       {/* Left Title & Mobile/Desktop Menu Toggle Button */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

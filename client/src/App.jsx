@@ -98,8 +98,11 @@ export default function App() {
               onOpenNotifications={() => setNotificationsOpen(true)}
               onOpenExport={() => setExportOpen(true)}
               onToggleMobileSidebar={() => {
-                setMobileOpen((prev) => !prev);
-                setCollapsed((prev) => !prev);
+                if (window.innerWidth < 768) {
+                  setMobileOpen((prev) => !prev);
+                } else {
+                  setCollapsed((prev) => !prev);
+                }
               }}
             />
           )}
