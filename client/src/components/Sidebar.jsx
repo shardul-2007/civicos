@@ -76,14 +76,18 @@ export default function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobile
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'rgba(5, 8, 15, 0.7)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 750,
+            background: 'rgba(5, 8, 15, 0.85)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            zIndex: 999998,
           }}
         />
       )}
 
-      <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
+      <aside
+        className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}
+        style={{ zIndex: mobileOpen ? 999999 : undefined }}
+      >
         {/* Brand Header */}
         <div style={{ padding: '1.25rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <Link to="/" onClick={handleNavClick} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
