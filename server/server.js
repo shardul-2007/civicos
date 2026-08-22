@@ -54,10 +54,15 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`=======================================================`);
-  console.log(`  🚀 CivicOS Command API running on http://localhost:${PORT}`);
-  console.log(`  ● Status: SYSTEM OPERATIONAL`);
-  console.log(`  ● AI Mode: ${process.env.AI_API_KEY ? 'Gemini AI API' : 'Deterministic NLP Fallback'}`);
-  console.log(`=======================================================`);
-});
+// Local development only
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`=======================================================`);
+    console.log(`  🚀 CivicOS Command API running on http://localhost:${PORT}`);
+    console.log(`  ● Status: SYSTEM OPERATIONAL`);
+    console.log(`  ● AI Mode: ${process.env.AI_API_KEY ? 'Gemini AI API' : 'Deterministic NLP Fallback'}`);
+    console.log(`=======================================================`);
+  });
+}
+
+export default app;
