@@ -22,80 +22,95 @@ export default function LanguageSelector({ compact = false, alignLeft = false })
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
+  const handleSelect = (code) => {
+    changeLanguage(code);
+    setOpen(false);
+  };
+
   return (
-    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block', zIndex: 9999 }}>
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block', zIndex: 99999 }}>
       <button
-        onClick={() => setOpen(!open)}
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
         className="btn-glass"
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.35rem',
-          padding: compact ? '0.35rem 0.55rem' : '0.4rem 0.75rem',
-          fontSize: '0.8rem',
+          gap: '0.4rem',
+          padding: compact ? '0.45rem 0.65rem' : '0.5rem 0.85rem',
+          fontSize: '0.85rem',
           fontWeight: 700,
           color: '#34d399',
-          borderColor: 'rgba(16, 185, 129, 0.3)',
-          background: 'rgba(16, 185, 129, 0.08)',
+          borderColor: 'rgba(16, 185, 129, 0.4)',
+          background: 'rgba(16, 185, 129, 0.12)',
           borderRadius: '0.5rem',
           cursor: 'pointer',
+          userSelect: 'none',
+          WebkitTapHighlightColor: 'transparent',
         }}
         title="Select Language / भाषा चुनें / भाषा निवडा"
       >
-        <Globe size={15} color="#34d399" />
+        <Globe size={16} color="#34d399" />
         <span>{currentLang.label}</span>
-        <span style={{ fontSize: '0.7rem' }}>{currentLang.flag}</span>
-        <ChevronDown size={12} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+        <span style={{ fontSize: '0.75rem' }}>{currentLang.flag}</span>
+        <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
 
       {open && (
-        <div style={{
-          position: 'absolute',
-          top: '42px',
-          left: alignLeft ? 0 : 'auto',
-          right: alignLeft ? 'auto' : 0,
-          width: '150px',
-          background: '#121722',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          borderRadius: '0.625rem',
-          boxShadow: '0 20px 45px rgba(0,0,0,0.95)',
-          padding: '0.35rem',
-          zIndex: 9999,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.2rem',
-        }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '46px',
+            left: alignLeft ? 0 : 'auto',
+            right: alignLeft ? 'auto' : 0,
+            minWidth: '160px',
+            background: '#121722',
+            border: '1.5px solid rgba(16, 185, 129, 0.4)',
+            borderRadius: '0.75rem',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.95)',
+            padding: '0.4rem',
+            zIndex: 99999,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.25rem',
+          }}
+        >
           {LANGUAGES.map((item) => (
             <button
               key={item.code}
-              onClick={() => {
-                changeLanguage(item.code);
-                setOpen(false);
-              }}
+              type="button"
+              onClick={() => handleSelect(item.code)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 width: '100%',
-                padding: '0.45rem 0.65rem',
-                borderRadius: '0.375rem',
-                background: lang === item.code ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+                padding: '0.6rem 0.75rem',
+                minHeight: '44px', // Touch target optimized for mobile fingers
+                borderRadius: '0.5rem',
+                background: lang === item.code ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255, 255, 255, 0.03)',
                 color: lang === item.code ? '#34d399' : '#ffffff',
-                border: 'none',
-                fontSize: '0.85rem',
-                fontWeight: lang === item.code ? 700 : 500,
+                border: lang === item.code ? '1px solid rgba(16, 185, 129, 0.5)' : '1px solid transparent',
+                fontSize: '0.9rem',
+                fontWeight: lang === item.code ? 800 : 600,
                 cursor: 'pointer',
                 textAlign: 'left',
+                userSelect: 'none',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span>{item.flag}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1rem' }}>{item.flag}</span>
                 <span>{item.name}</span>
               </span>
-              {lang === item.code && <Check size={14} color="#34d399" />}
+              {lang === item.code && <Check size={16} color="#34d399" />}
             </button>
           ))}
         </div>

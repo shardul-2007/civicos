@@ -63,7 +63,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
       </div>
 
       {/* Quick Search & Actions Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', position: 'relative', maxWidth: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', position: 'relative', maxWidth: '100%', overflow: 'visible', zIndex: 950 }}>
         
         {/* Language Selector Dropdown (English / Hindi / Marathi) */}
         <LanguageSelector compact alignLeft />
