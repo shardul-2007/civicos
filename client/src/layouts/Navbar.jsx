@@ -7,7 +7,7 @@ import LanguageSelector from '../components/LanguageSelector';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { t } = useLanguage();
+  const { lang, changeLanguage, t } = useLanguage();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -116,8 +116,37 @@ export default function Navbar() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div style={{ background: '#121722', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div style={{ paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-            <LanguageSelector />
+          <div style={{ paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem', letterSpacing: '0.05em' }}>
+              Language / भाषा / भाषा निवडा:
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
+              {[
+                { code: 'en', label: 'English 🇬🇧' },
+                { code: 'hi', label: 'हिंदी 🇮🇳' },
+                { code: 'mr', label: 'मराठी 🇮🇳' },
+              ].map(item => (
+                <button
+                  key={item.code}
+                  type="button"
+                  onClick={() => {
+                    changeLanguage(item.code);
+                  }}
+                  className="btn-glass"
+                  style={{
+                    padding: '0.5rem 0.25rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    justifyContent: 'center',
+                    background: lang === item.code ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.03)',
+                    color: lang === item.code ? '#34d399' : '#ffffff',
+                    borderColor: lang === item.code ? 'rgba(16,185,129,0.5)' : 'rgba(255,255,255,0.1)',
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </div>
           <Link to="/ai" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
             <Sparkles size={16} /> {t('intelligence')} Command
