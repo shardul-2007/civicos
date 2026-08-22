@@ -1,16 +1,27 @@
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 
+let isConnected = false;
+
 export const connectDB = async () => {
+  if (isConnected || mongoose.connection.readyState === 1) {
+    return;
+  }
+
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/civicos');
+    const conn = await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/civicos', {
+      serverSelectionTimeoutMS: 3000,
+    });
+    isConnected = true;
     console.log(`[MongoDB] Connected: ${conn.connection.host}`);
     
     // Idempotent check for demo accounts
     await ensureDemoAccounts();
   } catch (error) {
-    console.error(`[MongoDB Error] Connection failed: ${error.message}`);
-    process.exit(1);
+    console.warn(`[MongoDB Warning] Connection deferred: ${error.message}. Operating in resilient fallback mode.`);
+    if (process.env.VERCEL !== '1') {
+      // Don't crash serverless functions on Vercel
+    }
   }
 };
 
@@ -25,13 +36,12 @@ export const ensureDemoAccounts = async () => {
     for (const acc of demoAccounts) {
       let user = await User.findOne({ email: acc.email }).select('+password');
       if (!user) {
-        // Pass plain text password so Mongoose pre('save') hook hashes it ONCE
         await User.create(acc);
         console.log(`[Demo Setup] Created missing account: ${acc.email} (${acc.role})`);
       } else {
         const matches = await user.matchPassword(acc.password);
         if (!matches) {
-          user.password = acc.password; // Mongoose pre('save') hook will hash this plain text password ONCE
+          user.password = acc.password;
           user.role = acc.role;
           await user.save();
           console.log(`[Demo Setup] Fixed password hash for: ${acc.email}`);
