@@ -1,32 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Bell, Plus, User, Command, FileSpreadsheet, Menu, LogOut, Shield, CheckCircle2, ChevronDown, Sparkles, Sun, Moon } from 'lucide-react';
+import { Search, Bell, Plus, User, Command, FileSpreadsheet, Menu, LogOut, Shield, CheckCircle2, ChevronDown, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Header({ title, onOpenCommand, onOpenNotifications, onOpenExport, onToggleMobileSidebar }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('civicos_theme') || 'dark');
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('civicos_theme', nextTheme);
-    if (nextTheme === 'light') {
-      document.body.classList.add('light-theme');
-    } else {
-      document.body.classList.remove('light-theme');
-    }
-  };
-
-  useEffect(() => {
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
-    } else {
-      document.body.classList.remove('light-theme');
-    }
-  }, [theme]);
 
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : 'M';
   const role = user?.role || 'OFFICER';
@@ -79,26 +59,6 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
       {/* Quick Search & Actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap', position: 'relative' }}>
         
-        {/* Theme Toggle Button (Light / Dark Theme) */}
-        <button
-          onClick={toggleTheme}
-          style={{
-            background: '#0f141f',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            width: '38px',
-            height: '38px',
-            borderRadius: '0.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: theme === 'dark' ? '#fbbf24' : '#60a5fa',
-            cursor: 'pointer',
-          }}
-          title={theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-        >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-
         {/* Global Search Bar (Triggers Ctrl+K Command Palette) */}
         <button
           onClick={onOpenCommand}
