@@ -828,6 +828,24 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 /* ─────────────────────────────────
+   EXPLICIT THEME CONTRAST SYSTEM
+───────────────────────────────── */
+body:not(.light-theme) h1,
+body:not(.light-theme) h2,
+body:not(.light-theme) h3,
+body:not(.light-theme) h4,
+body:not(.light-theme) h5,
+body:not(.light-theme) h6,
+body:not(.light-theme) strong,
+body:not(.light-theme) b {
+  color: #ffffff !important;
+}
+
+body:not(.light-theme) p {
+  color: #cbd5e1 !important;
+}
+
+/* ─────────────────────────────────
    WHITE & BLUE LIGHT THEME SYSTEM
 ───────────────────────────────── */
 body.light-theme,
@@ -861,7 +879,6 @@ body.light-theme header[style*="background: '#0a0d14'"] {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Force ALL white or light text to crisp dark slate in Light Theme */
 body.light-theme h1,
 body.light-theme h2,
 body.light-theme h3,
@@ -888,9 +905,8 @@ body.light-theme p,
 body.light-theme span,
 body.light-theme td,
 body.light-theme th,
-body.light-theme label,
-body.light-theme div {
-  color: #334155;
+body.light-theme label {
+  color: #334155 !important;
 }
 
 body.light-theme .gradient-text {
