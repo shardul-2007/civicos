@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -60,24 +63,27 @@ export default function Navbar() {
         {/* Desktop Nav Links */}
         <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <Link to="/admin" style={{ textDecoration: 'none', color: location.pathname === '/admin' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}>
-            Platform
+            {t('platform')}
           </Link>
           <Link to="/" style={{ textDecoration: 'none', color: location.pathname === '/' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}>
-            How It Works
+            {t('howItWorks')}
           </Link>
           <Link to="/ai" style={{ textDecoration: 'none', color: location.pathname === '/ai' ? '#34d399' : '#60a5fa', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Sparkles size={14} color="#60a5fa" /> Intelligence
+            <Sparkles size={14} color="#60a5fa" /> {t('intelligence')}
           </Link>
         </nav>
 
         {/* Right Action Buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Language Selector Button (English / Hindi / Marathi) */}
+          <LanguageSelector />
+
           <Link to="/citizen/track" className="btn-glass" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none' }}>
-            <Search size={14} color="#34d399" /> Track Issue
+            <Search size={14} color="#34d399" /> {t('trackIssue')}
           </Link>
 
           <Link to="/report" className="btn-sage" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none' }}>
-            <PlusCircle size={14} /> Report Issue
+            <PlusCircle size={14} /> {t('reportIssue')}
           </Link>
 
           {user ? (
@@ -91,7 +97,7 @@ export default function Navbar() {
             </div>
           ) : (
             <Link to="/login" className="btn-glass" style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.8rem', fontWeight: 600, padding: '0.4rem 0.75rem' }}>
-              Login
+              {t('login')}
             </Link>
           )}
 
@@ -110,17 +116,20 @@ export default function Navbar() {
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div style={{ background: '#121722', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ paddingBottom: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <LanguageSelector />
+          </div>
           <Link to="/ai" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
-            <Sparkles size={16} /> AI Intelligence Command
+            <Sparkles size={16} /> {t('intelligence')} Command
           </Link>
           <Link to="/report" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: '#059669', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <PlusCircle size={16} /> Report Civic Issue
+            <PlusCircle size={16} /> {t('reportIssue')}
           </Link>
           <Link to="/citizen/track" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Search size={16} color="#34d399" /> Track Complaint Status
+            <Search size={16} color="#34d399" /> {t('trackIssue')}
           </Link>
           <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.9rem', padding: '0.5rem', borderRadius: '0.375rem', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Radio size={16} color="#34d399" /> Municipal Command Center
+            <Radio size={16} color="#34d399" /> {t('commandCenter')}
           </Link>
         </div>
       )}

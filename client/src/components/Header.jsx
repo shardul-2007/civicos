@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, Bell, Plus, User, Command, FileSpreadsheet, Menu, LogOut, Shield, CheckCircle2, ChevronDown, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 export default function Header({ title, onOpenCommand, onOpenNotifications, onOpenExport, onToggleMobileSidebar }) {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
@@ -51,10 +54,10 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
 
         <div style={{ overflow: 'hidden' }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {title || 'CivicOS Operating System'}
+            {title || t('welcomeTitle')}
           </h2>
           <div className="desktop-only" style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-            Good evening, {user?.name || 'Chief Officer Rajesh Kumar'} • City Operations Overview
+            {user?.name ? `${user.name} • ` : ''}{t('welcomeSubtitle')}
           </div>
         </div>
       </div>
@@ -62,6 +65,9 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
       {/* Quick Search & Actions Bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', position: 'relative', maxWidth: '100%' }}>
         
+        {/* Language Selector Dropdown (English / Hindi / Marathi) */}
+        <LanguageSelector compact />
+
         {/* Global Search Bar (Triggers Ctrl+K Command Palette) */}
         <button
           onClick={onOpenCommand}
@@ -80,7 +86,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
           }}
         >
           <Search size={14} />
-          <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Search...</span>
+          <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t('searchPlaceholder')}</span>
           <kbd className="desktop-only" style={{ background: '#121722', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#cbd5e1', borderRadius: '4px', padding: '0.1rem 0.3rem', fontSize: '0.65rem', fontWeight: 700 }}>
             Ctrl K
           </kbd>
@@ -91,10 +97,10 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
           onClick={onOpenExport}
           className="btn-glass"
           style={{ padding: '0.4rem 0.65rem', fontSize: '0.8rem' }}
-          title="Export Municipal Report"
+          title={t('exportReport')}
         >
           <FileSpreadsheet size={15} />
-          <span className="desktop-only">Export</span>
+          <span className="desktop-only">{t('exportReport').split(' ')[0]}</span>
         </button>
 
         {/* Notifications Trigger */}
@@ -114,7 +120,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
             cursor: 'pointer',
             flexShrink: 0,
           }}
-          title="Notifications"
+          title={t('notifications')}
         >
           <Bell size={16} />
           <span style={{ position: 'absolute', top: '5px', right: '5px', width: '7px', height: '7px', background: '#ef4444', borderRadius: '50%' }}></span>
@@ -122,7 +128,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
 
         {/* Quick Report Issue Button */}
         <Link to="/report" className="btn-sage" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-          <Plus size={15} /> <span className="desktop-only">Report</span>
+          <Plus size={15} /> <span className="desktop-only">{t('reportProblem')}</span>
         </Link>
 
         {/* User Badge Avatar Button (Interactive Modal Trigger) */}
@@ -180,13 +186,13 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.75rem' }}>
                 <Link to="/officer" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.8rem', padding: '0.35rem 0.5rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <Shield size={14} color="#60a5fa" /> Field Officer Desk
+                  <Shield size={14} color="#60a5fa" /> {t('fieldDesk')}
                 </Link>
                 <Link to="/admin" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.8rem', padding: '0.35rem 0.5rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <Sparkles size={14} color="#34d399" /> Command Overview
+                  <Sparkles size={14} color="#34d399" /> {t('commandCenter')}
                 </Link>
                 <Link to="/report" onClick={() => setUserDropdownOpen(false)} style={{ textDecoration: 'none', color: '#cbd5e1', fontSize: '0.8rem', padding: '0.35rem 0.5rem', borderRadius: '0.35rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <Plus size={14} color="#f59e0b" /> Report Civic Problem
+                  <Plus size={14} color="#f59e0b" /> {t('reportProblem')}
                 </Link>
               </div>
 
@@ -199,7 +205,7 @@ export default function Header({ title, onOpenCommand, onOpenNotifications, onOp
                 className="btn-glass"
                 style={{ width: '100%', justifyContent: 'center', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.3)', fontSize: '0.78rem', padding: '0.35rem' }}
               >
-                <LogOut size={14} /> Log Out
+                <LogOut size={14} /> {t('logout')}
               </button>
             </div>
           )}
