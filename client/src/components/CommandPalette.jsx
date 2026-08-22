@@ -3,19 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, FileText, Clock, AlertTriangle, TrendingUp, X, ArrowRight, Zap, PlusCircle, Users } from 'lucide-react';
 
 export default function CommandPalette({ isOpen, onClose, onOpenExport }) {
-  if (!isOpen) return null;
-
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
 
   // Handle esc key
   useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
 
   const actions = [
     { title: 'Report a Problem', path: '/report', icon: PlusCircle, category: 'Actions' },
@@ -49,92 +50,69 @@ export default function CommandPalette({ isOpen, onClose, onOpenExport }) {
         position: 'fixed',
         inset: 0,
         background: 'rgba(5, 8, 15, 0.75)',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        zIndex: 800, // --z-command
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        zIndex: 2500,
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
         paddingTop: '10vh',
-        paddingLeft: '1rem',
-        paddingRight: '1rem',
-        animation: 'fadeIn 0.2s ease',
+        animation: 'fadeIn 0.15s ease',
       }}
       onClick={onClose}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
+        className="natural-glass-card"
         style={{
-          background: '#121722',
+          width: '90%',
+          maxWidth: '640px',
+          background: '#0e1420',
           border: '1px solid rgba(255, 255, 255, 0.15)',
-          borderRadius: '0.75rem',
-          width: '100%',
-          maxWidth: '600px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+          borderRadius: '0.875rem',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9)',
           overflow: 'hidden',
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input Bar */}
-        <form
-          onSubmit={handleSearchSubmit}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '1rem 1.25rem',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            gap: '0.75rem',
-            background: '#0a0d14',
-          }}
-        >
-          <Search size={20} color="#34d399" />
+        {/* Command Search Input Bar */}
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', padding: '1rem 1.25rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <Search size={20} color="#34d399" style={{ marginRight: '0.75rem' }} />
           <input
             type="text"
+            placeholder="Type a command or search (e.g. CIV-138987-644E, potholes, Ward 14)..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            autoFocus
             style={{
               flex: 1,
               background: 'transparent',
               border: 'none',
               outline: 'none',
-              fontSize: '1rem',
               color: '#ffffff',
-              fontFamily: 'inherit',
+              fontSize: '1rem',
+              fontWeight: 500,
             }}
-            placeholder="Search complaint code (CIV-XXXXXX), ward, category..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            autoFocus
           />
           <button
             type="button"
             onClick={onClose}
-            style={{
-              background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '0.4rem',
-              color: '#94a3b8',
-              cursor: 'pointer',
-              width: '28px',
-              height: '28px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '0.25rem' }}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </form>
 
-        {/* Quick Commands List */}
-        <div style={{ padding: '0.75rem', maxHeight: '380px', overflowY: 'auto' }}>
-          <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, padding: '0.4rem 0.75rem' }}>
-            Quick Action Commands
+        {/* Quick Actions List */}
+        <div style={{ maxHeight: '380px', overflowY: 'auto', padding: '0.75rem' }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0.4rem 0.6rem 0.6rem' }}>
+            Quick Navigation & Actions
           </div>
-
-          {actions.map((act, i) => {
-            const Icon = act.icon;
+          {actions.map((action, idx) => {
+            const Icon = action.icon;
             return (
               <div
-                key={i}
-                onClick={() => handleSelectAction(act.path)}
+                key={idx}
+                onClick={() => handleSelectAction(action.path)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -142,59 +120,34 @@ export default function CommandPalette({ isOpen, onClose, onOpenExport }) {
                   padding: '0.75rem 0.85rem',
                   borderRadius: '0.5rem',
                   cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  color: '#f8fafc',
-                  transition: 'background 0.15s, color 0.15s',
-                  minHeight: '44px',
+                  color: '#cbd5e1',
+                  transition: 'all 0.15s ease',
+                  marginBottom: '0.2rem',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                  e.currentTarget.style.color = '#ffffff';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#cbd5e1';
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', width: '32px', height: '32px', borderRadius: '0.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '0.375rem', background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Icon size={16} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600 }}>{act.title}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{act.category}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{action.title}</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{action.category}</div>
                   </div>
                 </div>
-                <ArrowRight size={14} color="#94a3b8" />
+                <ArrowRight size={16} color="#64748b" />
               </div>
             );
           })}
-
-          <div
-            onClick={() => {
-              onClose();
-              if (onOpenExport) onOpenExport();
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0.75rem 0.85rem',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              color: '#34d399',
-              fontWeight: 600,
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
-              marginTop: '0.5rem',
-              minHeight: '44px',
-            }}
-          >
-            <span>📊 Generate Municipal Intelligence Report (PDF/CSV)</span>
-            <ArrowRight size={14} color="#34d399" />
-          </div>
         </div>
       </div>
     </div>
   );
 }
-

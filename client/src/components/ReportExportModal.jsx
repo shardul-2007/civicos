@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { X, FileSpreadsheet, Download, CheckCircle2, FileText } from 'lucide-react';
 
 export default function ReportExportModal({ isOpen, onClose }) {
-  if (!isOpen) return null;
-
   const [period, setPeriod] = useState('Monthly');
   const [downloaded, setDownloaded] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleExport = (format) => {
     setDownloaded(true);
@@ -23,86 +23,71 @@ export default function ReportExportModal({ isOpen, onClose }) {
         background: 'rgba(5, 8, 15, 0.75)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        zIndex: 500, // --z-modal
+        zIndex: 2500,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '1rem',
-        animation: 'fadeIn 0.2s ease',
+        animation: 'fadeIn 0.15s ease',
       }}
       onClick={onClose}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
+        className="natural-glass-card"
         style={{
-          background: '#121722',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          borderRadius: '0.75rem',
           width: '100%',
-          maxWidth: '560px',
-          padding: '2rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
+          maxWidth: '480px',
+          background: '#0e1420',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          borderRadius: '0.875rem',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9)',
+          padding: '1.5rem',
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: '1.5rem',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            paddingBottom: '1rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{ background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', width: '36px', height: '36px', borderRadius: '0.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '0.5rem', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <FileSpreadsheet size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff' }}>Generate Municipal Report</h3>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Export formatted executive intelligence metrics</div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff' }}>Export Municipal Report</h3>
+              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Generate certified SLA & complaint analytics</div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '0.4rem',
-              color: '#cbd5e1',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-            }}
-          >
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
             <X size={18} />
           </button>
         </div>
 
         {downloaded ? (
-          <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10b981', color: '#34d399', padding: '1.75rem', borderRadius: '0.5rem', textAlign: 'center' }}>
-            <CheckCircle2 size={40} style={{ margin: '0 auto 0.75rem auto' }} />
-            <h4 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Municipal Report Exported Successfully</h4>
-            <p style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.4rem' }}>
-              CivicOS_{period}_Executive_Report_2026.pdf has been generated and queued for download.
-            </p>
+          <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+            <CheckCircle2 size={48} color="#34d399" style={{ margin: '0 auto 1rem' }} />
+            <h4 style={{ fontSize: '1.1rem', color: '#ffffff', fontWeight: 700, marginBottom: '0.4rem' }}>Report Downloaded!</h4>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>CivicOS_Municipal_SLA_Report_2026.csv has been exported to your downloads folder.</p>
           </div>
         ) : (
           <div>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.5rem' }}>
-                Select Reporting Horizon
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.5rem' }}>
+                Select Report Period
               </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-                {['Daily', 'Weekly', 'Monthly'].map((p) => (
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {['Daily', 'Weekly', 'Monthly', 'Quarterly'].map((p) => (
                   <button
                     key={p}
                     onClick={() => setPeriod(p)}
-                    className={period === p ? 'btn-sage' : 'btn-glass'}
-                    style={{ justifyContent: 'center', padding: '0.6rem', fontSize: '0.85rem' }}
+                    style={{
+                      flex: 1,
+                      padding: '0.45rem',
+                      borderRadius: '0.375rem',
+                      border: period === p ? '1px solid #34d399' : '1px solid rgba(255, 255, 255, 0.1)',
+                      background: period === p ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                      color: period === p ? '#34d399' : '#cbd5e1',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
                   >
                     {p}
                   </button>
@@ -110,23 +95,20 @@ export default function ReportExportModal({ isOpen, onClose }) {
               </div>
             </div>
 
-            <div style={{ background: '#0a0d14', padding: '1.25rem', borderRadius: '0.5rem', border: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
-              <div style={{ fontWeight: 700, color: '#ffffff', marginBottom: '0.5rem' }}>Included Executive Sections:</div>
-              <ul style={{ paddingLeft: '1.2rem', color: '#cbd5e1', lineHeight: 1.7, fontSize: '0.8rem' }}>
-                <li>City Health Index & Monthly Benchmark Breakdown (82/100)</li>
-                <li>Complaints Volume, Velocity & Category Distribution</li>
-                <li>Department SLA Compliance & Workload Overload Metrics</li>
-                <li>Geospatial Hotspots & Incident Clusters (Ward 14)</li>
-                <li>AI Predictive Infrastructure Risk Forecasting</li>
-              </ul>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button onClick={() => handleExport('pdf')} className="btn-sage" style={{ flex: 1, justifyContent: 'center' }}>
-                <Download size={16} /> Export PDF Report
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <button
+                onClick={() => handleExport('CSV')}
+                className="btn-sage"
+                style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', fontSize: '0.9rem' }}
+              >
+                <Download size={16} /> Download CSV Spreadsheet
               </button>
-              <button onClick={() => handleExport('csv')} className="btn-glass" style={{ flex: 1, justifyContent: 'center' }}>
-                <FileSpreadsheet size={16} /> Export CSV Data
+              <button
+                onClick={() => handleExport('PDF')}
+                className="btn-glass"
+                style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', fontSize: '0.9rem' }}
+              >
+                <FileText size={16} /> Export Municipal Executive PDF
               </button>
             </div>
           </div>
@@ -135,4 +117,3 @@ export default function ReportExportModal({ isOpen, onClose }) {
     </div>
   );
 }
-
