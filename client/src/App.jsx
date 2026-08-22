@@ -86,12 +86,6 @@ export default function App() {
           />
         )}
 
-        {/*
-         * ✅ MOBILE FIX: We use a CSS class-based approach instead of inline style.
-         * The .admin-main class has margin-left defined via CSS, which allows the
-         * @media (max-width: 767px) rule to properly zero it with !important.
-         * Inline styles always win over media-query styles, so they cannot be used here.
-         */}
         <div
           className={`main-wrapper ${!isPublicPage ? (collapsed ? 'admin-main-collapsed' : 'admin-main') : ''}`}
         >
@@ -103,7 +97,10 @@ export default function App() {
               onOpenCommand={() => setCommandOpen(true)}
               onOpenNotifications={() => setNotificationsOpen(true)}
               onOpenExport={() => setExportOpen(true)}
-              onToggleMobileSidebar={() => setMobileOpen((prev) => !prev)}
+              onToggleMobileSidebar={() => {
+                setMobileOpen((prev) => !prev);
+                setCollapsed((prev) => !prev);
+              }}
             />
           )}
 
