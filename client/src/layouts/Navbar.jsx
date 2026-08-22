@@ -74,15 +74,15 @@ export default function Navbar() {
         </nav>
 
         {/* Right Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {/* Language Selector Button (English / Hindi / Marathi) */}
-          <LanguageSelector />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
+          {/* Language Selector Button (English / Hindi / Marathi) - Always Visible on Mobile */}
+          <LanguageSelector compact />
 
-          <Link to="/citizen/track" className="btn-glass" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none' }}>
+          <Link to="/citizen/track" className="btn-glass desktop-only" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none' }}>
             <Search size={14} color="#34d399" /> {t('trackIssue')}
           </Link>
 
-          <Link to="/report" className="btn-sage" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none' }}>
+          <Link to="/report" className="btn-sage desktop-only" style={{ padding: '0.4rem 0.75rem', fontSize: '0.8rem', textDecoration: 'none' }}>
             <PlusCircle size={14} /> {t('reportIssue')}
           </Link>
 
@@ -96,7 +96,7 @@ export default function Navbar() {
               </button>
             </div>
           ) : (
-            <Link to="/login" className="btn-glass" style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.8rem', fontWeight: 600, padding: '0.4rem 0.75rem' }}>
+            <Link to="/login" className="btn-glass desktop-only" style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.8rem', fontWeight: 600, padding: '0.4rem 0.75rem' }}>
               {t('login')}
             </Link>
           )}
