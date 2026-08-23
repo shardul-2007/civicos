@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Camera, MapPin, Sparkles, Send, ShieldAlert, CheckCircle2,
-  Navigation, User, Phone, Mail, FileText, Tag, Hash,
+  Navigation, User, Phone, Mail, FileText, Tag, Hash, X,
   ArrowRight, ArrowLeft, Upload, AlertTriangle, Zap, Brain, Image as ImageIcon,
 } from 'lucide-react';
 import { complaintAPI, aiAPI } from '../../services/api';
@@ -22,6 +22,60 @@ const CATEGORY_MAP = [
   { value: 'Other', key: 'catOther' },
 ];
 
+// Client-side NLP Analyzer for Instant Resilient Fallback
+const analyzeTextClient = (titleText = '', descText = '') => {
+  const content = `${titleText} ${descText}`.toLowerCase().trim();
+
+  let category = 'Other';
+  let severity = 'MEDIUM';
+  let priorityScore = 60;
+  let department = 'General Municipal Services';
+  let summary = 'Issue analyzed and queued for department routing.';
+
+  if (content.match(/garbage|waste|trash|rubbish|dumping|litter|smell|bin|refuse|kachra|कचरा|गंदगी|कचरापेटी|toilet|public toilet/i) || content === 'waste' || content === 'garbage') {
+    category = 'Garbage';
+    department = 'Sanitation & Solid Waste Dept';
+    priorityScore = 75;
+    summary = 'Solid waste & sanitation issue detected near residential area.';
+  } else if (content.match(/pothole|hole|road|asphalt|tar|tarmac|street crack|pavement|cave-in|broken road|damaged road|khadda|खड्डा|रस्ता|खराब|खड्डे/i) || content.includes('road')) {
+    category = 'Road Damage';
+    department = 'Roads & Infrastructure Dept';
+    priorityScore = 80;
+    summary = 'Road infrastructure defect detected.';
+  } else if (content.match(/water leak|pipe leak|pipe burst|main line|pipeline|water gushing|drinking water|water leaking|पाणी|गळती|पाण्याची पाइपलाइन|पानी/i) || content.includes('water')) {
+    category = 'Water Leakage';
+    department = 'Water Supply & Sanitation Dept';
+    priorityScore = 85;
+    severity = 'HIGH';
+    summary = 'Water pipeline leakage or supply issue detected.';
+  } else if (content.match(/drain|drainage|sewer|sewage|overflow|clogged|stagnant|black water|gutters|nala|naali|गटार|नाली|नाला|तुंबला/i)) {
+    category = 'Drainage';
+    department = 'Drainage & Sewerage Services';
+    priorityScore = 82;
+    severity = 'HIGH';
+    summary = 'Drainage overflow or sewer blockage hazard detected.';
+  } else if (content.match(/streetlight|road light|lamp|dark street|street light|दिवा|लाइट|लाइट बंद|स्ट्रीट लाईट|रोड लाइट/i)) {
+    category = 'Streetlight';
+    department = 'Electrical Services Dept';
+    priorityScore = 65;
+    summary = 'Street lighting outage or luminaire failure detected.';
+  } else if (content.match(/electric pole|wire|power line|electricity|short circuit|वीज|वीज खांब|तार तुटली|बिजली/i)) {
+    category = 'Public Safety';
+    department = 'Electricity & Power Distribution';
+    priorityScore = 90;
+    severity = 'CRITICAL';
+    summary = 'Electrical power line or live wire hazard detected.';
+  } else if (content.match(/safety|fire|tree fallen|live wire|hazard|collapse|danger|dangerous|school|obstruction/i)) {
+    category = 'Public Safety';
+    department = 'Public Safety & Emergency Response';
+    priorityScore = 92;
+    severity = 'CRITICAL';
+    summary = 'Public safety risk or emergency obstruction detected.';
+  }
+
+  return { category, severity, priorityScore, department, summary };
+};
+
 export default function ReportComplaint() {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -34,8 +88,9 @@ export default function ReportComplaint() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
-  const [ward, setWard] = useState('14');
+  const [ward, setWard] = useState('auto');
   const [imageUrl, setImageUrl] = useState('');
+  const [fileName, setFileName] = useState('');
 
   // Exact Location State
   const [locationDetails, setLocationDetails] = useState({
@@ -67,41 +122,33 @@ export default function ReportComplaint() {
     { id: 4, label: t('stepConfirm'), icon: CheckCircle2 },
   ];
 
-  // Auto AI classification when user types description
+  // Natural Language AI Classifier Trigger
   useEffect(() => {
-    if (description.trim().length > 15) {
-      const timer = setTimeout(async () => {
-        setAnalyzingAi(true);
-        try {
-          const res = await aiAPI.classify({ text: `${title}. ${description}` });
-          if (res.data) {
-            setAiAnalysis(res.data);
-            if (!category) setCategory(res.data.category || 'Streetlight');
-          }
-        } catch (e) {
-          // Fallback NLP simulation if offline
-          setAiAnalysis({
-            category: category || 'Streetlight',
-            severity: description.toLowerCase().includes('leak') || description.toLowerCase().includes('leakage') ? 'HIGH' : 'MEDIUM',
-            priorityScore: 78,
-            department: 'Water Supply & Sewage Dept',
-            summary: 'Issue detected and assigned high urgency routing.'
-          });
-        } finally {
-          setAnalyzingAi(false);
-        }
-      }, 1000);
-      return () => clearTimeout(timer);
+    const combined = `${title} ${description}`.trim();
+    if (combined.length >= 3) {
+      const result = analyzeTextClient(title, description);
+      setAiAnalysis(result);
+      if (!category) {
+        setCategory(result.category);
+      }
+    } else {
+      setAiAnalysis(null);
     }
-  }, [description, title]);
+  }, [title, description, category]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFileName(file.name);
       const reader = new FileReader();
       reader.onloadend = () => setImageUrl(reader.result);
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleRemovePhoto = () => {
+    setImageUrl('');
+    setFileName('');
   };
 
   const handleLocationSelect = (locObj) => {
@@ -115,8 +162,8 @@ export default function ReportComplaint() {
 
   const goNext = () => {
     setError('');
-    if (step === 1 && !title.trim()) {
-      setError('Please provide an issue title.');
+    if (step === 1 && (!title.trim() || !description.trim())) {
+      setError('Please provide an issue title and detailed description.');
       return;
     }
     if (step === 2 && !locationDetails.address) {
@@ -142,12 +189,12 @@ export default function ReportComplaint() {
       trackingCode,
       title: title || 'Civic Issue Complaint',
       description: description || 'Reported municipal problem.',
-      category: category || aiAnalysis?.category || 'Streetlight',
-      ward: ward || '14',
+      category: category || aiAnalysis?.category || 'Garbage',
+      ward: ward === 'auto' ? 'Determined by Location' : ward,
       status: 'SUBMITTED',
       severity: aiAnalysis?.severity || 'MEDIUM',
       priorityScore: aiAnalysis?.priorityScore || 65,
-      departmentName: aiAnalysis?.department || 'Electrical & Infrastructure',
+      departmentName: aiAnalysis?.department || 'Public Works & Sanitation',
       locationDetails,
       address: locationDetails.address,
       latitude: locationDetails.latitude,
@@ -176,8 +223,8 @@ export default function ReportComplaint() {
         citizenPhone: citizenPhone || '+91 98230 11223',
         title: title || 'Civic Infrastructure Complaint',
         description: description || 'Citizen reported public issue.',
-        category: category || aiAnalysis?.category || 'Streetlight',
-        ward: parseInt(ward) || 14,
+        category: category || aiAnalysis?.category || 'Garbage',
+        ward: ward === 'auto' ? null : parseInt(ward) || null,
         address: locationDetails.address,
         latitude: locationDetails.latitude,
         longitude: locationDetails.longitude,
@@ -199,17 +246,17 @@ export default function ReportComplaint() {
   };
 
   const canProceed = () => {
-    if (step === 1) return title.trim().length >= 2;
+    if (step === 1) return title.trim().length >= 2 && description.trim().length >= 2;
     if (step === 2) return !!locationDetails.address;
     return true;
   };
 
   return (
     <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '5.5rem 1rem 3rem' }}>
-      <div style={{ maxWidth: '820px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
         {/* ── Page Header ── */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             background: 'var(--grad-sage)', padding: '0.4rem 1rem',
@@ -222,7 +269,7 @@ export default function ReportComplaint() {
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.4rem' }}>
             {t('reportHeaderTitle')}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '520px', margin: '0 auto' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '560px', margin: '0 auto' }}>
             {t('reportHeaderSub')}
           </p>
         </div>
@@ -285,7 +332,7 @@ export default function ReportComplaint() {
 
           {/* ──────────── STEP 1: Problem Details ──────────── */}
           {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <FileText size={12} /> {t('stepProblem')}
@@ -294,6 +341,7 @@ export default function ReportComplaint() {
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>{t('reportDescSub')}</p>
               </div>
 
+              {/* Issue Title Input */}
               <div>
                 <label className="form-label">{t('issueTitleLabel')} *</label>
                 <input
@@ -306,9 +354,10 @@ export default function ReportComplaint() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+              {/* Responsive 2-Column Grid: Category & Ward */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.1rem' }}>
                 <div>
-                  <label className="form-label">{t('catLabel')}</label>
+                  <label className="form-label">{t('catLabel')} *</label>
                   <select className="form-select-dark" value={category} onChange={e => setCategory(e.target.value)}>
                     <option value="">{t('autoDetectCategory')}</option>
                     {CATEGORY_MAP.map(c => <option key={c.value} value={c.value}>{t(c.key)}</option>)}
@@ -317,66 +366,85 @@ export default function ReportComplaint() {
                 <div>
                   <label className="form-label">{t('wardLabel')}</label>
                   <select className="form-select-dark" value={ward} onChange={e => setWard(e.target.value)}>
-                    {[...Array(20)].map((_, i) => <option key={i+1} value={i+1}>{t('wardLabelPrefix')} {i+1}</option>)}
+                    <option value="auto">Auto-detect Ward from Location</option>
+                    {[...Array(25)].map((_, i) => <option key={i+1} value={i+1}>{t('wardLabelPrefix')} {i+1}</option>)}
+                    <option value="na">Ward Info Unavailable / Non-Metro</option>
                   </select>
                 </div>
               </div>
 
+              {/* Detailed Description Textarea (Full Width, Min-Height 150px) */}
               <div>
-                <label className="form-label">{t('descLabel')}</label>
+                <label className="form-label">{t('descLabel')} *</label>
                 <textarea
                   className="form-textarea-dark"
-                  rows={4}
                   placeholder={t('descPlace')}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
+                  required
                 />
               </div>
 
-              {/* AI NLP Live Suggestion Card */}
+              {/* Compact Sleek AI Analysis Card */}
               {aiAnalysis && (
                 <div style={{
                   background: 'rgba(16,185,129,0.06)',
-                  border: '1px solid rgba(16,185,129,0.25)',
+                  border: '1px solid rgba(16,185,129,0.3)',
                   borderRadius: 'var(--radius-lg)',
-                  padding: '1.1rem',
-                  display: 'flex', gap: '0.85rem', alignItems: 'flex-start',
+                  padding: '1rem 1.2rem',
+                  display: 'flex',
+                  gap: '0.85rem',
+                  alignItems: 'flex-start',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
                 }}>
                   <div style={{ background: 'var(--grad-sage)', width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0, marginTop: '2px' }}>
                     <Brain size={18} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                        AI Classification: {aiAnalysis.category}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        ✨ AI ANALYSIS: {aiAnalysis.category}
                       </span>
-                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: aiAnalysis.severity === 'CRITICAL' ? '#ef4444' : '#f97316', background: aiAnalysis.severity === 'CRITICAL' ? 'rgba(239,68,68,0.15)' : 'rgba(249,115,22,0.15)', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: aiAnalysis.severity === 'CRITICAL' ? '#ef4444' : '#f97316', background: aiAnalysis.severity === 'CRITICAL' ? 'rgba(239,68,68,0.15)' : 'rgba(249,115,22,0.15)', padding: '0.15rem 0.55rem', borderRadius: '999px' }}>
                         {aiAnalysis.severity} (Score {aiAnalysis.priorityScore}/100)
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '0.35rem' }}>
                       {aiAnalysis.summary}
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.4rem' }}>
-                      Auto-routing to: <strong style={{ color: '#fff' }}>{aiAnalysis.department}</strong>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      Auto-routing to: <strong style={{ color: '#ffffff' }}>{aiAnalysis.department}</strong>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Photo Upload */}
+              {/* Photo Evidence Upload Section */}
               <div>
                 <label className="form-label">{t('attachPhoto')}</label>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                  <label className="btn-glass" style={{ fontSize: '0.82rem', padding: '0.6rem 1.1rem', cursor: 'pointer' }}>
-                    <Camera size={15} /> {t('uploadPhoto')}
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <label className="btn-glass" style={{ fontSize: '0.85rem', padding: '0.65rem 1.25rem', cursor: 'pointer', borderColor: 'rgba(16,185,129,0.3)', color: '#34d399', fontWeight: 700 }}>
+                    <Camera size={16} /> 📷 Upload Photo Evidence
                     <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
                   </label>
-                  {imageUrl && <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600 }}>{t('imageAttached')}</span>}
+
+                  {imageUrl && (
+                    <button type="button" onClick={handleRemovePhoto} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.8rem', color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}>
+                      <X size={14} /> Remove Photo
+                    </button>
+                  )}
                 </div>
+
+                {/* Photo Thumbnail Preview */}
                 {imageUrl && (
-                  <div style={{ marginTop: '0.85rem', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', maxHeight: '180px' }}>
-                    <img src={imageUrl} alt="Evidence preview" style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
+                  <div style={{ marginTop: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.85rem', background: 'rgba(255,255,255,0.03)', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(16,185,129,0.3)', maxWidth: '360px' }}>
+                    <img src={imageUrl} alt="Evidence thumbnail" style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '0.4rem', border: '1px solid rgba(255,255,255,0.1)' }} />
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                      <div style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {fileName || 'Photo Evidence Attached'}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600 }}>✔ Ready for submission</div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -456,8 +524,8 @@ export default function ReportComplaint() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 {[
                   { label: t('issueTitleLabel'), value: title || 'Civic Infrastructure Issue' },
-                  { label: t('catLabel'), value: category || aiAnalysis?.category || 'Streetlight' },
-                  { label: t('wardLabel'), value: `${t('wardLabelPrefix')} ${ward}` },
+                  { label: t('catLabel'), value: category || aiAnalysis?.category || 'Garbage' },
+                  { label: t('wardLabel'), value: ward === 'auto' ? 'Auto-detected from Location' : `Ward ${ward}` },
                   { label: t('address'), value: locationDetails.address },
                   { label: t('city'), value: `${locationDetails.city}, ${locationDetails.state} (${locationDetails.pincode})` },
                   { label: t('latitude'), value: `${locationDetails.latitude.toFixed(6)}, ${locationDetails.longitude.toFixed(6)}` },

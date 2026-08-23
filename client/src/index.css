@@ -460,6 +460,59 @@ h1,h2,h3,h4,h5,h6 {
 
 .form-input-dark::placeholder { color: var(--text-muted); }
 
+.form-select-dark {
+  background: #121722 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 1rem center;
+  background-size: 16px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 0.7rem 2.4rem 0.7rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  min-height: 44px;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-select-dark:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
+}
+
+.form-select-dark option {
+  background-color: #121722;
+  color: #ffffff;
+  padding: 0.6rem;
+}
+
+.form-textarea-dark {
+  background: var(--bg-input);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-primary);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  line-height: 1.6;
+}
+
+.form-textarea-dark:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
+}
+
+.form-textarea-dark::placeholder { color: var(--text-muted); }
+
 .form-label {
   display: block;
   font-size: 0.8rem;
