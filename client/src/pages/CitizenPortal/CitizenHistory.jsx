@@ -42,20 +42,30 @@ export default function CitizenHistory() {
   const loadMyComplaints = async () => {
     setLoading(true);
     setError('');
+
+    let localList = [];
+    try {
+      localList = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
+    } catch (e) {
+      // Ignore
+    }
+
     try {
       let res = await complaintAPI.getMy();
       if (res.data?.success && res.data.data?.length > 0) {
-        setComplaints(res.data.data);
+        const apiList = res.data.data;
+        const combined = [...localList];
+        apiList.forEach(item => {
+          if (!combined.some(c => c.trackingCode === item.trackingCode || c._id === item._id)) {
+            combined.push(item);
+          }
+        });
+        setComplaints(combined.length > 0 ? combined : fallbackCitizenComplaints);
       } else {
-        const listRes = await complaintAPI.list({ limit: 20 });
-        if (listRes.data?.success && listRes.data.data?.length > 0) {
-          setComplaints(listRes.data.data);
-        } else {
-          setComplaints(fallbackCitizenComplaints);
-        }
+        setComplaints(localList.length > 0 ? localList : fallbackCitizenComplaints);
       }
     } catch (err) {
-      setComplaints(fallbackCitizenComplaints);
+      setComplaints(localList.length > 0 ? localList : fallbackCitizenComplaints);
     } finally {
       setLoading(false);
     }

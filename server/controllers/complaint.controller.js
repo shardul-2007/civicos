@@ -332,7 +332,15 @@ export const trackComplaint = async (req, res, next) => {
     }
 
     if (!complaintObj) {
-      complaintObj = fallbackComplaints.find((c) => c.trackingCode.toUpperCase() === trackingCode.toUpperCase()) || fallbackComplaints[0];
+      const fallbackMatch = fallbackComplaints.find((c) => c.trackingCode.toUpperCase() === trackingCode.toUpperCase());
+      if (fallbackMatch) {
+        complaintObj = fallbackMatch;
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: `No municipal complaint found with tracking code "${trackingCode}". Please check your code and try again.`,
+        });
+      }
     }
 
     return res.json({
@@ -340,9 +348,9 @@ export const trackComplaint = async (req, res, next) => {
       data: complaintObj,
     });
   } catch (error) {
-    return res.json({
-      success: true,
-      data: fallbackComplaints[0],
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Error tracking complaint',
     });
   }
 };

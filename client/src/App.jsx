@@ -10,6 +10,7 @@ import NotificationDrawer from './components/NotificationDrawer';
 import ReportExportModal from './components/ReportExportModal';
 import Footer from './layouts/Footer';
 import { ToastProvider } from './context/ToastContext';
+import { useAuth } from './context/AuthContext';
 import FluidWaterCursor from './components/FluidWaterCursor';
 
 // Pages
@@ -28,6 +29,29 @@ import ReportComplaint from './pages/CitizenPortal/ReportComplaint';
 import TrackComplaint from './pages/CitizenPortal/TrackComplaint';
 import CitizenHistory from './pages/CitizenPortal/CitizenHistory';
 import FieldOfficerDesk from './pages/FieldOfficerDesk';
+
+// Protected Route Guard Component
+function ProtectedRoute({ children, allowedRoles }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ background: 'var(--bg-app)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#34d399' }}>
+        <div style={{ width: '28px', height: '28px', borderRadius: '50%', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#34d399', animation: 'spin 0.8s linear infinite' }} />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
   const location = useLocation();
@@ -116,7 +140,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
 
               {/* Main Municipal Command Routes */}
-              <Route path="/admin" element={<Overview />} />
+              <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN', 'OFFICER']}><Overview /></ProtectedRoute>} />
               <Route path="/map" element={<MapExperience />} />
               <Route path="/complaints" element={<ComplaintsList />} />
               <Route path="/complaints/:id" element={<ComplaintDetail />} />
@@ -126,15 +150,15 @@ export default function App() {
               <Route path="/admin/analytics" element={<Analytics />} />
               <Route path="/admin/predictions" element={<Predictions />} />
 
-              {/* Citizen Portal Routes */}
-              <Route path="/report" element={<ReportComplaint />} />
-              <Route path="/citizen" element={<CitizenHistory />} />
-              <Route path="/citizen/report" element={<ReportComplaint />} />
+              {/* Citizen Portal Routes (Protected for Authenticated Users) */}
+              <Route path="/report" element={<ProtectedRoute><ReportComplaint /></ProtectedRoute>} />
+              <Route path="/citizen" element={<ProtectedRoute><CitizenHistory /></ProtectedRoute>} />
+              <Route path="/citizen/report" element={<ProtectedRoute><ReportComplaint /></ProtectedRoute>} />
               <Route path="/citizen/track" element={<TrackComplaint />} />
-              <Route path="/citizen/history" element={<CitizenHistory />} />
+              <Route path="/citizen/history" element={<ProtectedRoute><CitizenHistory /></ProtectedRoute>} />
 
               {/* Field Officer Mobile Desk */}
-              <Route path="/officer" element={<FieldOfficerDesk />} />
+              <Route path="/officer" element={<ProtectedRoute allowedRoles={['OFFICER', 'ADMIN']}><FieldOfficerDesk /></ProtectedRoute>} />
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
