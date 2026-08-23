@@ -125,16 +125,16 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1.1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.45rem' }}>
               Email Address
             </label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Mail size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none', zIndex: 2 }} />
               <input
                 type="email"
                 className="form-input-dark"
-                style={{ paddingLeft: '2.5rem', width: '100%', boxSizing: 'border-box' }}
+                style={{ paddingLeft: '2.8rem', width: '100%', height: '44px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 placeholder="officer@civicos.gov"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -143,15 +143,15 @@ export default function Login() {
           </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.4rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#cbd5e1', marginBottom: '0.45rem' }}>
               Password
             </label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Lock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none', zIndex: 2 }} />
               <input
                 type="password"
                 className="form-input-dark"
-                style={{ paddingLeft: '2.5rem', width: '100%', boxSizing: 'border-box' }}
+                style={{ paddingLeft: '2.8rem', width: '100%', height: '44px', fontSize: '0.9rem', boxSizing: 'border-box' }}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
