@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Navigation, Search, AlertCircle, CheckCircle2, Compass } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import LeafletErrorBoundary from './LeafletErrorBoundary';
 
 // Custom Emerald Teal Leaflet Issue Marker Pin
@@ -54,6 +55,7 @@ export default function LeafletMapPicker({
   onConfirm,
   confirmed = false
 }) {
+  const { t } = useLanguage();
   const defaultLat = selectedLocation?.latitude || 18.5204;
   const defaultLng = selectedLocation?.longitude || 73.8567;
 
@@ -267,7 +269,7 @@ export default function LeafletMapPicker({
               type="text"
               className="form-input-dark"
               style={{ paddingLeft: '2.6rem', paddingRight: '2.5rem', width: '100%', height: '44px', fontSize: '0.88rem', boxSizing: 'border-box' }}
-              placeholder="Search address, landmark, road, city or PIN code..."
+              placeholder={t('searchLocationPlace')}
               value={searchQuery}
               onChange={handleSearchInputChange}
               onFocus={() => searchQuery.trim().length >= 2 && setShowPredictions(true)}
@@ -333,18 +335,18 @@ export default function LeafletMapPicker({
             {loadingGps ? (
               <>
                 <div style={{ width: '14px', height: '14px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#34d399', animation: 'spin 0.8s linear infinite' }} />
-                Detecting your current location...
+                {t('detectingGps')}
               </>
             ) : (
               <>
-                <Navigation size={14} color="#34d399" /> Use Current GPS Location
+                <Navigation size={14} color="#34d399" /> {t('useGpsBtn')}
               </>
             )}
           </button>
 
           {accuracy !== null && (
             <div style={{ fontSize: '0.75rem', color: accuracy <= 50 ? '#34d399' : '#f59e0b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <Compass size={13} /> GPS Accuracy: ±{accuracy} meters
+              <Compass size={13} /> {t('gpsAccuracy')}: ±{accuracy} m
             </div>
           )}
         </div>
@@ -391,7 +393,7 @@ export default function LeafletMapPicker({
         {geocoding && (
           <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(18,23,34,0.9)', border: '1px solid rgba(16,185,129,0.3)', padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.4rem', zIndex: 1000 }}>
             <div style={{ width: '12px', height: '12px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#34d399', animation: 'spin 0.8s linear infinite' }} />
-            Fetching address...
+            {t('fetchingAddress')}
           </div>
         )}
       </div>
@@ -400,48 +402,48 @@ export default function LeafletMapPicker({
       <div className="natural-glass-card" style={{ padding: '1.25rem', border: confirmed ? '1px solid rgba(16,185,129,0.5)' : '1px solid rgba(255,255,255,0.1)', background: '#121722' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
           <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <MapPin size={16} color="#34d399" /> Selected Issue Location
+            <MapPin size={16} color="#34d399" /> {t('selectedLocation')}
           </div>
           {confirmed && (
             <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#34d399', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', padding: '0.2rem 0.6rem', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <CheckCircle2 size={12} /> Location Confirmed
+              <CheckCircle2 size={12} /> {t('locationConfirmed')}
             </span>
           )}
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', fontSize: '0.82rem', marginBottom: '1.1rem' }}>
           <div style={{ gridColumn: '1 / -1', background: 'rgba(255,255,255,0.03)', padding: '0.6rem 0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem', fontWeight: 700 }}>Formatted Address</div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.2rem', fontWeight: 700 }}>{t('address')}</div>
             <div style={{ color: '#ffffff', fontWeight: 700, lineHeight: 1.4 }}>{address}</div>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>City / Locality</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('city')}</div>
             <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{city}</div>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>District</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('district')}</div>
             <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{district}</div>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>State</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('state')}</div>
             <div style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{stateName}</div>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>PIN Code</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('pincode')}</div>
             <div style={{ color: 'var(--text-primary)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{pincode}</div>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>Latitude</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('latitude')}</div>
             <div style={{ color: '#34d399', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{lat.toFixed(6)}</div>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>Longitude</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.15rem' }}>{t('longitude')}</div>
             <div style={{ color: '#34d399', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{lng.toFixed(6)}</div>
           </div>
         </div>
@@ -453,7 +455,7 @@ export default function LeafletMapPicker({
           className="btn-sage"
           style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.92rem', fontWeight: 700 }}
         >
-          <CheckCircle2 size={16} /> Confirm Issue Location
+          <CheckCircle2 size={16} /> {t('confirmLocationBtn')}
         </button>
       </div>
 

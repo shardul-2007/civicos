@@ -9,31 +9,35 @@ import { complaintAPI, aiAPI } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
 import LeafletMapPicker from '../../components/LeafletMapPicker';
 
-const CATEGORIES = ['Road Damage','Water Leakage','Drainage','Garbage','Streetlight','Public Safety','Pothole','Sewage','Tree/Parks','Other'];
-
-const STEPS = [
-  { id:1, label:'Problem',  icon: FileText },
-  { id:2, label:'Location', icon: MapPin },
-  { id:3, label:'Contact',  icon: User },
-  { id:4, label:'Confirm',  icon: CheckCircle2 },
+const CATEGORY_MAP = [
+  { value: 'Road Damage', key: 'catRoadDamage' },
+  { value: 'Water Leakage', key: 'catWaterLeakage' },
+  { value: 'Drainage', key: 'catDrainage' },
+  { value: 'Garbage', key: 'catGarbage' },
+  { value: 'Streetlight', key: 'catStreetlight' },
+  { value: 'Public Safety', key: 'catPublicSafety' },
+  { value: 'Pothole', key: 'catPothole' },
+  { value: 'Sewage', key: 'catSewage' },
+  { value: 'Tree/Parks', key: 'catTreeParks' },
+  { value: 'Other', key: 'catOther' },
 ];
 
 export default function ReportComplaint() {
-  const navigate = useNavigate();
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
   const [step, setStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  // Form fields
-  const [title, setTitle]             = useState('');
+  // Form State
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory]       = useState('');
-  const [ward, setWard]               = useState('14');
-  const [imageUrl, setImageUrl]       = useState('');
-  const [citizenName, setCitizenName] = useState('');
-  const [citizenEmail, setCitizenEmail] = useState('');
-  const [citizenPhone, setCitizenPhone] = useState('');
+  const [category, setCategory] = useState('');
+  const [ward, setWard] = useState('14');
+  const [imageUrl, setImageUrl] = useState('');
 
-  // Structured exact location details state
+  // Exact Location State
   const [locationDetails, setLocationDetails] = useState({
     latitude: 18.5204,
     longitude: 73.8567,
@@ -47,135 +51,113 @@ export default function ReportComplaint() {
   });
   const [locationConfirmed, setLocationConfirmed] = useState(false);
 
-  // AI & submission state
-  const [aiAnalysis, setAiAnalysis]   = useState(null);
+  // Contact Info State
+  const [citizenName, setCitizenName] = useState('Shardul Parihar');
+  const [citizenPhone, setCitizenPhone] = useState('+91 98230 11223');
+  const [citizenEmail, setCitizenEmail] = useState('citizen@civicos.gov');
+
+  // AI State
+  const [aiAnalysis, setAiAnalysis] = useState(null);
   const [analyzingAi, setAnalyzingAi] = useState(false);
-  const [submitting, setSubmitting]   = useState(false);
-  const [error, setError]             = useState('');
 
-  // Real-time AI keyword & NLP pre-analysis engine
+  const STEPS = [
+    { id: 1, label: t('stepProblem'), icon: FileText },
+    { id: 2, label: t('stepLocation'), icon: MapPin },
+    { id: 3, label: t('stepContact'), icon: User },
+    { id: 4, label: t('stepConfirm'), icon: CheckCircle2 },
+  ];
+
+  // Auto AI classification when user types description
   useEffect(() => {
-    const text = `${title} ${description}`.toLowerCase();
-    if (text.trim().length < 2) {
-      setAiAnalysis(null);
-      return;
+    if (description.trim().length > 15) {
+      const timer = setTimeout(async () => {
+        setAnalyzingAi(true);
+        try {
+          const res = await aiAPI.classify({ text: `${title}. ${description}` });
+          if (res.data) {
+            setAiAnalysis(res.data);
+            if (!category) setCategory(res.data.category || 'Streetlight');
+          }
+        } catch (e) {
+          // Fallback NLP simulation if offline
+          setAiAnalysis({
+            category: category || 'Streetlight',
+            severity: description.toLowerCase().includes('leak') || description.toLowerCase().includes('leakage') ? 'HIGH' : 'MEDIUM',
+            priorityScore: 78,
+            department: 'Water Supply & Sewage Dept',
+            summary: 'Issue detected and assigned high urgency routing.'
+          });
+        } finally {
+          setAnalyzingAi(false);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
     }
-
-    let detectedCat = 'Road Damage';
-    let detectedDept = 'Roads & Municipal Infrastructure';
-    let detectedSev = 'HIGH';
-    let detectedScore = 84;
-    let summary = 'AI identified public road and infrastructure hazard.';
-
-    if (text.includes('water') || text.includes('leak') || text.includes('pipe') || text.includes('burst') || text.includes('flood') || text.includes('overflow')) {
-      detectedCat = 'Water Leakage';
-      detectedDept = 'Water Supply & Sanitation';
-      detectedSev = 'CRITICAL';
-      detectedScore = 92;
-      summary = 'CRITICAL: High volume water main burst detected near public thoroughfare.';
-    } else if (text.includes('dark') || text.includes('light') || text.includes('lamp') || text.includes('wire') || text.includes('electricity') || text.includes('transformer')) {
-      detectedCat = 'Streetlight';
-      detectedDept = 'Electrical Services';
-      detectedSev = 'HIGH';
-      detectedScore = 78;
-      summary = 'HIGH: Luminaire failure causing night visibility and public safety risk.';
-    } else if (text.includes('garbage') || text.includes('waste') || text.includes('dump') || text.includes('trash') || text.includes('smell')) {
-      detectedCat = 'Garbage';
-      detectedDept = 'Solid Waste Management';
-      detectedSev = 'MEDIUM';
-      detectedScore = 65;
-      summary = 'MEDIUM: Municipal waste overflow requiring collection dispatch.';
-    } else if (text.includes('drain') || text.includes('sewer') || text.includes('clog') || text.includes('gutter')) {
-      detectedCat = 'Drainage';
-      detectedDept = 'Drainage & Stormwater';
-      detectedSev = 'HIGH';
-      detectedScore = 81;
-      summary = 'HIGH: Stormwater drainage obstruction causing localized waterlogging risk.';
-    }
-
-    setAiAnalysis({
-      category: detectedCat,
-      department: detectedDept,
-      severity: detectedSev,
-      priorityScore: detectedScore,
-      summary,
-      confidence: 96,
-    });
-  }, [title, description]);
-
-  const goNext = () => {
-    if (step < 4) setStep(s => s + 1);
-  };
-  const goBack = () => {
-    if (step > 1) setStep(s => s - 1);
-  };
-
-  const handleLocationSelect = (newLoc) => {
-    setLocationDetails(prev => ({
-      ...prev,
-      ...newLoc
-    }));
-  };
-
-  const handleLocationConfirm = (newLoc) => {
-    if (newLoc) {
-      setLocationDetails(prev => ({
-        ...prev,
-        ...newLoc
-      }));
-    }
-    setLocationConfirmed(true);
-    goNext();
-  };
+  }, [description, title]);
 
   const handleFileUpload = (e) => {
-    const file = e.target.files?.[0];
+    const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageUrl(reader.result);
-      };
+      reader.onloadend = () => setImageUrl(reader.result);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = async () => {
-    setError('');
-    setSubmitting(true);
+  const handleLocationSelect = (locObj) => {
+    setLocationDetails(locObj);
+  };
 
-    const trackingCode = `CIV-${Math.floor(100000 + Math.random() * 900000)}-${Math.floor(1000 + Math.random() * 9000).toString(16).toUpperCase()}`;
+  const handleLocationConfirm = (locObj) => {
+    setLocationDetails(locObj);
+    setLocationConfirmed(true);
+  };
+
+  const goNext = () => {
+    setError('');
+    if (step === 1 && !title.trim()) {
+      setError('Please provide an issue title.');
+      return;
+    }
+    if (step === 2 && !locationDetails.address) {
+      setError('Please select and confirm issue location.');
+      return;
+    }
+    setStep(prev => Math.min(prev + 1, 4));
+  };
+
+  const goBack = () => {
+    setError('');
+    setStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError('');
+
+    const trackingCode = `CIV-${Math.floor(100000 + Math.random() * 900000)}-${Math.random().toString(36).substring(2,6).toUpperCase()}`;
 
     const newReport = {
-      _id: 'rep_' + Date.now(),
+      _id: `comp_${Date.now()}`,
       trackingCode,
-      title: title || 'Civic Infrastructure Complaint',
-      description: description || 'Citizen reported public issue.',
+      title: title || 'Civic Issue Complaint',
+      description: description || 'Reported municipal problem.',
       category: category || aiAnalysis?.category || 'Streetlight',
-      subCategory: 'General Maintenance',
-      severity: aiAnalysis?.severity || 'HIGH',
-      priorityScore: aiAnalysis?.priorityScore || 78,
+      ward: ward || '14',
       status: 'SUBMITTED',
-      ward: parseInt(ward) || 14,
-      address: locationDetails.address || 'Main Road Corridor, Ward 14',
-      city: locationDetails.city || 'Pune',
-      district: locationDetails.district || 'Pune',
-      state: locationDetails.state || 'Maharashtra',
-      pincode: locationDetails.pincode || '411001',
-      country: locationDetails.country || 'India',
-      accuracy: locationDetails.accuracy || null,
+      severity: aiAnalysis?.severity || 'MEDIUM',
+      priorityScore: aiAnalysis?.priorityScore || 65,
+      departmentName: aiAnalysis?.department || 'Electrical & Infrastructure',
+      locationDetails,
+      address: locationDetails.address,
       latitude: locationDetails.latitude,
       longitude: locationDetails.longitude,
       citizenName: citizenName || 'Shardul Parihar',
       citizenEmail: citizenEmail || 'citizen@civicos.gov',
       citizenPhone: citizenPhone || '+91 98230 11223',
-      departmentName: aiAnalysis?.department || 'Roads & Municipal Infrastructure',
-      image: imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
+      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
       createdAt: new Date().toISOString(),
-      dueAt: new Date(Date.now() + 86400000 * 2).toISOString(),
-      location: { coordinates: [locationDetails.longitude, locationDetails.latitude] },
-      history: [
-        { note: `Complaint filed via Citizen Portal. Tracking Code generated: ${trackingCode}`, actorName: citizenName || 'Shardul Parihar', createdAt: new Date().toISOString() }
-      ]
+      dueAt: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
     };
 
     // Save to local storage for instant offline resilience
@@ -238,10 +220,10 @@ export default function ReportComplaint() {
             <Sparkles size={14} /> AI-POWERED MUNICIPAL INTAKE
           </div>
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.4rem' }}>
-            {t('reportTitle')}
+            {t('reportHeaderTitle')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '520px', margin: '0 auto' }}>
-            Report civic issues directly to municipal departments with exact Google Maps location tagging.
+            {t('reportHeaderSub')}
           </p>
         </div>
 
@@ -308,44 +290,44 @@ export default function ReportComplaint() {
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <FileText size={12} /> {t('stepProblem')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Describe the Issue</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Our AI Engine analyzes your description to determine department routing & priority.</p>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('reportDescTitle')}</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>{t('reportDescSub')}</p>
               </div>
 
               <div>
-                <label className="form-label">Issue Title *</label>
+                <label className="form-label">{t('issueTitleLabel')} *</label>
                 <input
                   type="text"
                   className="form-input-dark"
-                  placeholder="e.g. Water Main Leak Near College Bus Stop"
+                  placeholder={t('issueTitlePlace')}
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   required
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                 <div>
-                  <label className="form-label">Category</label>
+                  <label className="form-label">{t('catLabel')}</label>
                   <select className="form-select-dark" value={category} onChange={e => setCategory(e.target.value)}>
-                    <option value="">Auto-Detect by AI</option>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    <option value="">{t('autoDetectCategory')}</option>
+                    {CATEGORY_MAP.map(c => <option key={c.value} value={c.value}>{t(c.key)}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">Ward Number</label>
+                  <label className="form-label">{t('wardLabel')}</label>
                   <select className="form-select-dark" value={ward} onChange={e => setWard(e.target.value)}>
-                    {[...Array(20)].map((_, i) => <option key={i+1} value={i+1}>Ward {i+1}</option>)}
+                    {[...Array(20)].map((_, i) => <option key={i+1} value={i+1}>{t('wardLabelPrefix')} {i+1}</option>)}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="form-label">Detailed Description</label>
+                <label className="form-label">{t('descLabel')}</label>
                 <textarea
                   className="form-textarea-dark"
                   rows={4}
-                  placeholder="Describe the defect, severity, hazard level, or relevant landmarks..."
+                  placeholder={t('descPlace')}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                 />
@@ -384,13 +366,13 @@ export default function ReportComplaint() {
 
               {/* Photo Upload */}
               <div>
-                <label className="form-label">Attach Photo Evidence (Optional)</label>
+                <label className="form-label">{t('attachPhoto')}</label>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                   <label className="btn-glass" style={{ fontSize: '0.82rem', padding: '0.6rem 1.1rem', cursor: 'pointer' }}>
-                    <Camera size={15} /> Upload Photo
+                    <Camera size={15} /> {t('uploadPhoto')}
                     <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
                   </label>
-                  {imageUrl && <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600 }}>✔ Image attached</span>}
+                  {imageUrl && <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600 }}>{t('imageAttached')}</span>}
                 </div>
                 {imageUrl && (
                   <div style={{ marginTop: '0.85rem', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', maxHeight: '180px' }}>
@@ -408,9 +390,9 @@ export default function ReportComplaint() {
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <MapPin size={12} /> {t('stepLocation')} — Leaflet Geospatial System
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Where is the exact problem located?</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('whereIsProblem')}</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  Use GPS, search any road/landmark/city across India, click the map, or drag the pin to pinpoint the exact issue location.
+                  {t('locationSub')}
                 </p>
               </div>
 
@@ -431,27 +413,27 @@ export default function ReportComplaint() {
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <User size={12} /> {t('stepContact')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Who are you?</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Anonymous submissions are accepted. Contact info helps us send you resolution alerts.</p>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('whoAreYou')}</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>{t('contactSub')}</p>
               </div>
 
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 'var(--radius-md)', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
                   <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <User size={12} /> Full Name
+                    <User size={12} /> {t('fullName')}
                   </label>
                   <input type="text" className="form-input-dark" placeholder="e.g. Shardul Parihar" value={citizenName} onChange={e => setCitizenName(e.target.value)} />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
                   <div>
                     <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Phone size={12} /> Phone
+                      <Phone size={12} /> {t('phone')}
                     </label>
                     <input type="tel" className="form-input-dark" placeholder="+91 98230 11223" value={citizenPhone} onChange={e => setCitizenPhone(e.target.value)} />
                   </div>
                   <div>
                     <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Mail size={12} /> Email
+                      <Mail size={12} /> {t('email')}
                     </label>
                     <input type="email" className="form-input-dark" placeholder="you@example.com" value={citizenEmail} onChange={e => setCitizenEmail(e.target.value)} />
                   </div>
@@ -467,20 +449,19 @@ export default function ReportComplaint() {
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <CheckCircle2 size={12} /> {t('stepConfirm')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Confirm your report</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('confirmReportTitle')}</h2>
               </div>
 
               {/* Review Summary */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 {[
-                  { label:'Title', value: title || 'Civic Infrastructure Issue' },
-                  { label:'Category', value: category || aiAnalysis?.category || 'Streetlight' },
-                  { label:'Severity (AI)', value: aiAnalysis?.severity || 'HIGH' },
-                  { label:'Ward', value: `Ward ${ward}` },
-                  { label:'Exact Location', value: locationDetails.address },
-                  { label:'City / State', value: `${locationDetails.city}, ${locationDetails.state} (${locationDetails.pincode})` },
-                  { label:'GPS Coordinates', value: `${locationDetails.latitude.toFixed(6)}, ${locationDetails.longitude.toFixed(6)}` },
-                  { label:'Citizen', value: citizenName || 'Shardul Parihar' },
+                  { label: t('issueTitleLabel'), value: title || 'Civic Infrastructure Issue' },
+                  { label: t('catLabel'), value: category || aiAnalysis?.category || 'Streetlight' },
+                  { label: t('wardLabel'), value: `${t('wardLabelPrefix')} ${ward}` },
+                  { label: t('address'), value: locationDetails.address },
+                  { label: t('city'), value: `${locationDetails.city}, ${locationDetails.state} (${locationDetails.pincode})` },
+                  { label: t('latitude'), value: `${locationDetails.latitude.toFixed(6)}, ${locationDetails.longitude.toFixed(6)}` },
+                  { label: t('fullName'), value: citizenName || 'Shardul Parihar' },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ display: 'flex', gap: '0.75rem', background: 'rgba(255,255,255,0.025)', padding: '0.6rem 0.9rem', borderRadius: 'var(--radius-sm)', fontSize: '0.85rem' }}>
                     <div style={{ color: 'var(--text-muted)', fontWeight: 600, minWidth: '120px', flexShrink: 0 }}>{label}</div>
@@ -490,7 +471,7 @@ export default function ReportComplaint() {
               </div>
 
               <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.8rem', color: '#60a5fa', lineHeight: 1.55 }}>
-                After submission, you'll receive a <strong>Municipal Tracking Code</strong> (e.g. CIV-XXXXXX-XXXX) to monitor real-time resolution progress on the exact issue location map.
+                {t('reviewNotice')}
               </div>
             </div>
           )}
@@ -499,7 +480,7 @@ export default function ReportComplaint() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem', gap: '1rem', flexWrap: 'wrap' }}>
             {step > 1 ? (
               <button type="button" onClick={goBack} className="btn-glass" style={{ fontSize: '0.875rem' }}>
-                <ArrowLeft size={15} /> Back
+                <ArrowLeft size={15} /> {t('backBtn')}
               </button>
             ) : <div />}
 
@@ -524,7 +505,7 @@ export default function ReportComplaint() {
                 {submitting ? (
                   <>
                     <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.8s linear infinite' }} />
-                    Submitting...
+                    {t('submitting')}
                   </>
                 ) : (
                   <><Send size={16} /> {t('submitBtn')}</>

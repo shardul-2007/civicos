@@ -66,8 +66,8 @@ export default function LanguageSelector({ compact = false, alignLeft = false })
         title="Select Language / भाषा चुनें / भाषा निवडा"
       >
         <Globe size={16} color="#34d399" />
-        <span>{currentLang.label}</span>
-        <span style={{ fontSize: '0.75rem' }}>{currentLang.flag}</span>
+        <span>{currentLang.name}</span>
+        <span style={{ fontSize: '0.85rem' }}>{currentLang.flag}</span>
         <ChevronDown size={14} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
 

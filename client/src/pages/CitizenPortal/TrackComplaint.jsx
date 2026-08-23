@@ -8,6 +8,7 @@ import {
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import { complaintAPI } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 import LeafletErrorBoundary from '../../components/LeafletErrorBoundary';
 
 const createPinIcon = () => {
@@ -123,6 +124,7 @@ function TrackMap({ location, address, complaint }) {
 }
 
 export default function TrackComplaint() {
+  const { t } = useLanguage();
   const [searchParams]  = useSearchParams();
   const [trackingCode, setTrackingCode] = useState(searchParams.get('code') || '');
   const [complaint, setComplaint] = useState(null);
@@ -178,29 +180,30 @@ export default function TrackComplaint() {
     try {
       await complaintAPI.verifyResolution(complaint._id, { verified });
     } catch (err) {
-      // Ignore
+      console.warn('[VerifyResolution] Local fallback update:', err.message);
     } finally {
-      setComplaint((prev) => prev ? {
-        ...prev,
-        status: newStatus,
-        history: [
-          ...(prev.history || []),
-          { note: verified ? 'Citizen confirmed resolution on-site.' : 'Citizen marked issue as unresolved.', actorName: 'Citizen', createdAt: new Date().toISOString() }
-        ]
-      } : null);
-      setNotice(verified ? '✔ Resolution verified by citizen. Issue marked RESOLVED.' : '⚠ Issue marked as unresolved. Complaint reopened for field review.');
+      setComplaint((prev) => prev ? { ...prev, status: newStatus } : prev);
+      setNotice(verified ? 'Thank you! Complaint marked as resolved & verified.' : 'Complaint reopened for field officer review.');
       setVerifying(false);
     }
   };
 
-  const currentStepIdx = complaint ? getStepIdx(complaint.status) : 1;
-  const sevColor = complaint ? (SEV_COLOR[complaint.severity] || '#f97316') : '#f97316';
+  const statusMap = {
+    SUBMITTED: t('statusSubmitted'),
+    ASSIGNED: t('statusAssigned'),
+    ACCEPTED: t('statusAccepted'),
+    IN_PROGRESS: t('statusProgress'),
+    RESOLVED: t('statusResolved'),
+  };
+
+  const currentStepIdx = Math.max(0, STATUS_STEPS.findIndex((s) => s.key === complaint?.status));
+  const sevColor = complaint?.severity === 'CRITICAL' ? '#ef4444' : complaint?.severity === 'HIGH' ? '#f97316' : '#f59e0b';
 
   return (
-    <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '5.5rem 1rem 3rem', overflowX: 'hidden' }}>
-      <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+    <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '5.5rem 1rem 3rem' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
-        {/* ── Hero Search ── */}
+        {/* ── Page Header & Search Bar ── */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{
             width: '60px', height: '60px',
@@ -213,10 +216,10 @@ export default function TrackComplaint() {
             <ShieldCheck size={28} />
           </div>
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.4rem' }}>
-            Track Complaint Status
+            {t('trackHeaderTitle')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-            Enter your tracking code or phone number to view live SLA progress and field officer updates.
+            {t('trackHeaderSub')}
           </p>
 
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.6rem', maxWidth: '560px', margin: '0 auto', flexWrap: 'wrap' }}>
@@ -226,7 +229,7 @@ export default function TrackComplaint() {
                 type="text"
                 className="form-input-dark"
                 style={{ paddingLeft: '2.5rem', fontFamily: 'var(--font-mono)', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', width: '100%' }}
-                placeholder="CIV-XXXXXX-XXXX"
+                placeholder={t('searchCodePlace')}
                 value={trackingCode}
                 onChange={e => setTrackingCode(e.target.value)}
                 required
@@ -235,10 +238,10 @@ export default function TrackComplaint() {
             <button type="submit" className="btn-sage" disabled={loading} style={{ padding: '0.65rem 1.5rem', minWidth: '110px' }}>
               {loading ? (
                 <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.8s linear infinite' }} />
-              ) : (<><Search size={15} /> Track Issue</>)}
+              ) : (<><Search size={15} /> {t('searchBtn')}</>)}
             </button>
           </form>
-        </div>
+        </div>        
 
         {/* ── Success Notice ── */}
         {notice && (
