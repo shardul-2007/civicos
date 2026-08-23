@@ -280,10 +280,11 @@ export default function ReportComplaint() {
           border: '1px solid rgba(255,255,255,0.08)',
           borderRadius: 'var(--radius-xl)',
           padding: '1.25rem 1.5rem',
-          marginBottom: '2rem',
+          marginBottom: '1.75rem',
           boxShadow: '0 16px 40px -10px rgba(0,0,0,0.6)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+          {/* Desktop Wizard View (>= 640px) */}
+          <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
             <div style={{ position: 'absolute', top: '18px', left: '30px', right: '30px', height: '2px', background: 'rgba(255,255,255,0.07)', zIndex: 0 }} />
             <div style={{ position: 'absolute', top: '18px', left: '30px', height: '2px', background: 'var(--sage)', zIndex: 0, transition: 'width 0.4s ease', width: `${((step - 1) / 3) * (100 - 10)}%` }} />
 
@@ -312,6 +313,38 @@ export default function ReportComplaint() {
                 </div>
               );
             })}
+          </div>
+
+          {/* Mobile Stepper View (< 640px) */}
+          <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+              {[1, 2, 3, 4].map((stepNum) => {
+                const isActive = stepNum === step;
+                const isDone = stepNum < step;
+                return (
+                  <React.Fragment key={stepNum}>
+                    <div style={{
+                      width: '14px', height: '14px', borderRadius: '50%',
+                      background: isActive ? '#34d399' : isDone ? '#10b981' : 'rgba(255,255,255,0.15)',
+                      border: isActive ? '3px solid #059669' : 'none',
+                      boxShadow: isActive ? '0 0 12px rgba(52,211,153,0.8)' : 'none',
+                      flexShrink: 0
+                    }} />
+                    {stepNum < 4 && (
+                      <div style={{ flex: 1, height: '3px', background: isDone ? '#10b981' : 'rgba(255,255,255,0.1)', borderRadius: '99px' }} />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.2rem' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#34d399', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                STEP {step} OF 4
+              </div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#ffffff' }}>
+                {STEPS[step - 1]?.label}
+              </div>
+            </div>
           </div>
         </div>
 
