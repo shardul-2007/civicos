@@ -82,18 +82,18 @@ const fallbackComplaintData = {
   ]
 };
 
-function TrackMap({ location, address }) {
+function TrackMap({ location, address, complaint }) {
   const coords = location?.coordinates;
-  const lat = (coords && coords.length >= 2 && !isNaN(coords[1])) ? coords[1] : 18.5304;
-  const lng = (coords && coords.length >= 2 && !isNaN(coords[0])) ? coords[0] : 73.8667;
+  const lat = complaint?.latitude || (coords && coords.length >= 2 && !isNaN(coords[1]) ? coords[1] : 18.5304);
+  const lng = complaint?.longitude || (coords && coords.length >= 2 && !isNaN(coords[0]) ? coords[0] : 73.8667);
   const pin = createPinIcon();
 
   return (
     <div className="natural-glass-card" style={{ padding: '1.5rem' }}>
       <div style={{ fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.72rem' }}>
-        <MapPin size={13} color="#34d399" /> Incident Location
+        <MapPin size={13} color="#34d399" /> Exact Issue Location
       </div>
-      <div style={{ height: '200px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.75rem', position: 'relative' }}>
+      <div style={{ height: '200px', borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '0.85rem', position: 'relative' }}>
         <LeafletErrorBoundary>
           <MapContainer
             key={`track-map-${lat}-${lng}`}
@@ -107,8 +107,16 @@ function TrackMap({ location, address }) {
           </MapContainer>
         </LeafletErrorBoundary>
       </div>
-      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-        <MapPin size={12} /> {address || 'Near College Gate, Main Road, Ward 14'}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.4rem', color: '#ffffff', fontWeight: 700 }}>
+          <MapPin size={14} color="#34d399" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <span>{address || complaint?.address || 'Near College Gate, Main Road, Ward 14'}</span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.8rem', fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+          <span>Lat: {lat.toFixed(5)}</span>
+          <span>Lng: {lng.toFixed(5)}</span>
+          {complaint?.city && <span>• {complaint.city}, {complaint.state || 'MH'}</span>}
+        </div>
       </div>
     </div>
   );
@@ -356,7 +364,7 @@ export default function TrackComplaint() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(300px,1fr))', gap: '1.25rem' }}>
 
               {/* Location Map */}
-              <TrackMap location={complaint.location} address={complaint.address} />
+              <TrackMap location={complaint.location} address={complaint.address} complaint={complaint} />
 
               {/* Audit History Timeline */}
               <div className="natural-glass-card" style={{ padding: '1.5rem' }}>

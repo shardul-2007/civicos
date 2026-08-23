@@ -53,7 +53,7 @@ const complaintSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ['Road Damage', 'Water Leakage', 'Drainage', 'Garbage', 'Streetlight', 'Public Safety', 'Other'],
+      enum: ['Road Damage', 'Water Leakage', 'Drainage', 'Garbage', 'Streetlight', 'Public Safety', 'Pothole', 'Sewage', 'Tree/Parks', 'Other'],
       index: true,
     },
     subCategory: {
@@ -98,6 +98,38 @@ const complaintSchema = new mongoose.Schema(
     location: {
       type: locationSchema,
       required: true,
+    },
+    latitude: {
+      type: Number,
+      default: null,
+    },
+    longitude: {
+      type: Number,
+      default: null,
+    },
+    city: {
+      type: String,
+      default: '',
+    },
+    district: {
+      type: String,
+      default: '',
+    },
+    state: {
+      type: String,
+      default: '',
+    },
+    pincode: {
+      type: String,
+      default: '',
+    },
+    country: {
+      type: String,
+      default: 'India',
+    },
+    accuracy: {
+      type: Number,
+      default: null,
     },
     address: {
       type: String,

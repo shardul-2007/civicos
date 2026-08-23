@@ -90,6 +90,12 @@ export const createComplaint = async (req, res, next) => {
       address,
       latitude,
       longitude,
+      city,
+      district,
+      state,
+      pincode,
+      country,
+      accuracy,
       citizenName,
       citizenEmail,
       citizenPhone,
@@ -127,6 +133,9 @@ export const createComplaint = async (req, res, next) => {
 
       const { dueAt } = calculateDueDate(category, priorityRes.suggestedSeverity, safetyRisk);
 
+      const latNum = parseFloat(latitude) || 18.5204;
+      const lngNum = parseFloat(longitude) || 73.8567;
+
       const complaint = await Complaint.create({
         trackingCode,
         citizen: req.user ? req.user._id : null,
@@ -144,9 +153,17 @@ export const createComplaint = async (req, res, next) => {
         departmentName: departmentDoc ? departmentDoc.name : 'Public Works Department',
         ward: parseInt(ward) || 14,
         address,
+        latitude: latNum,
+        longitude: lngNum,
+        city: city || '',
+        district: district || '',
+        state: state || '',
+        pincode: pincode || '',
+        country: country || 'India',
+        accuracy: accuracy ? parseFloat(accuracy) : null,
         location: {
           type: 'Point',
-          coordinates: [parseFloat(longitude || 77.2090), parseFloat(latitude || 28.6139)],
+          coordinates: [lngNum, latNum],
         },
         dueAt,
         status: 'SUBMITTED',
