@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { complaintAPI, aiAPI } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
-import GoogleMapPicker from '../../components/GoogleMapPicker';
+import LeafletMapPicker from '../../components/LeafletMapPicker';
 
 const CATEGORIES = ['Road Damage','Water Leakage','Drainage','Garbage','Streetlight','Public Safety','Pothole','Sewage','Tree/Parks','Other'];
 
@@ -401,21 +401,21 @@ export default function ReportComplaint() {
             </div>
           )}
 
-          {/* ──────────── STEP 2: Location (Google Maps Platform System) ──────────── */}
+          {/* ──────────── STEP 2: Location (Interactive Leaflet System) ──────────── */}
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <MapPin size={12} /> {t('stepLocation')} — Google Maps Platform
+                  <MapPin size={12} /> {t('stepLocation')} — Leaflet Geospatial System
                 </div>
                 <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Where is the exact problem located?</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  Use GPS, search any road/city/PIN across India, click the map, or drag the red marker to pinpoint the exact issue location.
+                  Use GPS, search any road/landmark/city across India, click the map, or drag the pin to pinpoint the exact issue location.
                 </p>
               </div>
 
-              {/* Modern Production Google Maps Picker Component */}
-              <GoogleMapPicker
+              {/* Advanced Interactive Leaflet Map Picker Component */}
+              <LeafletMapPicker
                 selectedLocation={locationDetails}
                 onLocationSelect={handleLocationSelect}
                 onConfirm={handleLocationConfirm}
