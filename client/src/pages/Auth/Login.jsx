@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Shield, Lock, Mail, User, Phone, MapPin, AlertCircle, ArrowRight } from 'lucide-react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Shield, Lock, Mail, User, Phone, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+
   const { login, register } = useAuth();
   const { t } = useLanguage();
 
@@ -17,6 +20,21 @@ export default function Login() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleRoleRedirect = (userObj) => {
+    if (redirectParam) {
+      navigate(redirectParam);
+      return;
+    }
+    const role = userObj?.role || 'CITIZEN';
+    if (role === 'ADMIN') {
+      navigate('/admin');
+    } else if (role === 'OFFICER') {
+      navigate('/officer');
+    } else {
+      navigate('/citizen');
+    }
+  };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -59,20 +77,13 @@ export default function Login() {
           password,
           role: 'CITIZEN',
         });
-        navigate('/report');
+        handleRoleRedirect(registeredUser);
       } else {
         const loggedUser = await login(cleanEmail, password);
-        const role = loggedUser?.role || 'CITIZEN';
-        if (role === 'ADMIN') {
-          navigate('/admin');
-        } else if (role === 'OFFICER') {
-          navigate('/officer');
-        } else {
-          navigate('/report');
-        }
+        handleRoleRedirect(loggedUser);
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Authentication failed. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Authentication failed. Please check credentials.');
     } finally {
       setLoading(false);
     }
@@ -90,7 +101,7 @@ export default function Login() {
     } else if (roleType === 'citizen') {
       demoEmail = 'citizen@civicos.gov';
       demoPass = 'citizen123';
-      target = '/report';
+      target = '/citizen';
     }
 
     setEmail(demoEmail);
@@ -98,12 +109,12 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(demoEmail, demoPass);
+      const userObj = await login(demoEmail, demoPass);
+      handleRoleRedirect(userObj);
     } catch (err) {
-      // Ignore
+      navigate(target);
     } finally {
       setLoading(false);
-      navigate(target);
     }
   };
 
@@ -220,7 +231,7 @@ export default function Login() {
                 <input
                   type="text"
                   className="form-input-dark"
-                  style={{ paddingLeft: '2.8rem', width: '100%', height: '44px', fontSize: '0.88rem', boxSizing: 'border-box' }}
+                  style={{ paddingLeft: '2.8rem', width: '100%', height: '48px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                   placeholder="Shardul Parihar"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -240,7 +251,7 @@ export default function Login() {
               <input
                 type="email"
                 className="form-input-dark"
-                style={{ paddingLeft: '2.8rem', width: '100%', height: '44px', fontSize: '0.88rem', boxSizing: 'border-box' }}
+                style={{ paddingLeft: '2.8rem', width: '100%', height: '48px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                 placeholder="citizen@civicos.gov"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -260,7 +271,7 @@ export default function Login() {
                 <input
                   type="tel"
                   className="form-input-dark"
-                  style={{ paddingLeft: '2.8rem', width: '100%', height: '44px', fontSize: '0.88rem', boxSizing: 'border-box' }}
+                  style={{ paddingLeft: '2.8rem', width: '100%', height: '48px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                   placeholder="+91 98230 11223"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -279,7 +290,7 @@ export default function Login() {
               <input
                 type="password"
                 className="form-input-dark"
-                style={{ paddingLeft: '2.8rem', width: '100%', height: '44px', fontSize: '0.88rem', boxSizing: 'border-box' }}
+                style={{ paddingLeft: '2.8rem', width: '100%', height: '48px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -299,7 +310,7 @@ export default function Login() {
                 <input
                   type="password"
                   className="form-input-dark"
-                  style={{ paddingLeft: '2.8rem', width: '100%', height: '44px', fontSize: '0.88rem', boxSizing: 'border-box' }}
+                  style={{ paddingLeft: '2.8rem', width: '100%', height: '48px', fontSize: '0.88rem', boxSizing: 'border-box' }}
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -313,7 +324,7 @@ export default function Login() {
           <button
             type="submit"
             className="btn-sage"
-            style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700, marginTop: '0.4rem' }}
+            style={{ width: '100%', minHeight: '48px', justifyContent: 'center', padding: '0.75rem', fontSize: '0.95rem', fontWeight: 700, marginTop: '0.4rem' }}
             disabled={loading}
           >
             {loading ? (
@@ -337,13 +348,13 @@ export default function Login() {
             1-Click Quick Fill Demo Accounts:
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem' }}>
-            <button type="button" onClick={() => fillAndSubmit('admin')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
+            <button type="button" onClick={() => fillAndSubmit('admin')} className="btn-glass" style={{ fontSize: '0.78rem', minHeight: '40px', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
               Admin
             </button>
-            <button type="button" onClick={() => fillAndSubmit('officer')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
+            <button type="button" onClick={() => fillAndSubmit('officer')} className="btn-glass" style={{ fontSize: '0.78rem', minHeight: '40px', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
               Officer
             </button>
-            <button type="button" onClick={() => fillAndSubmit('citizen')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
+            <button type="button" onClick={() => fillAndSubmit('citizen')} className="btn-glass" style={{ fontSize: '0.78rem', minHeight: '40px', padding: '0.5rem 0.25rem', justifyContent: 'center', fontWeight: 700 }}>
               Citizen
             </button>
           </div>
