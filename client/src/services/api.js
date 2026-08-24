@@ -66,4 +66,11 @@ export const aiAPI = {
   analyzeText: (data) => API.post('/ai/analyze', data),
 };
 
+export const interoperabilityAPI = {
+  getServices: () => API.get('/interoperability/services'),
+  getLogs: () => API.get('/interoperability/logs'),
+  dispatch: (code) => API.post(`/interoperability/dispatch/${code}`),
+  simulateDeptStatus: (data) => API.post('/interoperability/simulate-dept-status', data),
+};
+
 export default API;

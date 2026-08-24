@@ -14,6 +14,7 @@ import incidentRoutes from './routes/incident.routes.js';
 import departmentRoutes from './routes/department.routes.js';
 import wardRoutes from './routes/ward.routes.js';
 import aiRoutes from './routes/ai.routes.js';
+import interoperabilityRoutes from './routes/interoperability.routes.js';
 
 dotenv.config();
 
@@ -67,6 +68,9 @@ app.use('/wards', wardRoutes);
 
 app.use('/api/ai', aiRoutes);
 app.use('/ai', aiRoutes);
+
+app.use('/api/interoperability', interoperabilityRoutes);
+app.use('/interoperability', interoperabilityRoutes);
 
 // Catch-all 404 handler for API routes returning 200 OK fallback
 app.use('*', (req, res) => {

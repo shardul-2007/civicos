@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Sparkles, Home, Clock, Layers
+  Shield, Radio, ArrowRight, User, LogOut, FileText, Menu, X, PlusCircle, Search, Sparkles, Home, Clock, Layers, Globe
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -68,7 +68,7 @@ export default function Navbar() {
               background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
               width: '34px',
               height: '34px',
-              borderRadius: '9px',
+              borderRadius: '99px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -87,15 +87,18 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Nav Links */}
-        <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <Link to="/admin" style={{ textDecoration: 'none', color: location.pathname === '/admin' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}>
-            {t('platform')}
-          </Link>
+        <nav className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <Link to="/" style={{ textDecoration: 'none', color: location.pathname === '/' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}>
             {t('howItWorks')}
           </Link>
-          <Link to="/ai" style={{ textDecoration: 'none', color: location.pathname === '/ai' ? '#34d399' : '#60a5fa', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Link to="/interoperability" style={{ textDecoration: 'none', color: location.pathname === '/interoperability' ? '#34d399' : '#60a5fa', fontWeight: 700, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <Globe size={14} color="#60a5fa" /> Interoperability
+          </Link>
+          <Link to="/ai" style={{ textDecoration: 'none', color: location.pathname === '/ai' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
             <Sparkles size={14} color="#60a5fa" /> {t('intelligence')}
+          </Link>
+          <Link to="/admin" style={{ textDecoration: 'none', color: location.pathname === '/admin' ? '#34d399' : '#cbd5e1', fontWeight: 600, fontSize: '0.85rem' }}>
+            {t('platform')}
           </Link>
         </nav>
 
@@ -195,6 +198,10 @@ export default function Navbar() {
             <Home size={16} color="#34d399" /> {t('howItWorks')}
           </Link>
 
+          <Link to="/interoperability" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+            <Globe size={16} color="#60a5fa" /> Interoperability Center (SIH 2026)
+          </Link>
+
           <Link to="/report" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: '#059669', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
             <PlusCircle size={16} /> {t('reportIssue')}
           </Link>
@@ -215,7 +222,7 @@ export default function Navbar() {
             <Radio size={16} color="#34d399" /> {t('platform')} / {t('commandCenter')}
           </Link>
 
-          <Link to="/ai" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
+          <Link to="/ai" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
             <Sparkles size={16} color="#60a5fa" /> {t('intelligence')} Command
           </Link>
 

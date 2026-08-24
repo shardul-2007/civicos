@@ -29,6 +29,7 @@ import ReportComplaint from './pages/CitizenPortal/ReportComplaint';
 import TrackComplaint from './pages/CitizenPortal/TrackComplaint';
 import CitizenHistory from './pages/CitizenPortal/CitizenHistory';
 import FieldOfficerDesk from './pages/FieldOfficerDesk';
+import InteroperabilityCenter from './pages/InteroperabilityCenter';
 
 export default function App() {
   const location = useLocation();
@@ -70,7 +71,9 @@ export default function App() {
     location.pathname === '/citizen' ||
     location.pathname === '/citizen/report' ||
     location.pathname === '/citizen/track' ||
-    location.pathname === '/citizen/history';
+    location.pathname === '/citizen/history' ||
+    location.pathname === '/interoperability' ||
+    location.pathname === '/services';
 
   return (
     <ToastProvider>
@@ -117,6 +120,10 @@ export default function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Login />} />
+
+              {/* SIH 2026 Interoperability Center */}
+              <Route path="/interoperability" element={<InteroperabilityCenter />} />
+              <Route path="/services" element={<InteroperabilityCenter />} />
 
               {/* Main Municipal Command Routes */}
               <Route path="/admin" element={<Overview />} />
