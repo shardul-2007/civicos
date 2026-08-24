@@ -348,13 +348,13 @@ export default function InteroperabilityCenter() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight 700 }}>External Department ID</div>
+              <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>External Department ID</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#60a5fa', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                 {activeExtId}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight 700 }}>Integration Gateway Status</div>
+              <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Integration Gateway Status</div>
               <div style={{ fontSize: '1rem', fontWeight: 800, color: '#34d399', display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem' }}>
                 <CheckCircle2 size={16} /> Connected ({activeGateway.code})
               </div>
