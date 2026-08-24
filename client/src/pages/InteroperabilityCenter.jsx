@@ -199,7 +199,9 @@ export default function InteroperabilityCenter() {
 
           <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.6, maxWidth: '980px', marginBottom: '1.2rem' }}>
             Addressing the SIH Target Problem: <strong style={{ color: '#34d399' }}>"System integration and interoperability among government digital platforms, resulting in fragmented service delivery."</strong> CivicOS acts as the unified integration middleware bridging disparate departmental silos through a Common Data Standard (CIV-ODF v1.0).
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Connected Services</div>
               <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#34d399' }}>6 Gateways Active</div>
@@ -216,7 +218,7 @@ export default function InteroperabilityCenter() {
               <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Avg Sync Latency</div>
               <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#2dd4bf' }}>14 ms</div>
             </div>
-          </div></div>
+          </div>
         </div>
 
         {/* ── Interoperability Architecture Visualization Diagram ── */}
