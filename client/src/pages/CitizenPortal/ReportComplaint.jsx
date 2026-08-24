@@ -305,7 +305,7 @@ export default function ReportComplaint() {
                 <div style={{ color: '#ffffff', fontWeight: 700 }}>{submittedReport.departmentName}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight 700 }}>Initial Status</div>
+                <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Initial Status</div>
                 <div style={{ color: '#34d399', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                   <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399' }} /> SUBMITTED
                 </div>
