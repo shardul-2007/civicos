@@ -350,7 +350,7 @@ export default function InteroperabilityCenter() {
             <div style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>
               SIH Jury Interactive Demonstration
             </div>
-            <h3 style={{ fontSize: '1.15rem', fontWeight 800, color: '#ffffff', marginBottom: '0.6rem' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.6rem' }}>
               Department API Callback Simulator
             </h3>
             <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
