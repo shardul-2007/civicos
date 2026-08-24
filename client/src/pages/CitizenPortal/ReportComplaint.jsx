@@ -441,20 +441,50 @@ export default function ReportComplaint() {
           boxShadow: '0 24px 60px -12px rgba(0,0,0,0.7)',
         }}>
 
-          {/* User Friendly Error Card */}
+          {/* Exact Match User-Friendly Error Container */}
           {error && (
-            <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem', fontSize: '0.85rem' }}>
-              <div style={{ fontWeight: 800, marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <AlertTriangle size={16} /> Submission Failed
-              </div>
-              <div>{error}</div>
-              <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-                <button type="button" onClick={handleSubmit} className="btn-sage" style={{ fontSize: '0.78rem', padding: '0.35rem 0.85rem' }}>
-                  Try Again
-                </button>
-                <button type="button" onClick={() => { setError(''); setStep(1); }} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.35rem 0.85rem' }}>
-                  Edit Form
-                </button>
+            <div style={{
+              background: 'rgba(239,68,68,0.12)',
+              border: '1px solid rgba(239,68,68,0.35)',
+              borderRadius: '0.85rem',
+              padding: '1.25rem',
+              marginBottom: '1.75rem',
+              animation: 'fadeInSlide 0.3s ease-out',
+              boxShadow: '0 8px 24px rgba(239,68,68,0.15)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
+                <div style={{ background: 'rgba(239,68,68,0.2)', padding: '0.5rem', borderRadius: '50%', color: '#f87171', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <AlertTriangle size={20} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.35rem' }}>
+                    Submission Failed
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: '#fca5a5', lineHeight: 1.5, marginBottom: '1rem' }}>
+                    We couldn't submit your report right now. Please check your connection and try again.
+                  </p>
+
+                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={submitting}
+                      className="btn-sage"
+                      style={{ fontSize: '0.85rem', padding: '0.55rem 1.25rem', fontWeight: 800, minHeight: '40px' }}
+                    >
+                      {submitting ? 'Submitting report...' : 'Try Again'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setError(''); setStep(1); }}
+                      disabled={submitting}
+                      className="btn-glass"
+                      style={{ fontSize: '0.85rem', padding: '0.55rem 1.25rem', minHeight: '40px' }}
+                    >
+                      Edit Form
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
