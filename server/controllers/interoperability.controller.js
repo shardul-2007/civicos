@@ -3,6 +3,7 @@ import {
   getGatewayLogs,
   dispatchToDepartmentApi,
   normalizeToCommonDataStandard,
+  recordCallbackLog,
 } from '../services/interoperability.service.js';
 import Complaint from '../models/Complaint.js';
 import ComplaintHistory from '../models/ComplaintHistory.js';
@@ -39,7 +40,7 @@ export const dispatchComplaint = async (req, res) => {
     let complaint = await Complaint.findOne({ trackingCode: code.toUpperCase() });
 
     if (!complaint) {
-      return res.status(404).json({ success: false, message: 'Complaint not found' });
+      return res.status(404).json({ success: false, message: 'Complaint not found in database' });
     }
 
     const dispatchResult = await dispatchToDepartmentApi(complaint.toObject());
@@ -55,7 +56,7 @@ export const dispatchComplaint = async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Complaint successfully transformed into CIV-ODF v1.0 data standard and dispatched to Government Department Gateway API.',
+      message: 'Complaint transformed into CIV-ODF v1.0 data standard and dispatched to Government Department Gateway API.',
       data: {
         complaint,
         interoperability: dispatchResult,
@@ -76,7 +77,7 @@ export const simulateDepartmentStatusUpdate = async (req, res) => {
     let complaint = await Complaint.findOne({ trackingCode: trackingCode.toUpperCase() });
 
     if (!complaint) {
-      return res.status(404).json({ success: false, message: 'Complaint not found' });
+      return res.status(404).json({ success: false, message: `⚠️ Issue not found: Complaint code "${trackingCode}" does not exist in database.` });
     }
 
     const oldStatus = complaint.status;
@@ -87,20 +88,51 @@ export const simulateDepartmentStatusUpdate = async (req, res) => {
     }
     await complaint.save();
 
-    const historyNote = note || `External Government Department API Callback (${complaint.externalDepartmentId || 'DEPT-API'}): Status updated from ${oldStatus} to ${status}.`;
+    // Map category to exact department gateway code & name
+    let gatewayCode = 'MUNI-CP-API';
+    let gatewayName = 'Unified Municipal Gateway';
+    const cat = complaint.category || 'Other';
+
+    if (cat === 'Road Damage' || cat === 'Pothole') {
+      gatewayCode = 'ROAD-PW-API';
+      gatewayName = 'Roads & Municipal Infrastructure Portal';
+    } else if (cat === 'Water Leakage' || cat === 'Drainage' || cat === 'Sewage') {
+      gatewayCode = 'WATER-WSS-API';
+      gatewayName = 'Water Supply & Sewerage Board Gateway';
+    } else if (cat === 'Garbage') {
+      gatewayCode = 'WASTE-SWM-API';
+      gatewayName = 'Solid Waste Management & Sanitation System';
+    } else if (cat === 'Streetlight') {
+      gatewayCode = 'LIGHT-ELEC-API';
+      gatewayName = 'Street Lighting Control System';
+    } else if (cat === 'Public Safety' || cat === 'Tree/Parks') {
+      gatewayCode = 'HEALTH-PHE-API';
+      gatewayName = 'Public Health & Emergency Response';
+    }
+
+    // Record callback in gateway transaction logs
+    const callbackLog = recordCallbackLog(complaint, status, gatewayCode, gatewayName);
+
+    const historyNote = note || `External Department API Callback (${complaint.externalDepartmentId || gatewayCode}): Status updated from ${oldStatus} to ${status}.`;
 
     await ComplaintHistory.create({
       complaint: complaint._id,
-      actorName: complaint.departmentName || 'Government Department API Gateway',
+      actorName: gatewayName,
       fromStatus: oldStatus,
       toStatus: status,
       note: historyNote,
     });
 
+    const odfPayload = normalizeToCommonDataStandard(complaint.toObject());
+
     return res.json({
       success: true,
-      message: `External Government API callback processed: Complaint status updated to ${status}.`,
-      data: complaint,
+      message: `Department callback processed: ${complaint.trackingCode} status updated to ${status} in MongoDB.`,
+      data: {
+        complaint: complaint.toObject(),
+        odfPayload,
+        callbackLog,
+      },
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

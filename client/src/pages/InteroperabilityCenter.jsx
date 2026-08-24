@@ -1,214 +1,175 @@
 import React, { useState, useEffect } from 'react';
 import {
   Layers, Cpu, Server, Activity, CheckCircle2, AlertTriangle, Radio,
-  ArrowRight, ShieldCheck, RefreshCw, Database, Terminal, FileCode2, Zap, Send, Code, Globe
+  ArrowRight, ShieldCheck, RefreshCw, Database, Terminal, FileCode2, Zap, Send, Code, Globe, Search
 } from 'lucide-react';
 import { interoperabilityAPI, complaintAPI } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
 
-const fallbackServices = [
-  {
-    id: 'road-infrastructure-gateway',
-    code: 'ROAD-PW-API',
-    name: 'Roads & Municipal Infrastructure Portal',
-    department: 'Roads & Municipal Infrastructure',
-    categories: ['Road Damage', 'Pothole'],
-    status: 'ONLINE',
-    health: '99.8%',
-    latencyMs: 14,
-    requestsToday: 1420,
-    successRate: '99.6%',
-    pendingSyncs: 3,
-    lastSyncAt: new Date().toISOString(),
-    isPrototype: true,
-    label: 'Prototype Government API (Demo Integration)',
-  },
-  {
-    id: 'waste-management-gateway',
-    code: 'WASTE-SWM-API',
-    name: 'Solid Waste Management & Sanitation System',
-    department: 'Sanitation & Solid Waste Dept',
-    categories: ['Garbage'],
-    status: 'ONLINE',
-    health: '99.9%',
-    latencyMs: 18,
-    requestsToday: 2180,
-    successRate: '99.8%',
-    pendingSyncs: 5,
-    lastSyncAt: new Date().toISOString(),
-    isPrototype: true,
-    label: 'Prototype Government API (Demo Integration)',
-  },
-  {
-    id: 'water-sewerage-gateway',
-    code: 'WATER-WSS-API',
-    name: 'Water Supply & Sewerage Board Gateway',
-    department: 'Water Supply & Sanitation Dept',
-    categories: ['Water Leakage', 'Drainage', 'Sewage'],
-    status: 'ONLINE',
-    health: '99.4%',
-    latencyMs: 24,
-    requestsToday: 1840,
-    successRate: '99.1%',
-    pendingSyncs: 8,
-    lastSyncAt: new Date().toISOString(),
-    isPrototype: true,
-    label: 'Prototype Government API (Demo Integration)',
-  },
-  {
-    id: 'street-lighting-gateway',
-    code: 'LIGHT-ELEC-API',
-    name: 'Street Lighting & Power Grid Control System',
-    department: 'Electrical Services Dept',
-    categories: ['Streetlight'],
-    status: 'ONLINE',
-    health: '100.0%',
-    latencyMs: 11,
-    requestsToday: 960,
-    successRate: '100.0%',
-    pendingSyncs: 1,
-    lastSyncAt: new Date().toISOString(),
-    isPrototype: true,
-    label: 'Prototype Government API (Demo Integration)',
-  },
-  {
-    id: 'public-health-safety-gateway',
-    code: 'HEALTH-PHE-API',
-    name: 'Public Health & Emergency Hazard Response',
-    department: 'Public Safety & Emergency Response',
-    categories: ['Public Safety', 'Tree/Parks'],
-    status: 'ONLINE',
-    health: '99.7%',
-    latencyMs: 15,
-    requestsToday: 740,
-    successRate: '99.5%',
-    pendingSyncs: 2,
-    lastSyncAt: new Date().toISOString(),
-    isPrototype: true,
-    label: 'Prototype Government API (Demo Integration)',
-  },
-  {
-    id: 'municipal-grievance-gateway',
-    code: 'MUNI-CP-API',
-    name: 'Unified Central Municipal Grievance Portal',
-    department: 'General Municipal Services',
-    categories: ['Other'],
-    status: 'ONLINE',
-    health: '99.9%',
-    latencyMs: 16,
-    requestsToday: 3100,
-    successRate: '99.7%',
-    pendingSyncs: 4,
-    lastSyncAt: new Date().toISOString(),
-    isPrototype: true,
-    label: 'Prototype Government API (Demo Integration)',
-  },
-];
-
-const fallbackLogs = [
-  {
-    id: 'log_101',
-    timestamp: new Date(Date.now() - 3600000 * 0.2).toISOString(),
-    requestId: 'CIV-138987-644E',
-    externalId: 'WATER-WSS-8891',
-    gatewayCode: 'WATER-WSS-API',
-    action: 'DISPATCH_ACCEPTED',
-    latencyMs: 18,
-    status: 'SUCCESS',
-    details: 'CIV-ODF v1.0 payload accepted by Water Supply & Sewerage Board API.',
-  },
-  {
-    id: 'log_102',
-    timestamp: new Date(Date.now() - 3600000 * 0.8).toISOString(),
-    requestId: 'CIV-284791-889B',
-    externalId: 'ROAD-PW-4012',
-    gatewayCode: 'ROAD-PW-API',
-    action: 'STATUS_SYNC_RECEIVED',
-    latencyMs: 14,
-    status: 'SUCCESS',
-    details: 'Road Dept API Callback: Status updated to IN_PROGRESS.',
-  },
-  {
-    id: 'log_103',
-    timestamp: new Date(Date.now() - 3600000 * 1.5).toISOString(),
-    requestId: 'CIV-993812-441A',
-    externalId: 'LIGHT-ELEC-7714',
-    gatewayCode: 'LIGHT-ELEC-API',
-    action: 'RESOLVED_CALLBACK',
-    latencyMs: 11,
-    status: 'SUCCESS',
-    details: 'Luminaire replacement callback verified by Electrical Services API.',
-  },
-];
+const getGatewayDetailsForCategory = (category) => {
+  if (category === 'Road Damage' || category === 'Pothole') {
+    return { code: 'ROAD-PW-API', name: 'Roads & Municipal Infrastructure Portal', prefix: 'ROAD-PW' };
+  } else if (category === 'Water Leakage' || category === 'Drainage' || category === 'Sewage') {
+    return { code: 'WATER-WSS-API', name: 'Water Supply & Sewerage Board Gateway', prefix: 'WATER-WSS' };
+  } else if (category === 'Garbage') {
+    return { code: 'WASTE-SWM-API', name: 'Solid Waste Management & Sanitation System', prefix: 'WASTE-SWM' };
+  } else if (category === 'Streetlight') {
+    return { code: 'LIGHT-ELEC-API', name: 'Street Lighting & Power Grid Control System', prefix: 'LIGHT-ELEC' };
+  } else if (category === 'Public Safety' || category === 'Tree/Parks') {
+    return { code: 'HEALTH-PHE-API', name: 'Public Health & Emergency Hazard Response', prefix: 'HEALTH-PHE' };
+  }
+  return { code: 'MUNI-CP-API', name: 'Unified Central Municipal Grievance Portal', prefix: 'MUNI-CP' };
+};
 
 export default function InteroperabilityCenter() {
   const { t } = useLanguage();
-  const [services, setServices] = useState(fallbackServices);
-  const [logs, setLogs] = useState(fallbackLogs);
-  const [loading, setLoading] = useState(false);
-  const [selectedCase, setSelectedCase] = useState('CIV-138987-644E');
-  const [simulating, setSimulating] = useState(false);
-  const [simMessage, setSimMessage] = useState('');
+  const [services, setServices] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [complaintsList, setComplaintsList] = useState([]);
+  const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [selectedTrackingCode, setSelectedTrackingCode] = useState('');
+  const [searchCode, setSearchCode] = useState('');
 
-  const loadData = async () => {
+  const [loading, setLoading] = useState(false);
+  const [simulating, setSimulating] = useState(false);
+  const [simMessage, setSimMessage] = useState('Ready to receive department callback');
+  const [simError, setSimError] = useState('');
+
+  const loadAllData = async () => {
     setLoading(true);
     try {
+      // 1. Fetch connected gateways
       const sRes = await interoperabilityAPI.getServices();
-      if (sRes.data?.success && sRes.data.data?.length > 0) {
+      if (sRes.data?.success && sRes.data.data) {
         setServices(sRes.data.data);
       }
+
+      // 2. Fetch gateway audit logs
       const lRes = await interoperabilityAPI.getLogs();
-      if (lRes.data?.success && lRes.data.data?.length > 0) {
+      if (lRes.data?.success && lRes.data.data) {
         setLogs(lRes.data.data);
       }
+
+      // 3. Fetch real complaints from MongoDB
+      const cRes = await complaintAPI.list({ limit: 20 });
+      if (cRes.data?.success && Array.isArray(cRes.data.data) && cRes.data.data.length > 0) {
+        const list = cRes.data.data;
+        setComplaintsList(list);
+        
+        // Select first complaint if not selected yet
+        if (!selectedComplaint) {
+          setSelectedComplaint(list[0]);
+          setSelectedTrackingCode(list[0].trackingCode);
+        } else {
+          // Refresh current selection from database
+          const updated = list.find(item => item.trackingCode === selectedTrackingCode) || list[0];
+          setSelectedComplaint(updated);
+          setSelectedTrackingCode(updated.trackingCode);
+        }
+      }
     } catch (err) {
-      console.warn('[InteroperabilityCenter] Fallback data used:', err.message);
+      console.warn('[InteroperabilityCenter] Error loading data:', err.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    loadAllData();
   }, []);
 
+  const handleSelectComplaint = (code) => {
+    const found = complaintsList.find(c => c.trackingCode === code);
+    if (found) {
+      setSelectedComplaint(found);
+      setSelectedTrackingCode(found.trackingCode);
+      setSimMessage('Ready to receive department callback');
+      setSimError('');
+    }
+  };
+
+  const handleManualSearch = (e) => {
+    e.preventDefault();
+    if (!searchCode.trim()) return;
+    const clean = searchCode.trim().toUpperCase();
+    const found = complaintsList.find(c => c.trackingCode.toUpperCase() === clean);
+    if (found) {
+      setSelectedComplaint(found);
+      setSelectedTrackingCode(found.trackingCode);
+      setSimMessage('Ready to receive department callback');
+      setSimError('');
+    } else {
+      setSimError(`⚠️ No issue found matching code "${clean}" in active list.`);
+    }
+  };
+
   const handleSimulateStatus = async (newStatus) => {
+    if (!selectedComplaint) return;
     setSimulating(true);
-    setSimMessage('');
+    setSimError('');
+    setSimMessage(`Executing department API callback for ${selectedTrackingCode}...`);
+
     try {
+      const gatewayInfo = getGatewayDetailsForCategory(selectedComplaint.category);
       const res = await interoperabilityAPI.simulateDeptStatus({
-        trackingCode: selectedCase,
+        trackingCode: selectedTrackingCode,
         status: newStatus,
-        note: `SIH Demo Callback: External Government Department API updated status to ${newStatus}.`,
+        note: `${gatewayInfo.name} (${gatewayInfo.code}) Callback: Status updated to ${newStatus}.`,
       });
-      setSimMessage(res.data?.message || `External Department API callback processed: Status synced to ${newStatus}.`);
-      loadData();
+
+      if (res.data?.success && res.data.data?.complaint) {
+        const updatedDoc = res.data.data.complaint;
+        setSelectedComplaint(updatedDoc);
+        setSimMessage(`Department callback received: ${selectedTrackingCode} → ${newStatus}`);
+        
+        // Refresh audit logs from backend
+        const lRes = await interoperabilityAPI.getLogs();
+        if (lRes.data?.success && lRes.data.data) {
+          setLogs(lRes.data.data);
+        }
+      } else {
+        throw new Error(res.data?.message || 'Callback failed');
+      }
     } catch (err) {
-      setSimMessage(`Simulated callback complete: Case ${selectedCase} synced to ${newStatus}.`);
+      console.error('[Simulate Callback Error]:', err);
+      setSimError(err.response?.data?.message || err.message || 'Department callback simulation failed.');
     } finally {
       setSimulating(false);
     }
   };
 
-  const sampleJsonSchema = {
+  // Derive dynamic gateway and CIV-ODF schema from selected real complaint
+  const activeCategory = selectedComplaint?.category || 'Road Damage';
+  const activeGateway = getGatewayDetailsForCategory(activeCategory);
+  const activeExtId = selectedComplaint?.externalDepartmentId || `${activeGateway.prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  const activeOdfSchema = selectedComplaint ? {
     schemaVersion: 'CIV-ODF v1.0',
-    requestId: selectedCase,
-    externalDepartmentId: selectedCase.includes('138') ? 'WATER-WSS-8891' : 'ROAD-PW-4012',
-    secondaryDepartmentName: selectedCase.includes('138') ? 'Roads & Municipal Infrastructure' : null,
-    secondaryExternalId: selectedCase.includes('138') ? 'ROAD-PW-3342' : null,
+    requestId: selectedComplaint.trackingCode,
+    externalDepartmentId: activeExtId,
+    secondaryDepartmentName: selectedComplaint.secondaryDepartmentName || null,
+    secondaryExternalId: selectedComplaint.secondaryExternalId || null,
     sourcePlatform: 'CivicOS Interoperability Engine v2.5',
-    category: selectedCase.includes('138') ? 'Water Leakage' : 'Road Damage',
-    priority: 'HIGH',
+    category: selectedComplaint.category,
+    subCategory: selectedComplaint.subCategory || 'General',
+    severity: selectedComplaint.severity || 'MEDIUM',
+    priorityScore: selectedComplaint.priorityScore || 65,
+    primaryDepartment: selectedComplaint.departmentName || activeGateway.name,
+    status: selectedComplaint.status || 'SUBMITTED',
+    interoperabilityStatus: selectedComplaint.interoperabilityStatus || 'ACCEPTED_BY_DEPT_API',
     location: {
-      latitude: 18.5204,
-      longitude: 73.8567,
-      address: 'Main Corridor Junction, Pune',
-      city: 'Pune',
-      state: 'Maharashtra',
+      latitude: selectedComplaint.latitude || 18.5204,
+      longitude: selectedComplaint.longitude || 73.8567,
+      address: selectedComplaint.address || 'Municipal Location',
+      city: selectedComplaint.city || 'Pune',
+      state: selectedComplaint.state || 'Maharashtra',
     },
-    interoperabilityStatus: 'ACCEPTED_BY_DEPT_API',
-    dispatchTimestamp: new Date().toISOString(),
-  };
+    citizenInfo: {
+      name: selectedComplaint.citizenName || 'Citizen User',
+      email: selectedComplaint.citizenEmail || 'citizen@civicos.gov',
+    },
+    dispatchTimestamp: selectedComplaint.createdAt || new Date().toISOString(),
+  } : null;
 
   return (
     <div style={{ background: 'var(--bg-app)', minHeight: '100vh', padding: '5.5rem 1rem 3rem', color: 'var(--text-primary)' }}>
@@ -238,9 +199,7 @@ export default function InteroperabilityCenter() {
 
           <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.6, maxWidth: '980px', marginBottom: '1.2rem' }}>
             Addressing the SIH Target Problem: <strong style={{ color: '#34d399' }}>"System integration and interoperability among government digital platforms, resulting in fragmented service delivery."</strong> CivicOS acts as the unified integration middleware bridging disparate departmental silos through a Common Data Standard (CIV-ODF v1.0).
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Connected Services</div>
               <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#34d399' }}>6 Gateways Active</div>
@@ -255,9 +214,9 @@ export default function InteroperabilityCenter() {
             </div>
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem 1rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Avg Sync Latency</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#2dd4bf' }}>16 ms</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#2dd4bf' }}>14 ms</div>
             </div>
-          </div>
+          </div></div>
         </div>
 
         {/* ── Interoperability Architecture Visualization Diagram ── */}
@@ -277,7 +236,7 @@ export default function InteroperabilityCenter() {
                 <Globe size={18} />
               </div>
               <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '0.9rem' }}>1. Citizen Request</div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.2rem' }}>Mobile App / Web GPS Report (CIV-2026-XXXX)</div>
+              <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.2rem' }}>Mobile App / Web GPS Report</div>
             </div>
 
             <div className="desktop-only" style={{ textAlign: 'center', color: '#34d399' }}><ArrowRight size={22} /></div>
@@ -310,10 +269,139 @@ export default function InteroperabilityCenter() {
                 <Server size={18} />
               </div>
               <div style={{ fontWeight: 800, color: '#ffffff', fontSize: '0.9rem' }}>4. Govt Department API</div>
-              <div style={{ fontSize: '0.75rem', color: '#fbbf24', marginTop: '0.2rem' }}>Linked Ext ID (ROAD-PW / WATER-WSS)</div>
+              <div style={{ fontSize: '0.75rem', color: '#fbbf24', marginTop: '0.2rem' }}>Linked Ext ID ({activeGateway.prefix})</div>
             </div>
 
           </div>
+        </div>
+
+        {/* ── Real Complaint Selection & Case Inspector Bar ── */}
+        <div className="natural-glass-card" style={{ padding: '1.25rem 1.5rem', marginBottom: '2rem', background: '#121722', border: '1px solid rgba(16,185,129,0.3)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ flex: 1, minWidth: '280px' }}>
+              <label style={{ fontSize: '0.78rem', color: '#34d399', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.35rem' }}>
+                Select Active Database Complaint to Inspect & Simulate:
+              </label>
+              <select
+                className="form-select-dark"
+                value={selectedTrackingCode}
+                onChange={(e) => handleSelectComplaint(e.target.value)}
+                style={{ width: '100%', height: '44px', fontWeight: 700, fontSize: '0.9rem' }}
+              >
+                {complaintsList.map((c) => (
+                  <option key={c._id || c.trackingCode} value={c.trackingCode}>
+                    {c.trackingCode} — [{c.category}] {c.title} ({c.status})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <form onSubmit={handleManualSearch} style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+              <input
+                type="text"
+                className="form-input-dark"
+                placeholder="Or enter CIV-2026-XXXXXX"
+                value={searchCode}
+                onChange={(e) => setSearchCode(e.target.value)}
+                style={{ height: '44px', fontSize: '0.85rem', width: '210px' }}
+              />
+              <button type="submit" className="btn-sage" style={{ padding: '0.5rem 1rem', height: '44px' }}>
+                <Search size={15} /> Find
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* ── Interactive Integration Inspector & Callback Simulator ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+          
+          {/* Left: JSON Common Data Standard (CIV-ODF v1.0) Payload Inspector */}
+          <div className="natural-glass-card" style={{ padding: '1.5rem', background: '#121722' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div>
+                <div style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: 800, textTransform: 'uppercase' }}>Data Standard Inspector</div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff' }}>CIV-ODF v1.0 Normalized Payload</h3>
+              </div>
+              <span className="badge badge-teal"><FileCode2 size={12} /> Live Schema</span>
+            </div>
+
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.85rem' }}>
+              Active Case: <strong style={{ color: '#34d399', fontFamily: 'monospace' }}>{selectedTrackingCode}</strong> | Target Gateway: <strong style={{ color: '#60a5fa', fontFamily: 'monospace' }}>{activeGateway.code}</strong>
+            </div>
+
+            <pre style={{
+              background: '#0a0d14',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '0.75rem',
+              padding: '1rem',
+              fontSize: '0.78rem',
+              color: '#34d399',
+              fontFamily: 'monospace',
+              overflowX: 'auto',
+              maxHeight: '270px',
+              lineHeight: 1.5,
+            }}>
+              {JSON.stringify(activeOdfPayload || activeOdfSchema, null, 2)}
+            </pre>
+          </div>
+
+          {/* Right: SIH Demo Callback Simulator */}
+          <div className="natural-glass-card" style={{ padding: '1.5rem', background: '#121722' }}>
+            <div style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>
+              SIH Jury Interactive Demonstration
+            </div>
+            <h3 style={{ fontSize: '1.15rem', fontWeight 800, color: '#ffffff', marginBottom: '0.6rem' }}>
+              Department API Callback Simulator
+            </h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
+              Simulate <strong style={{ color: '#ffffff' }}>{activeGateway.name}</strong> (`{activeGateway.code}`) updating the status of issue <strong style={{ color: '#34d399' }}>{selectedTrackingCode}</strong>.
+            </p>
+
+            <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', padding: '0.9rem 1rem', borderRadius: '0.75rem', marginBottom: '1.25rem' }}>
+              <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                CivicOS Request ID: <strong style={{ color: '#34d399', fontFamily: 'monospace' }}>{selectedTrackingCode}</strong>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
+                Linked Ext Dept ID: <strong style={{ color: '#60a5fa', fontFamily: 'monospace' }}>{activeExtId}</strong>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>
+                Current DB Status: <strong style={{ color: '#f59e0b', fontWeight: 800 }}>{selectedComplaint?.status || 'SUBMITTED'}</strong>
+              </div>
+            </div>
+
+            {/* Callback Feedback Status */}
+            {simError ? (
+              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '0.65rem 0.85rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem' }}>
+                {simError}
+              </div>
+            ) : (
+              <div style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)', color: '#60a5fa', padding: '0.65rem 0.85rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <CheckCircle2 size={15} /> {simMessage}
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => handleSimulateStatus('IN_PROGRESS')}
+                disabled={simulating}
+                className="btn-teal"
+                style={{ justifyContent: 'center', fontSize: '0.85rem', padding: '0.65rem' }}
+              >
+                {simulating ? 'Syncing...' : <><Zap size={15} /> Simulate API: In Progress</>}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSimulateStatus('RESOLVED')}
+                disabled={simulating}
+                className="btn-sage"
+                style={{ justifyContent: 'center', fontSize: '0.85rem', padding: '0.65rem' }}
+              >
+                {simulating ? 'Syncing...' : <><CheckCircle2 size={15} /> Simulate API: Resolved</>}
+              </button>
+            </div>
+          </div>
+
         </div>
 
         {/* ── Connected Government Department Services Hub ── */}
@@ -325,18 +413,18 @@ export default function InteroperabilityCenter() {
               </div>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff' }}>Connected Government Gateways</h2>
             </div>
-            <button onClick={loadData} className="btn-glass" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem' }}>
+            <button onClick={loadAllData} className="btn-glass" style={{ fontSize: '0.8rem', padding: '0.45rem 0.85rem' }}>
               <RefreshCw size={14} /> Refresh Gateways
             </button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.1rem' }}>
             {services.map((s) => (
-              <div key={s.id} className="natural-glass-card" style={{ padding: '1.35rem', background: '#121722', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div key={s.id} className="natural-glass-card" style={{ padding: '1.35rem', background: '#121722', borderRadius: '1rem', border: s.code === activeGateway.code ? '1px solid rgba(16,185,129,0.5)' : '1px solid rgba(255,255,255,0.08)' }}>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                   <div>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#34d399', fontFamily: 'monospace' }}>{s.code}</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: s.code === activeGateway.code ? '#34d399' : '#60a5fa', fontFamily: 'monospace' }}>{s.code}</span>
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginTop: '0.15rem' }}>{s.name}</h3>
                   </div>
                   <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#34d399', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', padding: '0.2rem 0.55rem', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
@@ -371,98 +459,6 @@ export default function InteroperabilityCenter() {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* ── Interactive Demo Integration Simulator (SIH Jury Demonstration) ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-          
-          {/* Left: JSON Common Data Standard (CIV-ODF v1.0) Payload Inspector */}
-          <div className="natural-glass-card" style={{ padding: '1.5rem', background: '#121722' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: 800, textTransform: 'uppercase' }}>Data Standard Inspector</div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff' }}>CIV-ODF v1.0 Normalized Payload</h3>
-              </div>
-              <span className="badge badge-teal"><FileCode2 size={12} /> JSON Schema</span>
-            </div>
-
-            <div style={{ marginBottom: '0.85rem' }}>
-              <label style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>Select Case to Inspect:</label>
-              <div style={{ display: 'flex', gap: '0.4rem' }}>
-                <button type="button" onClick={() => setSelectedCase('CIV-138987-644E')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.4rem 0.75rem', background: selectedCase === 'CIV-138987-644E' ? 'rgba(16,185,129,0.25)' : 'transparent', borderColor: selectedCase === 'CIV-138987-644E' ? '#34d399' : 'rgba(255,255,255,0.1)' }}>
-                  CIV-138987-644E (Water & Road)
-                </button>
-                <button type="button" onClick={() => setSelectedCase('CIV-284791-889B')} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.4rem 0.75rem', background: selectedCase === 'CIV-284791-889B' ? 'rgba(16,185,129,0.25)' : 'transparent', borderColor: selectedCase === 'CIV-284791-889B' ? '#34d399' : 'rgba(255,255,255,0.1)' }}>
-                  CIV-284791-889B (Pothole)
-                </button>
-              </div>
-            </div>
-
-            <pre style={{
-              background: '#0a0d14',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '0.75rem',
-              padding: '1rem',
-              fontSize: '0.78rem',
-              color: '#34d399',
-              fontFamily: 'monospace',
-              overflowX: 'auto',
-              maxHeight: '260px',
-              lineHeight: 1.5,
-            }}>
-              {JSON.stringify(sampleJsonSchema, null, 2)}
-            </pre>
-          </div>
-
-          {/* Right: SIH Demo Callback Simulator */}
-          <div className="natural-glass-card" style={{ padding: '1.5rem', background: '#121722' }}>
-            <div style={{ fontSize: '0.75rem', color: '#60a5fa', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>
-              SIH Jury Interactive Demonstration
-            </div>
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.6rem' }}>
-              Department API Status Sync Callback Simulator
-            </h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-              Simulate an external Government Department API (e.g., Road Department Portal `ROAD-PW-API`) updating the status of a case. Watch CivicOS normalize the response and sync the status back to the citizen in real-time.
-            </p>
-
-            <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', padding: '1rem', borderRadius: '0.75rem', marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.4rem' }}>
-                Target CivicOS Request ID: <strong style={{ color: '#34d399', fontFamily: 'monospace' }}>{selectedCase}</strong>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
-                Linked Government Dept ID: <strong style={{ color: '#60a5fa', fontFamily: 'monospace' }}>{sampleJsonSchema.externalDepartmentId}</strong>
-              </div>
-            </div>
-
-            {simMessage && (
-              <div style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)', color: '#34d399', padding: '0.65rem 0.85rem', borderRadius: '0.5rem', fontSize: '0.82rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <CheckCircle2 size={15} /> {simMessage}
-              </div>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-              <button
-                type="button"
-                onClick={() => handleSimulateStatus('IN_PROGRESS')}
-                disabled={simulating}
-                className="btn-teal"
-                style={{ justifyContent: 'center', fontSize: '0.85rem', padding: '0.65rem' }}
-              >
-                <Zap size={15} /> Simulate API: In Progress
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSimulateStatus('RESOLVED')}
-                disabled={simulating}
-                className="btn-sage"
-                style={{ justifyContent: 'center', fontSize: '0.85rem', padding: '0.65rem' }}
-              >
-                <CheckCircle2 size={15} /> Simulate API: Resolved
-              </button>
-            </div>
-          </div>
-
         </div>
 
         {/* ── Live API Gateway Audit Transaction Logs ── */}

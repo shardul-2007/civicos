@@ -3,7 +3,7 @@
  * Common Integration Layer & Department API Adapters
  */
 
-// Simulated Connected Government Department Services Registry
+// Connected Government Department Services Registry
 const CONNECTED_GOVERNMENT_SERVICES = [
   {
     id: 'road-infrastructure-gateway',
@@ -103,42 +103,8 @@ const CONNECTED_GOVERNMENT_SERVICES = [
   },
 ];
 
-// Transaction audit logs for the API Gateway
-const GATEWAY_TRANSACTION_LOGS = [
-  {
-    id: 'log_101',
-    timestamp: new Date(Date.now() - 3600000 * 0.5).toISOString(),
-    requestId: 'CIV-138987-644E',
-    externalId: 'WATER-WSS-8891',
-    gatewayCode: 'WATER-WSS-API',
-    action: 'DISPATCH_ACCEPTED',
-    latencyMs: 22,
-    status: 'SUCCESS',
-    details: 'Normalized payload accepted by Water Board Gateway API.',
-  },
-  {
-    id: 'log_102',
-    timestamp: new Date(Date.now() - 3600000 * 1.2).toISOString(),
-    requestId: 'CIV-284791-889B',
-    externalId: 'ROAD-PW-4012',
-    gatewayCode: 'ROAD-PW-API',
-    action: 'STATUS_SYNC_RECEIVED',
-    latencyMs: 14,
-    status: 'SUCCESS',
-    details: 'Road Dept API callback: Status updated to IN_PROGRESS.',
-  },
-  {
-    id: 'log_103',
-    timestamp: new Date(Date.now() - 3600000 * 2.5).toISOString(),
-    requestId: 'CIV-993812-441A',
-    externalId: 'LIGHT-ELEC-7714',
-    gatewayCode: 'LIGHT-ELEC-API',
-    action: 'RESOLVED_CALLBACK',
-    latencyMs: 11,
-    status: 'SUCCESS',
-    details: 'Luminaire replacement verified by Electrical Services API.',
-  },
-];
+// Real-time API Gateway Audit Transaction Stream
+const GATEWAY_TRANSACTION_LOGS = [];
 
 /**
  * Normalizes a CivicOS complaint into the Open Civic Data Format (CIV-ODF v1.0)
@@ -147,7 +113,7 @@ export const normalizeToCommonDataStandard = (complaint) => {
   const primaryDept = complaint.departmentName || 'General Municipal Services';
   const category = complaint.category || 'Other';
 
-  // Generate department-specific prefix
+  // Generate department-specific prefix matching exact category
   let deptPrefix = 'MUNI-CP';
   if (category === 'Road Damage' || category === 'Pothole') deptPrefix = 'ROAD-PW';
   else if (category === 'Water Leakage' || category === 'Drainage' || category === 'Sewage') deptPrefix = 'WATER-WSS';
@@ -155,23 +121,29 @@ export const normalizeToCommonDataStandard = (complaint) => {
   else if (category === 'Streetlight') deptPrefix = 'LIGHT-ELEC';
   else if (category === 'Public Safety' || category === 'Tree/Parks') deptPrefix = 'HEALTH-PHE';
 
-  const randomNum = Math.floor(1000 + Math.random() * 9000);
-  const externalDepartmentId = `${deptPrefix}-${randomNum}`;
+  // Preserve existing externalDepartmentId or generate new matching ID
+  let externalDepartmentId = complaint.externalDepartmentId;
+  if (!externalDepartmentId || !externalDepartmentId.startsWith(deptPrefix)) {
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    externalDepartmentId = `${deptPrefix}-${randomNum}`;
+  }
 
-  // Check for multi-department cross-linked requests (e.g. Road Damage + Water Leak)
-  let secondaryDepartmentName = null;
-  let secondaryExternalId = null;
+  // Multi-department cross-linked request logic (e.g. Water Leakage damaging Road Asphalt)
+  let secondaryDepartmentName = complaint.secondaryDepartmentName || null;
+  let secondaryExternalId = complaint.secondaryExternalId || null;
 
   const descLower = (complaint.description || '').toLowerCase();
   const titleLower = (complaint.title || '').toLowerCase();
   const fullText = `${titleLower} ${descLower}`;
 
-  if (category === 'Road Damage' && (fullText.includes('water') || fullText.includes('leak') || fullText.includes('pipe'))) {
-    secondaryDepartmentName = 'Water Supply & Sanitation Dept';
-    secondaryExternalId = `WATER-WSS-${Math.floor(1000 + Math.random() * 9000)}`;
-  } else if (category === 'Water Leakage' && (fullText.includes('road') || fullText.includes('pothole') || fullText.includes('asphalt'))) {
-    secondaryDepartmentName = 'Roads & Municipal Infrastructure';
-    secondaryExternalId = `ROAD-PW-${Math.floor(1000 + Math.random() * 9000)}`;
+  if (!secondaryDepartmentName) {
+    if ((category === 'Road Damage' || category === 'Pothole') && (fullText.includes('water') || fullText.includes('leak') || fullText.includes('pipe'))) {
+      secondaryDepartmentName = 'Water Supply & Sanitation Dept';
+      secondaryExternalId = `WATER-WSS-${Math.floor(1000 + Math.random() * 9000)}`;
+    } else if ((category === 'Water Leakage' || category === 'Drainage') && (fullText.includes('road') || fullText.includes('pothole') || fullText.includes('asphalt'))) {
+      secondaryDepartmentName = 'Roads & Municipal Infrastructure';
+      secondaryExternalId = `ROAD-PW-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
   }
 
   return {
@@ -181,11 +153,12 @@ export const normalizeToCommonDataStandard = (complaint) => {
     secondaryDepartmentName,
     secondaryExternalId,
     sourcePlatform: 'CivicOS Interoperability Engine v2.5',
-    category: complaint.category,
+    category: complaint.category || 'Other',
     subCategory: complaint.subCategory || 'General',
     severity: complaint.severity || 'MEDIUM',
     priorityScore: complaint.priorityScore || 65,
     primaryDepartment: primaryDept,
+    status: complaint.status || 'SUBMITTED',
     location: {
       latitude: complaint.latitude || 18.5204,
       longitude: complaint.longitude || 73.8567,
@@ -205,21 +178,20 @@ export const normalizeToCommonDataStandard = (complaint) => {
     evidence: {
       imageUrl: complaint.image || '',
     },
-    interoperabilityStatus: 'ACCEPTED_BY_DEPT_API',
-    dispatchTimestamp: new Date().toISOString(),
+    interoperabilityStatus: complaint.interoperabilityStatus || 'ACCEPTED_BY_DEPT_API',
+    dispatchTimestamp: complaint.createdAt ? new Date(complaint.createdAt).toISOString() : new Date().toISOString(),
   };
 };
 
 /**
- * Simulates dispatching a normalized complaint through the Interoperability Gateway
+ * Dispatches a complaint payload to target department API gateway
  */
 export const dispatchToDepartmentApi = async (complaint) => {
   const odfPayload = normalizeToCommonDataStandard(complaint);
 
-  // Find target gateway
+  // Find target gateway matching complaint category
   const targetService = CONNECTED_GOVERNMENT_SERVICES.find(s => s.categories.includes(complaint.category)) || CONNECTED_GOVERNMENT_SERVICES[5];
 
-  // Log transaction
   const newLog = {
     id: `log_${Date.now()}`,
     timestamp: new Date().toISOString(),
@@ -227,9 +199,9 @@ export const dispatchToDepartmentApi = async (complaint) => {
     externalId: odfPayload.externalDepartmentId,
     gatewayCode: targetService.code,
     action: 'DISPATCH_ACCEPTED',
-    latencyMs: targetService.latencyMs + Math.floor(Math.random() * 5),
+    latencyMs: targetService.latencyMs + Math.floor(Math.random() * 4),
     status: 'SUCCESS',
-    details: `Normalized CIV-ODF v1.0 payload accepted by ${targetService.name}. Linked Ext ID: ${odfPayload.externalDepartmentId}${odfPayload.secondaryExternalId ? ' (+ Secondary Dept: ' + odfPayload.secondaryExternalId + ')' : ''}`,
+    details: `CIV-ODF v1.0 payload accepted by ${targetService.name}. Linked Ext ID: ${odfPayload.externalDepartmentId}${odfPayload.secondaryExternalId ? ' (+ Secondary: ' + odfPayload.secondaryExternalId + ')' : ''}`,
   };
 
   GATEWAY_TRANSACTION_LOGS.unshift(newLog);
@@ -245,6 +217,28 @@ export const dispatchToDepartmentApi = async (complaint) => {
     latencyMs: newLog.latencyMs,
     log: newLog,
   };
+};
+
+/**
+ * Records a department API callback event in transaction logs
+ */
+export const recordCallbackLog = (complaint, newStatus, gatewayCode, gatewayName) => {
+  const newLog = {
+    id: `log_${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    requestId: complaint.trackingCode,
+    externalId: complaint.externalDepartmentId || `${gatewayCode.split('-API')[0]}-${Math.floor(1000 + Math.random() * 9000)}`,
+    gatewayCode: gatewayCode,
+    action: newStatus === 'RESOLVED' ? 'RESOLVED_CALLBACK' : 'STATUS_SYNC_RECEIVED',
+    latencyMs: Math.floor(10 + Math.random() * 15),
+    status: 'SUCCESS',
+    details: `${gatewayName} callback: Status updated to ${newStatus}.`,
+  };
+
+  GATEWAY_TRANSACTION_LOGS.unshift(newLog);
+  if (GATEWAY_TRANSACTION_LOGS.length > 30) GATEWAY_TRANSACTION_LOGS.pop();
+
+  return newLog;
 };
 
 /**
