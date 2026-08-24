@@ -8,6 +8,24 @@ import { calculatePriorityScore } from '../services/priority.service.js';
 import { calculateDueDate, getSLAStatus } from '../services/sla.service.js';
 import { dispatchToDepartmentApi } from '../services/interoperability.service.js';
 
+// Category normalization dictionary to prevent Mongoose Enum Validation Errors
+const NORMALIZE_CATEGORY = (catStr = '') => {
+  const c = catStr.toLowerCase().trim();
+  if (c.includes('pothole')) return 'Pothole';
+  if (c.includes('road') || c.includes('asphalt') || c.includes('tar') || c.includes('street crack')) return 'Road Damage';
+  if (c.includes('water') || c.includes('pipe') || c.includes('leak')) return 'Water Leakage';
+  if (c.includes('drain') || c.includes('drainage')) return 'Drainage';
+  if (c.includes('sewer') || c.includes('sewage') || c.includes('toilet')) return 'Sewage';
+  if (c.includes('garbage') || c.includes('waste') || c.includes('trash') || c.includes('smell')) return 'Garbage';
+  if (c.includes('light') || c.includes('lamp') || c.includes('electric pole') || c.includes('transformer')) return 'Streetlight';
+  if (c.includes('safety') || c.includes('hazard') || c.includes('danger') || c.includes('wire')) return 'Public Safety';
+  if (c.includes('tree') || c.includes('park') || c.includes('branch')) return 'Tree/Parks';
+  
+  const allowed = ['Road Damage', 'Water Leakage', 'Drainage', 'Garbage', 'Streetlight', 'Public Safety', 'Pothole', 'Sewage', 'Tree/Parks', 'Other'];
+  const exactMatch = allowed.find(a => a.toLowerCase() === c);
+  return exactMatch || 'Other';
+};
+
 /**
  * Creates and persists a new citizen complaint in MongoDB
  */
@@ -17,7 +35,7 @@ export const createComplaint = async (req, res, next) => {
       title,
       description,
       image,
-      category: userCategory,
+      category: rawCategory,
       ward,
       address,
       latitude,
@@ -33,17 +51,28 @@ export const createComplaint = async (req, res, next) => {
       citizenPhone,
     } = req.body;
 
-    if (!title || !description || !address) {
+    if (!description || description.trim().length < 2) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: title, description, and address are required.',
+        message: 'Missing required field: Please provide an issue description.',
       });
     }
 
-    const aiAnalysis = await analyzeComplaint(description, title);
-    const category = userCategory || aiAnalysis.category || 'Other';
+    const cleanAddress = address && address.trim().length >= 2 ? address.trim() : 'Pune, Maharashtra';
+
+    // AI Analysis fallback
+    const aiAnalysis = await analyzeComplaint(description, title || description);
+    
+    // Category normalization
+    const category = NORMALIZE_CATEGORY(rawCategory || aiAnalysis.category || 'Other');
     const subCategory = aiAnalysis.subCategory || 'General';
     const safetyRisk = aiAnalysis.safetyRisk || false;
+
+    // Sanitize title if user entered category keyword like "road" or very short title
+    let cleanTitle = title && title.trim().length >= 3 ? title.trim() : '';
+    if (!cleanTitle || cleanTitle.toLowerCase() === 'road' || cleanTitle.toLowerCase() === 'garbage' || cleanTitle.toLowerCase() === 'water') {
+      cleanTitle = `${category} issue near ${cleanAddress.split(',')[0]}`;
+    }
 
     let trackingCode = generateTrackingCode();
 
@@ -67,7 +96,7 @@ export const createComplaint = async (req, res, next) => {
     const latNum = parseFloat(latitude) || 18.5204;
     const lngNum = parseFloat(longitude) || 73.8567;
 
-    // Parse ward cleanly into number
+    // Parse ward cleanly into number (default 14)
     let wardNum = 14;
     if (ward && !isNaN(parseInt(ward))) {
       wardNum = parseInt(ward);
@@ -77,20 +106,20 @@ export const createComplaint = async (req, res, next) => {
     const complaint = await Complaint.create({
       trackingCode,
       citizen: req.user ? req.user._id : null,
-      citizenName: citizenName || req.user?.name || 'Citizen',
+      citizenName: citizenName || req.user?.name || 'Citizen User',
       citizenEmail: citizenEmail || req.user?.email || 'citizen@civicos.gov',
       citizenPhone: citizenPhone || req.user?.phone || '',
-      title,
-      description,
+      title: cleanTitle,
+      description: description.trim(),
       image: image || '',
       category,
       subCategory,
-      severity: priorityRes.suggestedSeverity,
-      priorityScore: priorityRes.priorityScore,
+      severity: priorityRes.suggestedSeverity || 'MEDIUM',
+      priorityScore: priorityRes.priorityScore || 65,
       department: departmentDoc ? departmentDoc._id : null,
       departmentName: departmentDoc ? departmentDoc.name : 'Public Works Department',
       ward: wardNum,
-      address,
+      address: cleanAddress,
       latitude: latNum,
       longitude: lngNum,
       city: city || 'Pune',
@@ -103,7 +132,7 @@ export const createComplaint = async (req, res, next) => {
         type: 'Point',
         coordinates: [lngNum, latNum],
       },
-      dueAt,
+      dueAt: dueAt || new Date(Date.now() + 48 * 3600 * 1000),
       status: 'SUBMITTED',
     });
 
@@ -123,10 +152,10 @@ export const createComplaint = async (req, res, next) => {
     await ComplaintHistory.create({
       complaint: complaint._id,
       actor: req.user ? req.user._id : null,
-      actorName: citizenName || req.user?.name || 'Citizen',
+      actorName: citizenName || req.user?.name || 'Citizen User',
       fromStatus: 'NONE',
       toStatus: 'SUBMITTED',
-      note: `Complaint registered in MongoDB (${trackingCode}). AI analysis: ${category} (${priorityRes.suggestedSeverity} severity, Priority: ${priorityRes.priorityScore}/100). Interoperability Dept ID: ${complaint.externalDepartmentId || 'ROAD-PW-8921'}.`,
+      note: `Complaint registered in database (${trackingCode}). AI analysis: ${category} (${priorityRes.suggestedSeverity} severity, Priority: ${priorityRes.priorityScore}/100). Interoperability Dept ID: ${complaint.externalDepartmentId || 'ROAD-PW-8921'}.`,
     });
 
     const complaintObj = complaint.toObject();
@@ -141,7 +170,7 @@ export const createComplaint = async (req, res, next) => {
     console.error('[Create Complaint Error]:', error);
     return res.status(500).json({
       success: false,
-      message: error.message || 'Report could not be submitted. Please try again.',
+      message: error.message || 'CivicOS couldn\'t process this report right now. Please try again.',
     });
   }
 };
@@ -423,7 +452,7 @@ export const verifyResolution = async (req, res, next) => {
     await ComplaintHistory.create({
       complaint: complaint._id,
       actor: req.user ? req.user._id : null,
-      actorName: complaint.citizenName || 'Citizen',
+      actorName: complaint.citizenName || 'Citizen User',
       fromStatus: oldStatus,
       toStatus: complaint.status,
       note: verified
