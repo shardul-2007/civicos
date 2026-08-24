@@ -235,31 +235,26 @@ export default function ReportComplaint() {
 
       const res = await complaintAPI.create(payload);
 
-      setTimeout(() => {
-        if (res.data?.success && res.data.data) {
-          const createdDoc = res.data.data;
-          
-          // Cache in local storage for instant offline history
-          try {
-            const stored = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
-            stored.unshift(createdDoc);
-            localStorage.setItem('civicos_my_complaints', JSON.stringify(stored));
-          } catch (e) {}
+      if (res.data?.success && res.data.data) {
+        const createdDoc = res.data.data;
+        
+        // Cache in local storage for instant offline history
+        try {
+          const stored = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
+          stored.unshift(createdDoc);
+          localStorage.setItem('civicos_my_complaints', JSON.stringify(stored));
+        } catch (e) {}
 
-          setSubmittedReport(createdDoc);
-          setSubmitting(false);
-          return;
-        }
-        throw new Error(res.data?.message || 'Report could not be submitted right now. Please try again.');
-      }, 1000);
+        setSubmittedReport(createdDoc);
+        setSubmitting(false);
+        return;
+      }
+      throw new Error(res.data?.message || 'Report could not be submitted right now. Please try again.');
 
     } catch (err) {
       console.error('[Report Submission Exception]:', err);
-      setTimeout(() => {
-        setSubmitting(false);
-        // Display friendly error message (NEVER expose raw 500 status code)
-        setError('We couldn\'t submit your report right now. Please check your connection and try again.');
-      }, 1000);
+      setSubmitting(false);
+      setError(err.response?.data?.message || err.message || 'We couldn\'t submit your report right now. Please check your connection and try again.');
     }
   };
 
