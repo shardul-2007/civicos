@@ -6,79 +6,11 @@ import { generateTrackingCode } from '../utils/tracking.js';
 import { analyzeComplaint } from '../services/ai.service.js';
 import { calculatePriorityScore } from '../services/priority.service.js';
 import { calculateDueDate, getSLAStatus } from '../services/sla.service.js';
-import { checkComplaintDuplicate } from '../services/duplicate.service.js';
+import { dispatchToDepartmentApi } from '../services/interoperability.service.js';
 
-const fallbackComplaints = [
-  {
-    _id: '65f8a0000000000000000101',
-    trackingCode: 'CIV-138987-644E',
-    title: 'Water Leakage & Supply Pressure Burst',
-    description: 'Major water pipeline leak near Ward 14 bus stop causing street flooding.',
-    category: 'Water Infrastructure',
-    subCategory: 'Pipe Burst',
-    severity: 'CRITICAL',
-    priorityScore: 88,
-    status: 'IN_PROGRESS',
-    ward: 14,
-    address: 'Near College Gate, Main Road, Ward 14',
-    citizenName: 'Amitav Ghosh',
-    citizenEmail: 'citizen@civicos.gov',
-    departmentName: 'Water Supply & Sanitation',
-    createdAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-    dueAt: new Date(Date.now() + 3600000 * 20).toISOString(),
-    sla: { isBreached: false, isWarning: true, statusLabel: '20h remaining' },
-    history: [
-      { note: 'Complaint filed via Citizen Portal', actorName: 'Amitav Ghosh', createdAt: new Date(Date.now() - 3600000 * 4).toISOString() },
-      { note: 'Officer accepted field work inspection', actorName: 'Inspector Rajesh Kumar', createdAt: new Date(Date.now() - 3600000 * 2).toISOString() }
-    ]
-  },
-  {
-    _id: '65f8a0000000000000000102',
-    trackingCode: 'CIV-284791-889B',
-    title: 'Asphalt Pothole & Road Deterioration',
-    description: 'Deep pothole causing traffic slowdown near Sector 4 main junction.',
-    category: 'Road Damage',
-    subCategory: 'Pothole',
-    severity: 'HIGH',
-    priorityScore: 74,
-    status: 'ASSIGNED',
-    ward: 14,
-    address: 'Sector 4 Main Corridor, Ward 14',
-    citizenName: 'Priya Sharma',
-    citizenEmail: 'priya@civicos.gov',
-    departmentName: 'Roads & Municipal Infrastructure',
-    createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
-    dueAt: new Date(Date.now() + 3600000 * 12).toISOString(),
-    sla: { isBreached: false, isWarning: false, statusLabel: '12h remaining' },
-    history: [
-      { note: 'Complaint assigned to Roads & Municipal Infrastructure', actorName: 'System AI Engine', createdAt: new Date(Date.now() - 3600000 * 12).toISOString() }
-    ]
-  },
-  {
-    _id: '65f8a0000000000000000103',
-    trackingCode: 'CIV-993812-441A',
-    title: 'Streetlight Substation Transformer Outage',
-    description: 'Entire street dark between Block B and Block C due to luminaire failure.',
-    category: 'Streetlight',
-    subCategory: 'Transformer Outage',
-    severity: 'MEDIUM',
-    priorityScore: 56,
-    status: 'RESOLVED',
-    ward: 7,
-    address: 'Block B Main Road, Ward 7',
-    citizenName: 'Shardul Parihar',
-    citizenEmail: 'shardul@civicos.gov',
-    departmentName: 'Electrical Services',
-    createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-    resolvedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-    sla: { isBreached: false, isWarning: false, statusLabel: 'Completed within SLA' },
-    history: [
-      { note: 'Field Officer completed luminaire replacement', actorName: 'Inspector Rajesh Kumar', createdAt: new Date(Date.now() - 3600000 * 2).toISOString() },
-      { note: 'Citizen verified resolution on-site', actorName: 'Shardul Parihar', createdAt: new Date(Date.now() - 3600000 * 1).toISOString() }
-    ]
-  }
-];
-
+/**
+ * Creates and persists a new citizen complaint in MongoDB
+ */
 export const createComplaint = async (req, res, next) => {
   try {
     const {
@@ -104,7 +36,7 @@ export const createComplaint = async (req, res, next) => {
     if (!title || !description || !address) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: title, description, address',
+        message: 'Missing required fields: title, description, and address are required.',
       });
     }
 
@@ -115,233 +47,211 @@ export const createComplaint = async (req, res, next) => {
 
     let trackingCode = generateTrackingCode();
 
-    try {
-      let departmentDoc = await Department.findOne({
-        $or: [{ name: aiAnalysis.department }, { name: category }],
-      });
-      if (!departmentDoc) {
-        departmentDoc = await Department.findOne({ code: 'GEN' });
-      }
-
-      const priorityRes = calculatePriorityScore({
-        severity: aiAnalysis.severity,
-        safetyRisk,
-        duplicateCount: 0,
-        locationDensity: 1,
-        category,
-      });
-
-      const { dueAt } = calculateDueDate(category, priorityRes.suggestedSeverity, safetyRisk);
-
-      const latNum = parseFloat(latitude) || 18.5204;
-      const lngNum = parseFloat(longitude) || 73.8567;
-
-      const complaint = await Complaint.create({
-        trackingCode,
-        citizen: req.user ? req.user._id : null,
-        citizenName: citizenName || req.user?.name || 'Citizen',
-        citizenEmail: citizenEmail || req.user?.email || 'citizen@civicos.gov',
-        citizenPhone: citizenPhone || req.user?.phone || '',
-        title,
-        description,
-        image: image || '',
-        category,
-        subCategory,
-        severity: priorityRes.suggestedSeverity,
-        priorityScore: priorityRes.priorityScore,
-        department: departmentDoc ? departmentDoc._id : null,
-        departmentName: departmentDoc ? departmentDoc.name : 'Public Works Department',
-        ward: parseInt(ward) || 14,
-        address,
-        latitude: latNum,
-        longitude: lngNum,
-        city: city || '',
-        district: district || '',
-        state: state || '',
-        pincode: pincode || '',
-        country: country || 'India',
-        accuracy: accuracy ? parseFloat(accuracy) : null,
-        location: {
-          type: 'Point',
-          coordinates: [lngNum, latNum],
-        },
-        dueAt,
-        status: 'SUBMITTED',
-      });
-
-      await ComplaintHistory.create({
-        complaint: complaint._id,
-        actor: req.user ? req.user._id : null,
-        actorName: citizenName || req.user?.name || 'Citizen',
-        fromStatus: 'NONE',
-        toStatus: 'SUBMITTED',
-        note: `Complaint logged via Citizen Portal. AI detected ${category} (${priorityRes.suggestedSeverity} severity, Priority: ${priorityRes.priorityScore}).`,
-      });
-
-      return res.status(201).json({
-        success: true,
-        message: 'Complaint submitted successfully',
-        data: {
-          ...complaint.toObject(),
-          sla: getSLAStatus(complaint),
-        },
-      });
-    } catch (dbErr) {
-      console.warn('[Create Complaint Controller] DB fallback:', dbErr.message);
-      
-      const newMock = {
-        _id: '65f8a000000000000000' + Math.floor(1000 + Math.random() * 9000),
-        trackingCode,
-        title,
-        description,
-        category,
-        subCategory,
-        severity: aiAnalysis.severity || 'HIGH',
-        priorityScore: 78,
-        status: 'SUBMITTED',
-        ward: parseInt(ward) || 14,
-        address,
-        citizenName: citizenName || 'Citizen Demo',
-        departmentName: 'Roads & Municipal Infrastructure',
-        createdAt: new Date().toISOString(),
-        dueAt: new Date(Date.now() + 86400000 * 2).toISOString(),
-        sla: { isBreached: false, isWarning: false, statusLabel: '48h remaining' },
-        history: [
-          { note: 'Complaint logged via Citizen Portal.', actorName: citizenName || 'Citizen Demo', createdAt: new Date().toISOString() }
-        ]
-      };
-      fallbackComplaints.unshift(newMock);
-
-      return res.status(201).json({
-        success: true,
-        message: 'Complaint submitted successfully',
-        data: newMock,
-      });
+    let departmentDoc = await Department.findOne({
+      $or: [{ name: aiAnalysis.department }, { name: category }],
+    });
+    if (!departmentDoc) {
+      departmentDoc = await Department.findOne({ code: 'GEN' });
     }
+
+    const priorityRes = calculatePriorityScore({
+      severity: aiAnalysis.severity,
+      safetyRisk,
+      duplicateCount: 0,
+      locationDensity: 1,
+      category,
+    });
+
+    const { dueAt } = calculateDueDate(category, priorityRes.suggestedSeverity, safetyRisk);
+
+    const latNum = parseFloat(latitude) || 18.5204;
+    const lngNum = parseFloat(longitude) || 73.8567;
+
+    // Parse ward cleanly into number
+    let wardNum = 14;
+    if (ward && !isNaN(parseInt(ward))) {
+      wardNum = parseInt(ward);
+    }
+
+    // Insert persistent document into MongoDB
+    const complaint = await Complaint.create({
+      trackingCode,
+      citizen: req.user ? req.user._id : null,
+      citizenName: citizenName || req.user?.name || 'Citizen',
+      citizenEmail: citizenEmail || req.user?.email || 'citizen@civicos.gov',
+      citizenPhone: citizenPhone || req.user?.phone || '',
+      title,
+      description,
+      image: image || '',
+      category,
+      subCategory,
+      severity: priorityRes.suggestedSeverity,
+      priorityScore: priorityRes.priorityScore,
+      department: departmentDoc ? departmentDoc._id : null,
+      departmentName: departmentDoc ? departmentDoc.name : 'Public Works Department',
+      ward: wardNum,
+      address,
+      latitude: latNum,
+      longitude: lngNum,
+      city: city || 'Pune',
+      district: district || 'Pune',
+      state: state || 'Maharashtra',
+      pincode: pincode || '411001',
+      country: country || 'India',
+      accuracy: accuracy ? parseFloat(accuracy) : null,
+      location: {
+        type: 'Point',
+        coordinates: [lngNum, latNum],
+      },
+      dueAt,
+      status: 'SUBMITTED',
+    });
+
+    // Auto-dispatch through Interoperability Gateway to attach External Dept ID
+    try {
+      const interopRes = await dispatchToDepartmentApi(complaint.toObject());
+      complaint.externalDepartmentId = interopRes.externalDepartmentId;
+      complaint.secondaryDepartmentName = interopRes.secondaryDepartmentName;
+      complaint.secondaryExternalId = interopRes.secondaryExternalId;
+      complaint.interoperabilityStatus = 'ACCEPTED_BY_DEPT_API';
+      await complaint.save();
+    } catch (interopErr) {
+      console.warn('[Create Complaint] Interop dispatch notice:', interopErr.message);
+    }
+
+    // Add initial history audit log in MongoDB
+    await ComplaintHistory.create({
+      complaint: complaint._id,
+      actor: req.user ? req.user._id : null,
+      actorName: citizenName || req.user?.name || 'Citizen',
+      fromStatus: 'NONE',
+      toStatus: 'SUBMITTED',
+      note: `Complaint registered in MongoDB (${trackingCode}). AI analysis: ${category} (${priorityRes.suggestedSeverity} severity, Priority: ${priorityRes.priorityScore}/100). Interoperability Dept ID: ${complaint.externalDepartmentId || 'ROAD-PW-8921'}.`,
+    });
+
+    const complaintObj = complaint.toObject();
+    complaintObj.sla = getSLAStatus(complaint);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Complaint created and persisted successfully in database.',
+      data: complaintObj,
+    });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message || 'Failed submitting complaint' });
+    console.error('[Create Complaint Error]:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Report could not be submitted. Please try again.',
+    });
   }
 };
 
+/**
+ * Retrieves all complaints with filters from MongoDB
+ */
 export const getComplaints = async (req, res, next) => {
   try {
-    let complaints = [];
-    try {
-      const { category, severity, status, ward, search, page = 1, limit = 50 } = req.query;
-      const query = {};
+    const { category, severity, status, ward, search, limit = 100 } = req.query;
+    const query = {};
 
-      if (category) query.category = category;
-      if (severity) query.severity = severity;
-      if (status) query.status = status;
-      if (ward) query.ward = parseInt(ward);
-      if (search) {
-        query.$or = [
-          { title: { $regex: search, $options: 'i' } },
-          { trackingCode: { $regex: search, $options: 'i' } },
-          { address: { $regex: search, $options: 'i' } },
-        ];
-      }
-
-      const list = await Complaint.find(query)
-        .populate('department')
-        .populate('assignedOfficer', 'name email phone')
-        .sort({ priorityScore: -1, createdAt: -1 })
-        .limit(parseInt(limit));
-
-      if (list && list.length > 0) {
-        complaints = list.map((c) => {
-          const obj = c.toObject();
-          obj.sla = getSLAStatus(c);
-          return obj;
-        });
-      }
-    } catch (dbErr) {
-      console.warn('[Get Complaints Controller] DB query fallback:', dbErr.message);
+    if (category) query.category = category;
+    if (severity) query.severity = severity;
+    if (status) query.status = status;
+    if (ward && !isNaN(parseInt(ward))) query.ward = parseInt(ward);
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { trackingCode: { $regex: search, $options: 'i' } },
+        { address: { $regex: search, $options: 'i' } },
+      ];
     }
 
-    if (!complaints || complaints.length === 0) {
-      complaints = fallbackComplaints;
-    }
+    const list = await Complaint.find(query)
+      .populate('department')
+      .populate('assignedOfficer', 'name email phone')
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+
+    const formatted = list.map((c) => {
+      const obj = c.toObject();
+      obj.sla = getSLAStatus(c);
+      return obj;
+    });
 
     return res.json({
       success: true,
-      count: complaints.length,
-      data: complaints,
+      count: formatted.length,
+      data: formatted,
     });
   } catch (error) {
-    return res.json({
-      success: true,
-      count: fallbackComplaints.length,
-      data: fallbackComplaints,
+    console.error('[Get Complaints Error]:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve issues from database. Please try again.',
     });
   }
 };
 
+/**
+ * Retrieves a single complaint by MongoDB _id
+ */
 export const getComplaintById = async (req, res, next) => {
   try {
-    let complaintObj = null;
-    try {
-      const complaint = await Complaint.findById(req.params.id)
-        .populate('department')
-        .populate('assignedOfficer', 'name email phone');
+    const complaint = await Complaint.findById(req.params.id)
+      .populate('department')
+      .populate('assignedOfficer', 'name email phone');
 
-      if (complaint) {
-        const history = await ComplaintHistory.find({ complaint: complaint._id }).sort({ createdAt: 1 });
-        complaintObj = complaint.toObject();
-        complaintObj.sla = getSLAStatus(complaint);
-        complaintObj.history = history;
-      }
-    } catch (dbErr) {
-      console.warn('[Get Complaint By ID] DB query fallback:', dbErr.message);
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        message: '⚠️ Issue not found in database.',
+      });
     }
 
-    if (!complaintObj) {
-      complaintObj = fallbackComplaints.find((c) => c._id === req.params.id || c.trackingCode === req.params.id) || fallbackComplaints[0];
-    }
+    const history = await ComplaintHistory.find({ complaint: complaint._id }).sort({ createdAt: 1 });
+    const complaintObj = complaint.toObject();
+    complaintObj.sla = getSLAStatus(complaint);
+    complaintObj.history = history;
 
     return res.json({
       success: true,
       data: complaintObj,
     });
   } catch (error) {
-    return res.json({
-      success: true,
-      data: fallbackComplaints[0],
+    return res.status(404).json({
+      success: false,
+      message: '⚠️ Issue not found in database.',
     });
   }
 };
 
+/**
+ * Tracks a complaint by exact human-readable trackingCode in MongoDB
+ */
 export const trackComplaint = async (req, res, next) => {
   try {
     const { trackingCode } = req.params;
-    let complaintObj = null;
-
-    try {
-      const complaint = await Complaint.findOne({ trackingCode: trackingCode.toUpperCase() })
-        .populate('department')
-        .populate('assignedOfficer', 'name email phone');
-
-      if (complaint) {
-        const history = await ComplaintHistory.find({ complaint: complaint._id }).sort({ createdAt: 1 });
-        complaintObj = complaint.toObject();
-        complaintObj.sla = getSLAStatus(complaint);
-        complaintObj.history = history;
-      }
-    } catch (dbErr) {
-      console.warn('[Track Complaint] DB query fallback:', dbErr.message);
+    if (!trackingCode) {
+      return res.status(400).json({ success: false, message: 'Tracking code is required' });
     }
 
-    if (!complaintObj) {
-      const fallbackMatch = fallbackComplaints.find((c) => c.trackingCode.toUpperCase() === trackingCode.toUpperCase());
-      if (fallbackMatch) {
-        complaintObj = fallbackMatch;
-      } else {
-        return res.status(404).json({
-          success: false,
-          message: `No municipal complaint found with tracking code "${trackingCode}". Please check your code and try again.`,
-        });
-      }
+    const cleanCode = trackingCode.trim().toUpperCase();
+
+    const complaint = await Complaint.findOne({ trackingCode: cleanCode })
+      .populate('department')
+      .populate('assignedOfficer', 'name email phone');
+
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        message: `⚠️ Issue not found: No municipal complaint found matching tracking code "${cleanCode}".`,
+      });
     }
+
+    const history = await ComplaintHistory.find({ complaint: complaint._id }).sort({ createdAt: 1 });
+    const complaintObj = complaint.toObject();
+    complaintObj.sla = getSLAStatus(complaint);
+    complaintObj.history = history;
 
     return res.json({
       success: true,
@@ -350,293 +260,239 @@ export const trackComplaint = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message || 'Error tracking complaint',
+      message: 'Unable to retrieve issue. Please try again.',
     });
   }
 };
 
+/**
+ * Retrieves officer queue from MongoDB
+ */
 export const getOfficerComplaints = async (req, res, next) => {
   try {
-    let enhanced = [];
-    try {
-      const { status, sort, department } = req.query;
-      const query = {};
+    const { status, department } = req.query;
+    const query = {};
 
-      if (status) {
-        const statusArr = status.split(',').map((s) => s.trim());
-        query.status = { $in: statusArr };
-      }
-
-      if (department) {
-        query.department = department;
-      }
-
-      const list = await Complaint.find(query)
-        .populate('department')
-        .populate('assignedOfficer', 'name email phone ward')
-        .sort({ priorityScore: -1, createdAt: -1 });
-
-      if (list && list.length > 0) {
-        enhanced = list.map((c) => {
-          const obj = c.toObject();
-          obj.sla = getSLAStatus(c);
-          return obj;
-        });
-      }
-    } catch (dbErr) {
-      console.warn('[Get Officer Complaints] DB query fallback:', dbErr.message);
+    if (status) {
+      const statusArr = status.split(',').map((s) => s.trim());
+      query.status = { $in: statusArr };
     }
 
-    if (!enhanced || enhanced.length === 0) {
-      enhanced = fallbackComplaints;
+    if (department) {
+      query.department = department;
     }
+
+    const list = await Complaint.find(query)
+      .populate('department')
+      .populate('assignedOfficer', 'name email phone ward')
+      .sort({ priorityScore: -1, createdAt: -1 });
+
+    const formatted = list.map((c) => {
+      const obj = c.toObject();
+      obj.sla = getSLAStatus(c);
+      return obj;
+    });
 
     return res.json({
       success: true,
-      count: enhanced.length,
-      data: enhanced,
+      count: formatted.length,
+      data: formatted,
     });
   } catch (error) {
-    return res.json({
-      success: true,
-      count: fallbackComplaints.length,
-      data: fallbackComplaints,
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve officer queue from database.',
     });
   }
 };
 
+/**
+ * Retrieves logged-in citizen's complaints from MongoDB
+ */
 export const getMyComplaints = async (req, res, next) => {
   try {
-    let enhanced = [];
-    try {
-      if (req.user?._id) {
-        const list = await Complaint.find({ citizen: req.user._id })
-          .populate('department')
-          .sort({ createdAt: -1 });
-
-        if (list && list.length > 0) {
-          enhanced = list.map((c) => {
-            const obj = c.toObject();
-            obj.sla = getSLAStatus(c);
-            return obj;
-          });
-        }
-      }
-    } catch (dbErr) {
-      console.warn('[Get My Complaints] DB query fallback:', dbErr.message);
+    if (!req.user?._id) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
     }
 
-    if (!enhanced || enhanced.length === 0) {
-      enhanced = fallbackComplaints;
-    }
+    const list = await Complaint.find({ citizen: req.user._id })
+      .populate('department')
+      .sort({ createdAt: -1 });
+
+    const formatted = list.map((c) => {
+      const obj = c.toObject();
+      obj.sla = getSLAStatus(c);
+      return obj;
+    });
 
     return res.json({
       success: true,
-      count: enhanced.length,
-      data: enhanced,
+      count: formatted.length,
+      data: formatted,
     });
   } catch (error) {
-    return res.json({
-      success: true,
-      count: fallbackComplaints.length,
-      data: fallbackComplaints,
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to retrieve your complaints.',
     });
   }
 };
 
+/**
+ * Updates complaint status in MongoDB and appends history log
+ */
 export const updateComplaintStatus = async (req, res, next) => {
   try {
+    const { id } = req.params;
     const { status, note } = req.body;
 
-    try {
-      const complaint = await Complaint.findById(req.params.id);
-      if (complaint) {
-        const fromStatus = complaint.status;
-        complaint.status = status;
-        if (status === 'RESOLVED') {
-          complaint.resolvedAt = new Date();
-        }
-        await complaint.save();
-
-        await ComplaintHistory.create({
-          complaint: complaint._id,
-          actor: req.user ? req.user._id : null,
-          actorName: req.user?.name || 'Officer',
-          fromStatus,
-          toStatus: status,
-          note: note || `Status updated from ${fromStatus} to ${status}`,
-        });
-
-        return res.json({
-          success: true,
-          message: `Status updated to ${status}`,
-          data: {
-            ...complaint.toObject(),
-            sla: getSLAStatus(complaint),
-          },
-        });
-      }
-    } catch (dbErr) {
-      console.warn('[Update Status] DB query fallback:', dbErr.message);
+    if (!status) {
+      return res.status(400).json({ success: false, message: 'Status is required' });
     }
 
-    // Update in-memory fallback list
-    const found = fallbackComplaints.find((c) => c._id === req.params.id);
-    if (found) {
-      found.status = status;
-      if (status === 'RESOLVED') {
-        found.resolvedAt = new Date().toISOString();
-      }
-      found.history.push({
-        note: note || `Status updated to ${status}`,
-        actorName: req.user?.name || 'Inspector Rajesh Kumar',
-        createdAt: new Date().toISOString(),
-      });
-      return res.json({
-        success: true,
-        message: `Status updated to ${status}`,
-        data: found,
-      });
+    const complaint = await Complaint.findOne({
+      $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { trackingCode: id.toUpperCase() }],
+    });
+
+    if (!complaint) {
+      return res.status(404).json({ success: false, message: '⚠️ Issue not found' });
     }
+
+    const oldStatus = complaint.status;
+    complaint.status = status;
+    if (status === 'RESOLVED') {
+      complaint.resolvedAt = new Date();
+    }
+    await complaint.save();
+
+    await ComplaintHistory.create({
+      complaint: complaint._id,
+      actor: req.user ? req.user._id : null,
+      actorName: req.user?.name || 'Field Officer',
+      fromStatus: oldStatus,
+      toStatus: status,
+      note: note || `Status updated from ${oldStatus} to ${status}.`,
+    });
+
+    const history = await ComplaintHistory.find({ complaint: complaint._id }).sort({ createdAt: 1 });
+    const complaintObj = complaint.toObject();
+    complaintObj.sla = getSLAStatus(complaint);
+    complaintObj.history = history;
 
     return res.json({
       success: true,
-      message: `Status updated to ${status}`,
-      data: { ...fallbackComplaints[0], status },
+      message: `Status updated to ${status} in database.`,
+      data: complaintObj,
     });
   } catch (error) {
-    return res.json({
-      success: true,
-      message: 'Status updated successfully',
-      data: fallbackComplaints[0],
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed updating status.',
     });
   }
 };
 
+/**
+ * Verifies citizen resolution (closed-loop workflow) in MongoDB
+ */
 export const verifyResolution = async (req, res, next) => {
   try {
-    const { verified, note } = req.body;
+    const { id } = req.params;
+    const { verified, feedback } = req.body;
 
-    try {
-      const complaint = await Complaint.findById(req.params.id);
-      if (complaint) {
-        const fromStatus = complaint.status;
+    const complaint = await Complaint.findOne({
+      $or: [{ _id: id.match(/^[0-9a-fA-F]{24}$/) ? id : null }, { trackingCode: id.toUpperCase() }],
+    });
 
-        if (verified) {
-          complaint.status = 'RESOLVED';
-          if (!complaint.resolvedAt) {
-            complaint.resolvedAt = new Date();
-          }
-          await complaint.save();
-
-          await ComplaintHistory.create({
-            complaint: complaint._id,
-            actor: req.user ? req.user._id : null,
-            actorName: req.user?.name || 'Citizen',
-            fromStatus,
-            toStatus: 'RESOLVED',
-            note: note || 'Citizen confirmed resolution. Work verified successfully.',
-          });
-
-          return res.json({ success: true, message: 'Resolution verified by citizen. Issue marked RESOLVED.', data: complaint });
-        } else {
-          complaint.status = 'IN_PROGRESS';
-          complaint.resolvedAt = null;
-          await complaint.save();
-
-          await ComplaintHistory.create({
-            complaint: complaint._id,
-            actor: req.user ? req.user._id : null,
-            actorName: req.user?.name || 'Citizen',
-            fromStatus,
-            toStatus: 'IN_PROGRESS',
-            note: note || 'Citizen marked issue as still unresolved. Complaint reopened for field review.',
-          });
-
-          return res.json({ success: true, message: 'Complaint reopened for field inspection', data: complaint });
-        }
-      }
-    } catch (dbErr) {
-      console.warn('[Verify Resolution] DB query fallback:', dbErr.message);
+    if (!complaint) {
+      return res.status(404).json({ success: false, message: '⚠️ Issue not found' });
     }
 
-    // Update in-memory fallback
-    const found = fallbackComplaints.find((c) => c._id === req.params.id);
-    const newStatus = verified ? 'RESOLVED' : 'IN_PROGRESS';
-    if (found) {
-      found.status = newStatus;
-      if (verified) found.resolvedAt = new Date().toISOString();
-      found.history.push({
-        note: verified ? 'Citizen confirmed resolution. Work verified.' : 'Citizen reopened complaint.',
-        actorName: 'Citizen',
-        createdAt: new Date().toISOString(),
-      });
-      return res.json({ success: true, message: verified ? 'Resolution verified by citizen' : 'Complaint reopened', data: found });
+    const oldStatus = complaint.status;
+    if (verified) {
+      complaint.status = 'RESOLVED';
+      complaint.citizenVerified = true;
+    } else {
+      complaint.status = 'IN_PROGRESS';
+      complaint.citizenVerified = false;
+      complaint.priorityScore = Math.min(100, complaint.priorityScore + 15);
     }
 
-    return res.json({ success: true, message: 'Resolution status updated', data: { ...fallbackComplaints[0], status: newStatus } });
+    await complaint.save();
+
+    await ComplaintHistory.create({
+      complaint: complaint._id,
+      actor: req.user ? req.user._id : null,
+      actorName: complaint.citizenName || 'Citizen',
+      fromStatus: oldStatus,
+      toStatus: complaint.status,
+      note: verified
+        ? 'Citizen verified resolution on-site. Complaint closed.'
+        : `Citizen reported issue still exists. Case reopened to IN_PROGRESS and priority escalated (${complaint.priorityScore}/100).`,
+    });
+
+    const complaintObj = complaint.toObject();
+    complaintObj.sla = getSLAStatus(complaint);
+
+    return res.json({
+      success: true,
+      message: verified ? 'Resolution verified by citizen.' : 'Issue reopened and escalated.',
+      data: complaintObj,
+    });
   } catch (error) {
-    return res.json({ success: true, message: 'Resolution update saved', data: fallbackComplaints[0] });
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed processing resolution verification.',
+    });
   }
 };
 
+/**
+ * Assigns officer or department in MongoDB
+ */
 export const assignComplaint = async (req, res, next) => {
   try {
-    const { departmentId, officerId, note } = req.body;
+    const { id } = req.params;
+    const { officerId, departmentId } = req.body;
 
-    try {
-      const complaint = await Complaint.findById(req.params.id);
-      if (complaint) {
-        if (departmentId) {
-          const dept = await Department.findById(departmentId);
-          if (dept) {
-            complaint.department = dept._id;
-            complaint.departmentName = dept.name;
-          }
-        }
-
-        if (officerId) {
-          const officer = await User.findById(officerId);
-          if (officer) {
-            complaint.assignedOfficer = officer._id;
-          }
-        }
-
-        if (complaint.status === 'SUBMITTED') {
-          complaint.status = 'ASSIGNED';
-        }
-
-        await complaint.save();
-
-        await ComplaintHistory.create({
-          complaint: complaint._id,
-          actor: req.user ? req.user._id : null,
-          actorName: req.user?.name || 'Admin/Officer',
-          fromStatus: complaint.status,
-          toStatus: complaint.status,
-          note: note || 'Assigned department/officer updated.',
-        });
-
-        return res.json({
-          success: true,
-          message: 'Complaint reassigned successfully',
-          data: complaint,
-        });
-      }
-    } catch (dbErr) {
-      console.warn('[Assign Complaint] DB query fallback:', dbErr.message);
+    const complaint = await Complaint.findById(id);
+    if (!complaint) {
+      return res.status(404).json({ success: false, message: '⚠️ Issue not found' });
     }
 
+    if (departmentId) {
+      const dept = await Department.findById(departmentId);
+      if (dept) {
+        complaint.department = dept._id;
+        complaint.departmentName = dept.name;
+      }
+    }
+
+    if (officerId) {
+      const officer = await User.findById(officerId);
+      if (officer) {
+        complaint.assignedOfficer = officer._id;
+        complaint.status = 'ASSIGNED';
+      }
+    }
+
+    await complaint.save();
+
+    await ComplaintHistory.create({
+      complaint: complaint._id,
+      actor: req.user ? req.user._id : null,
+      actorName: req.user?.name || 'Administrator',
+      fromStatus: complaint.status,
+      toStatus: complaint.status,
+      note: `Reassigned to ${complaint.departmentName}.`,
+    });
+
     return res.json({
       success: true,
       message: 'Complaint reassigned successfully',
-      data: fallbackComplaints[0],
+      data: complaint,
     });
   } catch (error) {
-    return res.json({
-      success: true,
-      message: 'Complaint reassigned successfully',
-      data: fallbackComplaints[0],
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

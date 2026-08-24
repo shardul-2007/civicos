@@ -158,12 +158,15 @@ export default function TrackComplaint() {
           fetchedData.externalDepartmentId = `ROAD-PW-${Math.floor(1000 + Math.random() * 9000)}`;
         }
         setComplaint(fetchedData);
+        setError('');
       } else {
-        setComplaint({ ...fallbackComplaintData, trackingCode: cleanCode });
+        setComplaint(null);
+        setError(`⚠️ Issue not found: No municipal complaint found matching tracking code "${cleanCode}". Please check your code and try again.`);
       }
     } catch (err) {
-      console.warn('[TrackComplaint] Fallback tracking loaded:', err.message);
-      setComplaint({ ...fallbackComplaintData, trackingCode: cleanCode });
+      console.warn('[TrackComplaint Error]:', err.message);
+      setComplaint(null);
+      setError(err.response?.data?.message || `⚠️ Issue not found: No municipal complaint found matching tracking code "${cleanCode}".`);
     } finally {
       setLoading(false);
     }

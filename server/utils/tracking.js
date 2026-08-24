@@ -1,7 +1,5 @@
-import crypto from 'crypto';
-
 export const generateTrackingCode = () => {
-  const numPart = Math.floor(100000 + Math.random() * 900000); // 6 digits
-  const hexPart = crypto.randomBytes(2).toString('hex').toUpperCase(); // 4 chars hex
-  return `CIV-${numPart}-${hexPart}`;
+  const currentYear = new Date().getFullYear();
+  const randomNum = Math.floor(100000 + Math.random() * 900000); // 6-digit integer
+  return `CIV-${currentYear}-${randomNum}`;
 };

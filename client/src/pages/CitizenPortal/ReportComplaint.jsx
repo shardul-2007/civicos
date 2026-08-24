@@ -182,40 +182,6 @@ export default function ReportComplaint() {
     setSubmitting(true);
     setError('');
 
-    const trackingCode = `CIV-${Math.floor(100000 + Math.random() * 900000)}-${Math.random().toString(36).substring(2,6).toUpperCase()}`;
-
-    const newReport = {
-      _id: `comp_${Date.now()}`,
-      trackingCode,
-      title: title || 'Civic Issue Complaint',
-      description: description || 'Reported municipal problem.',
-      category: category || aiAnalysis?.category || 'Garbage',
-      ward: ward === 'auto' ? 'Determined by Location' : ward,
-      status: 'SUBMITTED',
-      severity: aiAnalysis?.severity || 'MEDIUM',
-      priorityScore: aiAnalysis?.priorityScore || 65,
-      departmentName: aiAnalysis?.department || 'Public Works & Sanitation',
-      locationDetails,
-      address: locationDetails.address,
-      latitude: locationDetails.latitude,
-      longitude: locationDetails.longitude,
-      citizenName: citizenName || 'Shardul Parihar',
-      citizenEmail: citizenEmail || 'citizen@civicos.gov',
-      citizenPhone: citizenPhone || '+91 98230 11223',
-      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
-      createdAt: new Date().toISOString(),
-      dueAt: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
-    };
-
-    // Save to local storage for instant offline resilience
-    try {
-      const stored = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
-      stored.unshift(newReport);
-      localStorage.setItem('civicos_my_complaints', JSON.stringify(stored));
-    } catch (e) {
-      // Ignore
-    }
-
     try {
       const payload = {
         citizenName: citizenName || 'Shardul Parihar',
@@ -224,7 +190,7 @@ export default function ReportComplaint() {
         title: title || 'Civic Infrastructure Complaint',
         description: description || 'Citizen reported public issue.',
         category: category || aiAnalysis?.category || 'Garbage',
-        ward: ward === 'auto' ? null : parseInt(ward) || null,
+        ward: (ward === 'auto' || ward === 'na') ? 14 : parseInt(ward) || 14,
         address: locationDetails.address,
         latitude: locationDetails.latitude,
         longitude: locationDetails.longitude,
@@ -234,14 +200,31 @@ export default function ReportComplaint() {
         pincode: locationDetails.pincode,
         country: locationDetails.country,
         accuracy: locationDetails.accuracy,
-        image: imageUrl || 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80',
+        image: imageUrl || '',
       };
-      await complaintAPI.create(payload);
+
+      const res = await complaintAPI.create(payload);
+
+      if (res.data?.success && res.data.data) {
+        const createdDoc = res.data.data;
+        const serverCode = createdDoc.trackingCode;
+
+        // Cache in local storage for instant offline resilience
+        try {
+          const stored = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
+          stored.unshift(createdDoc);
+          localStorage.setItem('civicos_my_complaints', JSON.stringify(stored));
+        } catch (e) {}
+
+        setSubmitting(false);
+        navigate(`/citizen/track?code=${serverCode}`);
+        return;
+      }
+      throw new Error(res.data?.message || 'Report could not be submitted. Please try again.');
     } catch (err) {
-      console.warn('[Report Submit] Local resilience used:', err.message);
-    } finally {
+      console.error('[Report Submit Error]:', err);
+      setError(err.response?.data?.message || err.message || 'Report could not be submitted. Please try again.');
       setSubmitting(false);
-      navigate(`/citizen/track?code=${trackingCode}`);
     }
   };
 

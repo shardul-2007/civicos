@@ -52,20 +52,20 @@ export default function CitizenHistory() {
 
     try {
       let res = await complaintAPI.getMy();
-      if (res.data?.success && res.data.data?.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.data)) {
         const apiList = res.data.data;
-        const combined = [...localList];
-        apiList.forEach(item => {
-          if (!combined.some(c => c.trackingCode === item.trackingCode || c._id === item._id)) {
+        const combined = [...apiList];
+        localList.forEach(item => {
+          if (item && item.trackingCode && !combined.some(c => c.trackingCode === item.trackingCode)) {
             combined.push(item);
           }
         });
-        setComplaints(combined.length > 0 ? combined : fallbackCitizenComplaints);
+        setComplaints(combined);
       } else {
-        setComplaints(localList.length > 0 ? localList : fallbackCitizenComplaints);
+        setComplaints(localList);
       }
     } catch (err) {
-      setComplaints(localList.length > 0 ? localList : fallbackCitizenComplaints);
+      setComplaints(localList);
     } finally {
       setLoading(false);
     }

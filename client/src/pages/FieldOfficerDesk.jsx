@@ -102,14 +102,11 @@ export default function FieldOfficerDesk() {
     setLoading(true);
     try {
       const res = await complaintAPI.getOfficerQueue({ sort: 'priority' });
-      if (res.data?.success && res.data.data.length > 0) {
+      if (res.data?.success && Array.isArray(res.data.data)) {
         setComplaints(res.data.data);
-      } else {
-        setComplaints(fallbackOfficerQueue);
       }
     } catch (err) {
-      console.warn('[FieldOfficerDesk] Using fallback officer queue:', err.message);
-      setComplaints(fallbackOfficerQueue);
+      console.warn('[FieldOfficerDesk Error]:', err.message);
     } finally {
       setLoading(false);
     }
