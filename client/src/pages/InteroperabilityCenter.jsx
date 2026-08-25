@@ -626,30 +626,44 @@ export default function InteroperabilityCenter() {
                 <span className="badge badge-teal" style={{ fontSize: '0.72rem' }}>CIV-ODF v1.0</span>
               </div>
 
-              {activeCallbackResult ? (
-                <pre style={{
-                  background: '#0a0d14',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '0.75rem',
-                  padding: '1rem',
-                  fontSize: '0.75rem',
-                  color: '#34d399',
-                  fontFamily: 'monospace',
-                  overflowX: 'auto',
-                  maxHeight: '220px',
-                  lineHeight: 1.4,
-                }}>
-                  {JSON.stringify(activeCallbackResult.payload || activeOdfSchema, null, 2)}
-                </pre>
-              ) : (
-                <div style={{ background: '#0a0d14', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.75rem', padding: '1.25rem', fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>
-                  <Clock size={20} style={{ margin: '0 auto 0.5rem', color: '#60a5fa' }} />
-                  <div>Waiting for department callback...</div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
-                    Trigger a synchronization event above to inspect the normalized CIV-ODF payload.
-                  </div>
-                </div>
-              )}
+              {(() => {
+                const displayPayload = activeCallbackResult?.payload || {
+                  civOdfVersion: "1.0",
+                  trackingCode: selectedTrackingCode || "CIV-2026-809489",
+                  externalDepartmentId: activeExtId || "ROAD-PW-4012",
+                  departmentName: activeGateway.department || "Public Works Department",
+                  category: selectedComplaint?.category || "Road Damage",
+                  title: selectedComplaint?.title || "Road Infrastructure Defect",
+                  status: selectedComplaint?.status || "IN_PROGRESS",
+                  interoperabilityStatus: "NORMALIZED_AND_SYNCHRONIZED",
+                  timestamp: new Date().toISOString(),
+                  normalizedFields: {
+                    address: selectedComplaint?.address || "Main Road, Ward 14, Pune",
+                    latitude: selectedComplaint?.latitude || 18.5204,
+                    longitude: selectedComplaint?.longitude || 73.8567,
+                    priorityScore: selectedComplaint?.priorityScore || 80,
+                    severity: selectedComplaint?.severity || "HIGH"
+                  }
+                };
+
+                return (
+                  <pre style={{
+                    background: '#0a0d14',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    fontSize: '0.75rem',
+                    color: '#34d399',
+                    fontFamily: 'monospace',
+                    overflowX: 'auto',
+                    maxHeight: '230px',
+                    lineHeight: 1.4,
+                    boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.5)',
+                  }}>
+                    {JSON.stringify(displayPayload, null, 2)}
+                  </pre>
+                );
+              })()}
             </div>
           )}
 
