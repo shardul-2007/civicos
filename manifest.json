@@ -1,0 +1,17 @@
+{
+  "short_name": "CivicOS",
+  "name": "CivicOS — AI Municipal Operating System",
+  "description": "AI-Powered Civic Issue Management & Interoperability Platform",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#080b12",
+  "theme_color": "#080b12",
+  "display": "standalone",
+  "orientation": "portrait"
+}
