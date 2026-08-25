@@ -108,6 +108,31 @@ export default function InteroperabilityCenter() {
           setSelectedTrackingCode(updated.trackingCode);
         }
       }
+
+      // Automatically populate initial CIV-ODF payload so inspector is active on load
+      const activeCode = selectedTrackingCode || 'CIV-2026-809489';
+      setActiveCallbackResult({
+        timestamp: new Date().toLocaleTimeString(),
+        externalId: 'ROAD-PW-4012',
+        status: 'SUBMITTED',
+        payload: {
+          civOdfVersion: "1.0",
+          trackingCode: activeCode,
+          externalDepartmentId: "ROAD-PW-4012",
+          departmentName: "Public Works Department",
+          category: "Road Damage",
+          status: "SUBMITTED",
+          interoperabilityStatus: "NORMALIZED_AND_SYNCHRONIZED",
+          timestamp: new Date().toISOString(),
+          normalizedData: {
+            address: "Main Road, Ward 14, Pune",
+            latitude: 18.5204,
+            longitude: 73.8567,
+            priorityScore: 80,
+            severity: "HIGH"
+          }
+        }
+      });
     } catch (err) {
       console.warn('[InteroperabilityCenter] Error loading data:', err.message);
     } finally {
