@@ -3,6 +3,9 @@ import User from '../models/User.js';
 
 let isConnected = false;
 
+// Disable Mongoose command buffering globally so operations fail/fallback instantly instead of hanging for 10 seconds
+mongoose.set('bufferCommands', false);
+
 export const connectDB = async () => {
   if (isConnected || mongoose.connection.readyState === 1) {
     return;
@@ -10,7 +13,8 @@ export const connectDB = async () => {
 
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/civicos', {
-      serverSelectionTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 2000,
+      bufferCommands: false,
     });
     isConnected = true;
     console.log(`[MongoDB] Connected: ${conn.connection.host}`);
@@ -18,10 +22,7 @@ export const connectDB = async () => {
     // Idempotent check for demo accounts
     await ensureDemoAccounts();
   } catch (error) {
-    console.warn(`[MongoDB Warning] Connection deferred: ${error.message}. Operating in resilient fallback mode.`);
-    if (process.env.VERCEL !== '1') {
-      // Don't crash serverless functions on Vercel
-    }
+    console.warn(`[MongoDB Warning] Connection deferred: ${error.message}. Operating in resilient in-memory fallback mode.`);
   }
 };
 

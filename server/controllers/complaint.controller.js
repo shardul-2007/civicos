@@ -182,7 +182,9 @@ export const createComplaint = async (req, res, next) => {
       complaint.secondaryDepartmentName = interopRes.secondaryDepartmentName;
       complaint.secondaryExternalId = interopRes.secondaryExternalId;
       complaint.interoperabilityStatus = 'ACCEPTED_BY_DEPT_API';
-      if (complaint.save) await complaint.save();
+      if (complaint.save && mongoose.connection.readyState === 1) {
+        await complaint.save();
+      }
     } catch (interopErr) {
       console.warn('[Create Complaint] Interop dispatch notice:', interopErr.message);
     }
