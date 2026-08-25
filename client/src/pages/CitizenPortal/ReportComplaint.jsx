@@ -459,7 +459,7 @@ export default function ReportComplaint() {
           boxShadow: '0 24px 60px -12px rgba(0,0,0,0.7)',
         }}>
 
-          {/* Exact Match User-Friendly Error Container */}
+          {/* Dynamic User-Friendly Error Container */}
           {error && (
             <div style={{
               background: 'rgba(239,68,68,0.12)',
@@ -476,10 +476,10 @@ export default function ReportComplaint() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.35rem' }}>
-                    Submission Failed
+                    Submission Notice
                   </h3>
                   <p style={{ fontSize: '0.88rem', color: '#fca5a5', lineHeight: 1.5, marginBottom: '1rem' }}>
-                    We couldn't submit your report right now. Please check your connection and try again.
+                    {error}
                   </p>
 
                   <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
