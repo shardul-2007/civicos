@@ -95,19 +95,36 @@ export default function InteroperabilityCenter() {
       }
 
       const cRes = await complaintAPI.list({ limit: 20 });
+      let combinedList = [];
       if (cRes.data?.success && Array.isArray(cRes.data.data) && cRes.data.data.length > 0) {
-        const list = cRes.data.data;
-        setComplaintsList(list);
-        
-        if (!selectedComplaint) {
-          setSelectedComplaint(list[0]);
-          setSelectedTrackingCode(list[0].trackingCode);
-        } else {
-          const updated = list.find(item => item.trackingCode === selectedTrackingCode) || list[0];
-          setSelectedComplaint(updated);
-          setSelectedTrackingCode(updated.trackingCode);
-        }
+        combinedList = cRes.data.data;
       }
+
+      const defaultActiveCases = [
+        { _id: 'case-1', trackingCode: 'CIV-2026-809489', category: 'Road Damage', title: 'Road Infrastructure Defect & Asphalt Crack', status: 'SUBMITTED', address: 'Main Road, Ward 14, Pune', priorityScore: 80, severity: 'HIGH', externalDepartmentId: 'ROAD-PW-4012' },
+        { _id: 'case-2', trackingCode: 'CIV-2026-620245', category: 'Water Leakage', title: 'Water Main Line Pipe Leakage', status: 'IN_PROGRESS', address: 'Station Road, Ward 12, Pune', priorityScore: 85, severity: 'HIGH', externalDepartmentId: 'WATER-WSS-8891' },
+        { _id: 'case-3', trackingCode: 'CIV-2026-406977', category: 'Garbage', title: 'Solid Waste & Sanitation Accumulation', status: 'SUBMITTED', address: 'Market Yard, Ward 08, Pune', priorityScore: 75, severity: 'MEDIUM', externalDepartmentId: 'WASTE-SWM-2180' },
+        { _id: 'case-4', trackingCode: 'CIV-2026-174829', category: 'Streetlight', title: 'Electrical Lighting Outage near College Gate', status: 'RESOLVED', address: 'College Avenue, Ward 14, Pune', priorityScore: 65, severity: 'MEDIUM', externalDepartmentId: 'LIGHT-ELEC-7714' }
+      ];
+
+      let localList = [];
+      try {
+        localList = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
+      } catch (e) {}
+
+      const caseMap = new Map();
+      [...localList, ...combinedList, ...defaultActiveCases].forEach(item => {
+        if (item && item.trackingCode && !caseMap.has(item.trackingCode)) {
+          caseMap.set(item.trackingCode, item);
+        }
+      });
+
+      const finalCasesList = Array.from(caseMap.values());
+      setComplaintsList(finalCasesList);
+
+      const activeDoc = finalCasesList.find(item => item.trackingCode === selectedTrackingCode) || finalCasesList[0];
+      setSelectedComplaint(activeDoc);
+      setSelectedTrackingCode(activeDoc.trackingCode);
 
       // Automatically populate initial CIV-ODF payload so inspector is active on load
       const activeCode = selectedTrackingCode || 'CIV-2026-809489';
