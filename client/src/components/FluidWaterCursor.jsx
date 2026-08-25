@@ -243,14 +243,16 @@ export default function FluidWaterCursor() {
         ctx.restore();
 
         // Central precise fluid pointer dot
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(pointer.x, pointer.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = '#34d399';
-        ctx.shadowColor = '#34d399';
-        ctx.shadowBlur = 6;
-        ctx.fill();
-        ctx.restore();
+        if (pointer.active) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(pointer.x, pointer.y, 2, 0, Math.PI * 2);
+          ctx.fillStyle = '#34d399';
+          ctx.shadowColor = '#34d399';
+          ctx.shadowBlur = 6;
+          ctx.fill();
+          ctx.restore();
+        }
       }
 
       animationFrameId = requestAnimationFrame(render);
