@@ -1,5 +1,12 @@
 # CivicOS — AI-Powered Interoperable Municipal Operating System
 
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![Express.js](https://img.shields.io/badge/Framework-Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
+[![React](https://img.shields.io/badge/Frontend-React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Bundler-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Vercel](https://img.shields.io/badge/Deployment-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://civicos-beta.vercel.app)
+
 > **SIH 2026 Target Problem Statement**: *"System integration and interoperability among government digital platforms, resulting in fragmented service delivery."*
 >
 > **CivicOS Solution**: A unified municipal intelligence platform and **Interoperability Engine** that normalizes citizen requests into an Open Civic Data Format (CIV-ODF v1.0) and routes them seamlessly across fragmented departmental government APIs.
