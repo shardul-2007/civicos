@@ -200,6 +200,10 @@ export const createComplaint = async (req, res, next) => {
     } catch (histErr) {}
 
     const complaintObj = complaint.toObject ? complaint.toObject() : complaint;
+    complaintObj.externalDepartmentId = complaint.externalDepartmentId;
+    complaintObj.secondaryDepartmentName = complaint.secondaryDepartmentName;
+    complaintObj.secondaryExternalId = complaint.secondaryExternalId;
+
     try {
       complaintObj.sla = getSLAStatus(complaint);
     } catch (slaErr) {}
