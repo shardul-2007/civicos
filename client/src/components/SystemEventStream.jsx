@@ -91,7 +91,7 @@ export default function SystemEventStream() {
             <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#34d399', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)' }}>
               SUSTAINABILITY METRICS
             </div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight 900, color: '#ffffff' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#ffffff' }}>
               City Environmental Impact
             </h3>
           </div>
