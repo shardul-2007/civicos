@@ -207,7 +207,7 @@ export default function LandingPage() {
           <Link to="/interoperability" style={{ textDecoration: 'none' }}>
             <div className="natural-glass-card" style={{ padding: '1.5rem', background: '#121722', height: '100%', cursor: 'pointer' }}>
               <div style={{ color: '#22d3ee', marginBottom: '0.75rem' }}><Globe size={28} /></div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight 800, color: '#ffffff', marginBottom: '0.5rem' }}>Interoperability Center</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>Interoperability Center</h3>
               <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.5 }}>
                 Inspect CIV-ODF v1.0 data normalization and bi-directional government department API connectors.
               </p>
@@ -217,7 +217,7 @@ export default function LandingPage() {
           <Link to="/admin" style={{ textDecoration: 'none' }}>
             <div className="natural-glass-card" style={{ padding: '1.5rem', background: '#121722', height: '100%', cursor: 'pointer' }}>
               <div style={{ color: '#fbbf24', marginBottom: '0.75rem' }}><Radio size={28} /></div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight 800, color: '#ffffff', marginBottom: '0.5rem' }}>Municipal Admin Command</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>Municipal Admin Command</h3>
               <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.5 }}>
                 Manage SLA countdowns, officer assignments, department capacity, and automated ward escalation alerts.
               </p>
