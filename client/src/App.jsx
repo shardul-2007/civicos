@@ -13,6 +13,8 @@ import { ToastProvider } from './context/ToastContext';
 import { useAuth } from './context/AuthContext';
 import FluidWaterCursor from './components/FluidWaterCursor';
 
+import FuturisticEnergyCommandCenter from './pages/FuturisticEnergyCommandCenter';
+
 // Pages
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Auth/Login';
@@ -61,9 +63,14 @@ export default function App() {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  const isFuturisticEnergyPage =
+    location.pathname === '/' ||
+    location.pathname === '/energy' ||
+    location.pathname === '/admin' ||
+    location.pathname === '/dashboard';
+
   // Public/Citizen standalone navbar layout vs Municipal Command Shell
   const isPublicPage =
-    location.pathname === '/' ||
     location.pathname === '/login' ||
     location.pathname === '/signup' ||
     location.pathname === '/report' ||
@@ -78,13 +85,13 @@ export default function App() {
   return (
     <ToastProvider>
       <FluidWaterCursor />
-      <div className="app-shell">
+      <div className="app-shell" style={{ background: '#05080B' }}>
 
         {/* Top Navbar for Public & Citizen pages */}
-        {isPublicPage && <Navbar />}
+        {isPublicPage && !isFuturisticEnergyPage && <Navbar />}
 
         {/* Collapsible Left Sidebar for Municipal Command Shell */}
-        {!isPublicPage && (
+        {!isPublicPage && !isFuturisticEnergyPage && (
           <Sidebar
             collapsed={collapsed}
             setCollapsed={setCollapsed}
@@ -94,11 +101,12 @@ export default function App() {
         )}
 
         <div
-          className={`main-wrapper ${!isPublicPage ? (collapsed ? 'admin-main-collapsed' : 'admin-main') : ''}`}
+          className={`main-wrapper ${!isPublicPage && !isFuturisticEnergyPage ? (collapsed ? 'admin-main-collapsed' : 'admin-main') : ''}`}
+          style={isFuturisticEnergyPage ? { marginLeft: 0, width: '100%' } : {}}
         >
 
           {/* Persistent Top Header for Municipal Command Shell */}
-          {!isPublicPage && (
+          {!isPublicPage && !isFuturisticEnergyPage && (
             <Header
               title="CivicOS Municipal Operating System"
               onOpenCommand={() => setCommandOpen(true)}
@@ -116,18 +124,13 @@ export default function App() {
 
           <main style={{ flex: 1 }}>
             <Routes>
-              {/* CivicOS Landing Page / Home */}
-              <Route path="/" element={<LandingPage />} />
+              {/* Futuristic City Energy Command Center */}
+              <Route path="/" element={<FuturisticEnergyCommandCenter />} />
+              <Route path="/energy" element={<FuturisticEnergyCommandCenter />} />
+              <Route path="/admin" element={<FuturisticEnergyCommandCenter />} />
+              <Route path="/dashboard" element={<FuturisticEnergyCommandCenter />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Login />} />
-
-              {/* SIH 2026 Interoperability Center */}
-              <Route path="/interoperability" element={<InteroperabilityCenter />} />
-              <Route path="/services" element={<InteroperabilityCenter />} />
-
-              {/* Main Municipal Command Routes */}
-              <Route path="/admin" element={<Overview />} />
-              <Route path="/dashboard" element={<Overview />} />
               <Route path="/map" element={<MapExperience />} />
               <Route path="/complaints" element={<ComplaintsList />} />
               <Route path="/complaints/:id" element={<ComplaintDetail />} />
@@ -153,7 +156,7 @@ export default function App() {
             </Routes>
           </main>
 
-          <Footer />
+          {!isFuturisticEnergyPage && <Footer />}
 
         </div>
 

@@ -1,0 +1,136 @@
+import React, { useState } from 'react';
+import FuturisticCommandBar from '../components/FuturisticCommandBar';
+import CityEnergy3DModel from '../components/CityEnergy3DModel';
+import LiveEnergyFlowPanel from '../components/LiveEnergyFlowPanel';
+import EnergyForecastChart from '../components/EnergyForecastChart';
+import SystemEventStream from '../components/SystemEventStream';
+import ScenarioSimulatorModal from '../components/ScenarioSimulatorModal';
+import AiEnergyAssistantDrawer from '../components/AiEnergyAssistantDrawer';
+
+export default function FuturisticEnergyCommandCenter() {
+  const [activeView, setActiveView] = useState('COMMAND');
+  const [scenarioOpen, setScenarioOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+
+  return (
+    <div style={{
+      background: '#05080B',
+      minHeight: '100vh',
+      color: '#ffffff',
+      fontFamily: 'var(--font-sans)',
+      position: 'relative',
+      paddingTop: '80px',
+      paddingBottom: '40px',
+      overflowX: 'hidden',
+    }}>
+      {/* Spacecraft Top Command Bar */}
+      <FuturisticCommandBar
+        activeView={activeView}
+        setActiveView={setActiveView}
+        onOpenScenario={() => setScenarioOpen(true)}
+        onOpenAi={() => setAiOpen(true)}
+        onOpenAlerts={() => setAiOpen(true)}
+      />
+
+      {/* Main Command Center Layout */}
+      <main style={{
+        maxWidth: '1480px',
+        margin: '0 auto',
+        padding: '0 1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+      }}>
+        {/* ── Title Banner ── */}
+        <div style={{
+          display: 'flex',
+          justify: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          padding: '0.5rem 0',
+        }}>
+          <div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#22d3ee', letterSpacing: '0.12em', fontFamily: 'var(--font-mono)' }}>
+              CIVICOS MUNICIPAL OPERATING SYSTEM • SPATIAL COMMAND CENTER
+            </div>
+            <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.03em' }}>
+              CITY ENERGY COMMAND CENTER
+            </h1>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {['COMMAND', 'MAP', 'DIGITAL TWIN', 'ANALYTICS'].map((mode) => {
+              const active = activeView === mode || (mode === 'COMMAND' && activeView === 'COMMAND') || (mode === 'DIGITAL TWIN' && activeView === 'TWIN');
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setActiveView(mode === 'DIGITAL TWIN' ? 'TWIN' : mode)}
+                  style={{
+                    background: active ? 'linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(6, 182, 212, 0.1))' : 'rgba(255,255,255,0.03)',
+                    border: active ? '1px solid #22d3ee' : '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '8px',
+                    padding: '0.45rem 0.85rem',
+                    color: active ? '#22d3ee' : '#cbd5e1',
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer',
+                    boxShadow: active ? '0 0 16px rgba(34, 211, 238, 0.25)' : 'none',
+                  }}
+                >
+                  {mode}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Floating Energy Status Metrics & Live Energy Flow ── */}
+        <LiveEnergyFlowPanel />
+
+        {/* ── Hero: 3D Spatial Digital Twin City Environment ── */}
+        <div style={{
+          background: 'rgba(8, 14, 22, 0.75)',
+          backdropFilter: 'blur(28px)',
+          WebkitBackdropFilter: 'blur(28px)',
+          border: '1px solid rgba(34, 211, 238, 0.25)',
+          borderRadius: '20px',
+          padding: '1rem',
+          height: '560px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(34, 211, 238, 0.1)',
+          position: 'relative',
+        }}>
+          <CityEnergy3DModel
+            selectedBuilding={selectedBuilding}
+            onSelectBuilding={(bld) => setSelectedBuilding(bld)}
+          />
+        </div>
+
+        {/* ── Predictive Analytics & System Event Stream ── */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
+          gap: '1.5rem',
+        }}>
+          <EnergyForecastChart />
+          <SystemEventStream />
+        </div>
+      </main>
+
+      {/* Signature "WHAT IF?" Scenario Simulator Modal */}
+      <ScenarioSimulatorModal
+        isOpen={scenarioOpen}
+        onClose={() => setScenarioOpen(false)}
+      />
+
+      {/* AI Energy Intelligence Drawer */}
+      <AiEnergyAssistantDrawer
+        isOpen={aiOpen}
+        onClose={() => setAiOpen(false)}
+      />
+    </div>
+  );
+}

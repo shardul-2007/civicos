@@ -11,19 +11,21 @@
   --font-heading: 'Outfit', 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 
-  /* ── Core Palette ── */
-  --bg-app:        #080b12;
-  --bg-surface:    #0e1420;
-  --bg-card:       #111827;
-  --bg-hover:      #1a2236;
-  --bg-input:      #0a0f1a;
+  /* ── Futuristic Cyan/Aqua/Teal Energy Palette ── */
+  --cyan-primary:    #22d3ee;
+  --cyan-bright:     #06b6d4;
+  --cyan-dark:       #0891b2;
+  --cyan-glow:       rgba(34, 211, 238, 0.4);
+  --cyan-subtle:     rgba(34, 211, 238, 0.08);
 
-  /* ── Glass System ── */
-  --glass-bg:           rgba(255,255,255,0.04);
-  --glass-bg-hover:     rgba(255,255,255,0.07);
-  --glass-border:       rgba(255,255,255,0.09);
-  --glass-border-hover: rgba(255,255,255,0.18);
-  --glass-blur:         blur(20px);
+  --teal-primary:    #14b8a6;
+  --teal-glow:       rgba(20, 184, 166, 0.35);
+
+  --bg-dark-void:    #05080B;
+  --bg-cyber-card:   rgba(8, 14, 22, 0.65);
+  --glass-cyber-border: rgba(34, 211, 238, 0.16);
+  --glass-cyber-border-hover: rgba(34, 211, 238, 0.4);
+  --glass-cyber-blur: blur(28px);
 
   /* ── Accent System ── */
   --sage:        #10b981;
@@ -46,6 +48,8 @@
   --red-light:   #f87171;
 
   /* ── Gradient Presets ── */
+  --grad-cyan:    linear-gradient(135deg, #06b6d4, #0891b2);
+  --grad-cyber:   linear-gradient(135deg, rgba(8, 14, 22, 0.8), rgba(14, 24, 38, 0.6));
   --grad-sage:    linear-gradient(135deg, #059669, #0d9488);
   --grad-fire:    linear-gradient(135deg, #ef4444, #f97316);
   --grad-amber:   linear-gradient(135deg, #f59e0b, #eab308);
@@ -53,9 +57,10 @@
   --grad-surface: linear-gradient(135deg, #0e1420, #111827);
 
   /* ── Text ── */
-  --text-primary:   #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted:     #64748b;
+  --text-primary:   #ffffff;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #94a3b8;
+  --text-cyan:      #22d3ee;
   --text-sage:      #34d399;
   --text-teal:      #2dd4bf;
 
