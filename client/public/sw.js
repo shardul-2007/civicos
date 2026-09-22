@@ -1,59 +1,50 @@
-const CACHE_NAME = 'civicos-cache-v1';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.svg',
-];
+const CACHE_NAME = 'civicos-cache-v3';
 
-// Install Event
+// Install Event - Skip waiting immediately
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
-  );
+  self.skipWaiting();
 });
 
-// Activate Event
+// Activate Event - Purge all old caches immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.map((key) => caches.delete(key))
       );
     }).then(() => self.clients.claim())
   );
 });
 
-// Fetch Event (Network-First Strategy for API, Cache-First for static assets)
+// Fetch Event - Network-First Strategy for HTML Documents & Navigation
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
+  const request = event.request;
+  const isNavigation = request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html');
 
-  // Network-first for API requests
-  if (url.pathname.startsWith('/api')) {
+  // Network-First for Navigation & HTML documents
+  if (isNavigation || request.url.includes('/api/')) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(request)
+        .then((response) => {
+          return response;
+        })
+        .catch(() => caches.match(request))
     );
     return;
   }
 
-  // Cache-first with network fallback for static assets
+  // Network-First for JavaScript & CSS assets to guarantee latest updates
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    fetch(request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      });
-    })
+      })
+      .catch(() => caches.match(request))
   );
 });
