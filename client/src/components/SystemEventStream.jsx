@@ -112,7 +112,7 @@ export default function SystemEventStream() {
           <div style={{ background: 'rgba(34,211,238,0.08)', border: '1px solid rgba(34,211,238,0.25)', borderRadius: '12px', padding: '0.85rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>RENEWABLE ENERGY MIX</div>
-              <div style={{ fontSize: '1.4rem', fontWeight 900, color: '#22d3ee', fontFamily: 'var(--font-mono)' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#22d3ee', fontFamily: 'var(--font-mono)' }}>
                 72.6%
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function SystemEventStream() {
           <div style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.25)', borderRadius: '12px', padding: '0.85rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ fontSize: '0.65rem', color: '#94a3b8', textTransform: 'uppercase' }}>TOTAL ENERGY SAVED</div>
-              <div style={{ fontSize: '1.4rem', fontWeight 900, color: '#a78bfa', fontFamily: 'var(--font-mono)' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#a78bfa', fontFamily: 'var(--font-mono)' }}>
                 18.4 MWh
               </div>
             </div>
