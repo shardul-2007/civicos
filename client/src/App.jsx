@@ -13,10 +13,9 @@ import { ToastProvider } from './context/ToastContext';
 import { useAuth } from './context/AuthContext';
 import FluidWaterCursor from './components/FluidWaterCursor';
 
-import FuturisticEnergyCommandCenter from './pages/FuturisticEnergyCommandCenter';
-
 // Pages
 import LandingPage from './pages/LandingPage';
+import FuturisticEnergyCommandCenter from './pages/FuturisticEnergyCommandCenter';
 import Login from './pages/Auth/Login';
 import Overview from './pages/AdminCommandCenter/Overview';
 import MapExperience from './pages/MapExperience';
@@ -63,14 +62,11 @@ export default function App() {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  const isFuturisticEnergyPage =
-    location.pathname === '/' ||
-    location.pathname === '/energy' ||
-    location.pathname === '/admin' ||
-    location.pathname === '/dashboard';
+  const isEnergyStandalonePage = location.pathname === '/energy';
 
   // Public/Citizen standalone navbar layout vs Municipal Command Shell
   const isPublicPage =
+    location.pathname === '/' ||
     location.pathname === '/login' ||
     location.pathname === '/signup' ||
     location.pathname === '/report' ||
@@ -85,13 +81,13 @@ export default function App() {
   return (
     <ToastProvider>
       <FluidWaterCursor />
-      <div className="app-shell" style={{ background: '#05080B' }}>
+      <div className="app-shell">
 
         {/* Top Navbar for Public & Citizen pages */}
-        {isPublicPage && !isFuturisticEnergyPage && <Navbar />}
+        {isPublicPage && !isEnergyStandalonePage && <Navbar />}
 
         {/* Collapsible Left Sidebar for Municipal Command Shell */}
-        {!isPublicPage && !isFuturisticEnergyPage && (
+        {!isPublicPage && !isEnergyStandalonePage && (
           <Sidebar
             collapsed={collapsed}
             setCollapsed={setCollapsed}
@@ -101,12 +97,12 @@ export default function App() {
         )}
 
         <div
-          className={`main-wrapper ${!isPublicPage && !isFuturisticEnergyPage ? (collapsed ? 'admin-main-collapsed' : 'admin-main') : ''}`}
-          style={isFuturisticEnergyPage ? { marginLeft: 0, width: '100%' } : {}}
+          className={`main-wrapper ${!isPublicPage && !isEnergyStandalonePage ? (collapsed ? 'admin-main-collapsed' : 'admin-main') : ''}`}
+          style={isEnergyStandalonePage ? { marginLeft: 0, width: '100%' } : {}}
         >
 
           {/* Persistent Top Header for Municipal Command Shell */}
-          {!isPublicPage && !isFuturisticEnergyPage && (
+          {!isPublicPage && !isEnergyStandalonePage && (
             <Header
               title="CivicOS Municipal Operating System"
               onOpenCommand={() => setCommandOpen(true)}
@@ -124,13 +120,24 @@ export default function App() {
 
           <main style={{ flex: 1 }}>
             <Routes>
-              {/* Futuristic City Energy Command Center */}
-              <Route path="/" element={<FuturisticEnergyCommandCenter />} />
+              {/* Core Landing Page */}
+              <Route path="/" element={<LandingPage />} />
+              
+              {/* Standalone Futuristic Energy Command Center OS */}
               <Route path="/energy" element={<FuturisticEnergyCommandCenter />} />
-              <Route path="/admin" element={<FuturisticEnergyCommandCenter />} />
-              <Route path="/dashboard" element={<FuturisticEnergyCommandCenter />} />
+
+              {/* Authentication */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Login />} />
+
+              {/* SIH 2026 Interoperability Center */}
+              <Route path="/interoperability" element={<InteroperabilityCenter />} />
+              <Route path="/services" element={<InteroperabilityCenter />} />
+
+              {/* Main Municipal Command Routes */}
+              <Route path="/admin" element={<Overview />} />
+              <Route path="/overview" element={<Overview />} />
+              <Route path="/dashboard" element={<Overview />} />
               <Route path="/map" element={<MapExperience />} />
               <Route path="/complaints" element={<ComplaintsList />} />
               <Route path="/complaints/:id" element={<ComplaintDetail />} />
@@ -156,7 +163,7 @@ export default function App() {
             </Routes>
           </main>
 
-          {!isFuturisticEnergyPage && <Footer />}
+          {isPublicPage && !isEnergyStandalonePage && <Footer />}
 
         </div>
 
