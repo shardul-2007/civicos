@@ -157,15 +157,15 @@ export default function LandingPage() {
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
                 <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>RENEWABLE MIX</div>
-                <div style={{ fontSize: '1.2rem', fontWeight 900, color: '#34d399' }}>72.6%</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#34d399' }}>72.6%</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
                 <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>BATTERY RESERVE</div>
-                <div style={{ fontSize: '1.2rem', fontWeight 900, color: '#fbbf24' }}>64.0%</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fbbf24' }}>64.0%</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
                 <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>GRID HEALTH</div>
-                <div style={{ fontSize: '1.2rem', fontWeight 900, color: '#60a5fa' }}>98.7%</div>
+                <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#60a5fa' }}>98.7%</div>
               </div>
             </div>
           </div>
