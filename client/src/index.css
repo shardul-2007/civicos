@@ -91,11 +91,16 @@
 
 html { scroll-behavior: smooth; }
 
+html, body, #root, .app-shell, .main-wrapper, main {
+  background-color: #05080B !important;
+  color: #ffffff;
+}
+
 body {
   font-family: var(--font-sans);
-  background: var(--bg-app);
+  background: #05080B !important;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16,185,129,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34,211,238,0.07) 0%, transparent 60%),
     linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
   background-size: 100% 100%, 44px 44px, 44px 44px;

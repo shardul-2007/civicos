@@ -26,24 +26,23 @@ export default function FuturisticCommandBar({
   return (
     <>
       <header style={{
-        position: 'fixed',
-        top: '10px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 'calc(100% - 24px)',
+        position: 'sticky',
+        top: '12px',
+        width: '100%',
         maxWidth: '1480px',
+        margin: '0 auto 1rem auto',
         zIndex: 900,
-        background: 'rgba(5, 8, 11, 0.88)',
+        background: 'rgba(5, 8, 11, 0.92)',
         backdropFilter: 'blur(28px)',
         WebkitBackdropFilter: 'blur(28px)',
-        border: '1px solid rgba(34, 211, 238, 0.25)',
+        border: '1px solid rgba(34, 211, 238, 0.3)',
         borderRadius: '16px',
-        padding: '0.5rem 0.85rem',
+        padding: '0.6rem 1rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '0.75rem',
-        boxShadow: '0 16px 40px -10px rgba(0,0,0,0.85), 0 0 20px rgba(34, 211, 238, 0.1)',
+        boxShadow: '0 16px 40px -10px rgba(0,0,0,0.9), 0 0 20px rgba(34, 211, 238, 0.1)',
       }}>
         {/* ── Left Branding ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>

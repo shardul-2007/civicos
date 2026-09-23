@@ -21,7 +21,7 @@ export default function FuturisticEnergyCommandCenter() {
       color: '#ffffff',
       fontFamily: 'var(--font-sans)',
       position: 'relative',
-      paddingTop: '125px', // Guaranteed clearance for top floating command bar
+      paddingTop: '20px',
       paddingBottom: '40px',
       overflowX: 'hidden',
     }}>
