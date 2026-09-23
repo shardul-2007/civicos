@@ -130,7 +130,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Login />} />
 
-              {/* SIH 2026 Interoperability Center */}
+              {/* National Interoperability Gateway */}
               <Route path="/interoperability" element={<InteroperabilityCenter />} />
               <Route path="/services" element={<InteroperabilityCenter />} />
 

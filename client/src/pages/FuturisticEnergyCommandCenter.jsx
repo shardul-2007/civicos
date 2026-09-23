@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import FuturisticCommandBar from '../components/FuturisticCommandBar';
 import CityEnergy3DModel from '../components/CityEnergy3DModel';
 import LiveEnergyFlowPanel from '../components/LiveEnergyFlowPanel';
@@ -8,11 +9,34 @@ import ScenarioSimulatorModal from '../components/ScenarioSimulatorModal';
 import AiEnergyAssistantDrawer from '../components/AiEnergyAssistantDrawer';
 
 export default function FuturisticEnergyCommandCenter() {
-  const [activeView, setActiveView] = useState('COMMAND');
+  const location = useLocation();
+  const initialView = location.state?.targetView || 'COMMAND';
+  const [activeView, setActiveView] = useState(initialView);
   const [scenarioOpen, setScenarioOpen] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
-  const [alertsOpen, setAlertsOpen] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.targetView) {
+      setActiveView(location.state.targetView);
+    }
+  }, [location.state]);
+
+  // Scroll to section based on view
+  const handleViewChange = (viewId) => {
+    setActiveView(viewId);
+    let targetEl = null;
+    if (viewId === 'TWIN') {
+      targetEl = document.getElementById('digital-twin-section');
+    } else if (viewId === 'ANALYTICS') {
+      targetEl = document.getElementById('analytics-section');
+    } else if (['GRID', 'DEMAND', 'SOURCES', 'STORAGE', 'COMMAND'].includes(viewId)) {
+      targetEl = document.getElementById('live-flow-section');
+    }
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <div style={{
@@ -21,14 +45,14 @@ export default function FuturisticEnergyCommandCenter() {
       color: '#ffffff',
       fontFamily: 'var(--font-sans)',
       position: 'relative',
-      paddingTop: '20px',
+      paddingTop: '16px',
       paddingBottom: '40px',
       overflowX: 'hidden',
     }}>
       {/* Spacecraft Top Command Bar */}
       <FuturisticCommandBar
         activeView={activeView}
-        setActiveView={setActiveView}
+        setActiveView={handleViewChange}
         onOpenScenario={() => setScenarioOpen(true)}
         onOpenAi={() => setAiOpen(true)}
         onOpenAlerts={() => setAiOpen(true)}
@@ -46,7 +70,7 @@ export default function FuturisticEnergyCommandCenter() {
         {/* ── Title Banner ── */}
         <div style={{
           display: 'flex',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
@@ -62,12 +86,17 @@ export default function FuturisticEnergyCommandCenter() {
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {['COMMAND', 'MAP', 'DIGITAL TWIN', 'ANALYTICS'].map((mode) => {
-              const active = activeView === mode || (mode === 'COMMAND' && activeView === 'COMMAND') || (mode === 'DIGITAL TWIN' && activeView === 'TWIN');
+            {[
+              { id: 'COMMAND', label: 'OVERVIEW' },
+              { id: 'GRID', label: 'GRID & FLOW' },
+              { id: 'TWIN', label: 'DIGITAL TWIN' },
+              { id: 'ANALYTICS', label: 'ANALYTICS' }
+            ].map((mode) => {
+              const active = activeView === mode.id || (mode.id === 'COMMAND' && activeView === 'OVERVIEW');
               return (
                 <button
-                  key={mode}
-                  onClick={() => setActiveView(mode === 'DIGITAL TWIN' ? 'TWIN' : mode)}
+                  key={mode.id}
+                  onClick={() => handleViewChange(mode.id)}
                   style={{
                     background: active ? 'linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(6, 182, 212, 0.1))' : 'rgba(255,255,255,0.03)',
                     border: active ? '1px solid #22d3ee' : '1px solid rgba(255,255,255,0.08)',
@@ -81,7 +110,7 @@ export default function FuturisticEnergyCommandCenter() {
                     boxShadow: active ? '0 0 16px rgba(34, 211, 238, 0.25)' : 'none',
                   }}
                 >
-                  {mode}
+                  {mode.label}
                 </button>
               );
             })}
@@ -89,10 +118,19 @@ export default function FuturisticEnergyCommandCenter() {
         </div>
 
         {/* ── Floating Energy Status Metrics & Live Energy Flow ── */}
-        <LiveEnergyFlowPanel />
+        <div id="live-flow-section" style={{
+          scrollMarginTop: '100px',
+          border: ['GRID', 'DEMAND', 'SOURCES', 'STORAGE', 'COMMAND'].includes(activeView) ? '1px solid rgba(34, 211, 238, 0.4)' : 'none',
+          borderRadius: '16px',
+          padding: '0.25rem',
+          transition: 'all 0.3s ease',
+        }}>
+          <LiveEnergyFlowPanel activeFilter={activeView} />
+        </div>
 
         {/* ── Hero: 3D Spatial Digital Twin City Environment ── */}
-        <div style={{
+        <div id="digital-twin-section" style={{
+          scrollMarginTop: '100px',
           background: 'rgba(8, 14, 22, 0.75)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
@@ -111,10 +149,15 @@ export default function FuturisticEnergyCommandCenter() {
         </div>
 
         {/* ── Predictive Analytics & System Event Stream ── */}
-        <div style={{
+        <div id="analytics-section" style={{
+          scrollMarginTop: '100px',
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           gap: '1.5rem',
+          border: activeView === 'ANALYTICS' ? '1px solid rgba(34, 211, 238, 0.4)' : 'none',
+          borderRadius: '16px',
+          padding: '0.25rem',
+          transition: 'all 0.3s ease',
         }}>
           <EnergyForecastChart />
           <SystemEventStream />

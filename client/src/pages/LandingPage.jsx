@@ -107,7 +107,7 @@ export default function LandingPage() {
             <Zap size={18} /> Launch Futuristic Energy OS 4.0
           </Link>
           <Link to="/interoperability" className="btn-glass" style={{ padding: '0.85rem 1.5rem', fontSize: '1rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#60a5fa' }}>
-            <Globe size={18} /> SIH 2026 Interoperability Gateway
+            <Globe size={18} /> National Interoperability Gateway
           </Link>
         </div>
 
@@ -173,7 +173,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 3. LIVE INGESTION STREAM & SIH FEATURES ── */}
+      {/* ── 3. LIVE INGESTION STREAM & INTEROPERABILITY FEATURES ── */}
       <section style={{ padding: '3rem 1.5rem', maxWidth: '1350px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>

@@ -246,7 +246,7 @@ export default function TrackComplaint() {
             Unified Citizen Service Tracking
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-            Real-time status tracking across connected government departmental APIs (SIH 2026 Interoperability Engine)
+            Real-time status tracking across connected government departmental APIs (National Interoperability Engine)
           </p>
 
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.6rem', maxWidth: '560px', margin: '0 auto', flexWrap: 'wrap' }}>

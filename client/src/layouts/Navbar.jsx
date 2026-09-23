@@ -199,7 +199,7 @@ export default function Navbar() {
           </Link>
 
           <Link to="/interoperability" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
-            <Globe size={16} color="#60a5fa" /> Interoperability Center (SIH 2026)
+            <Globe size={16} color="#60a5fa" /> National Interoperability Gateway
           </Link>
 
           <Link to="/report" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: '#059669', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
