@@ -21,7 +21,7 @@ export default function FuturisticEnergyCommandCenter() {
       color: '#ffffff',
       fontFamily: 'var(--font-sans)',
       position: 'relative',
-      paddingTop: '80px',
+      paddingTop: '125px', // Guaranteed clearance for top floating command bar
       paddingBottom: '40px',
       overflowX: 'hidden',
     }}>
@@ -61,7 +61,7 @@ export default function FuturisticEnergyCommandCenter() {
             </h1>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {['COMMAND', 'MAP', 'DIGITAL TWIN', 'ANALYTICS'].map((mode) => {
               const active = activeView === mode || (mode === 'COMMAND' && activeView === 'COMMAND') || (mode === 'DIGITAL TWIN' && activeView === 'TWIN');
               return (
@@ -96,12 +96,13 @@ export default function FuturisticEnergyCommandCenter() {
           background: 'rgba(8, 14, 22, 0.75)',
           backdropFilter: 'blur(28px)',
           WebkitBackdropFilter: 'blur(28px)',
-          border: '1px solid rgba(34, 211, 238, 0.25)',
+          border: activeView === 'TWIN' ? '2px solid #22d3ee' : '1px solid rgba(34, 211, 238, 0.25)',
           borderRadius: '20px',
           padding: '1rem',
           height: '560px',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(34, 211, 238, 0.1)',
+          boxShadow: activeView === 'TWIN' ? '0 0 35px rgba(34, 211, 238, 0.3)' : '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(34, 211, 238, 0.1)',
           position: 'relative',
+          transition: 'all 0.3s ease',
         }}>
           <CityEnergy3DModel
             selectedBuilding={selectedBuilding}
@@ -112,7 +113,7 @@ export default function FuturisticEnergyCommandCenter() {
         {/* ── Predictive Analytics & System Event Stream ── */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           gap: '1.5rem',
         }}>
           <EnergyForecastChart />
