@@ -71,9 +71,32 @@ export default class ErrorBoundary extends React.Component {
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', color: '#ffffff' }}>
               CivicOS Platform Resilience
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: 1.5 }}>
               A temporary display sync anomaly occurred. Our automated platform resilience system has safely isolated the state.
             </p>
+
+            {this.state.error && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                padding: '0.75rem',
+                color: '#f87171',
+                fontSize: '0.75rem',
+                fontFamily: 'monospace',
+                textAlign: 'left',
+                marginBottom: '1.25rem',
+                overflowX: 'auto',
+                maxHeight: '120px',
+              }}>
+                <div><strong>Diagnostics:</strong> {this.state.error.toString()}</div>
+                {this.state.error.stack && (
+                  <div style={{ marginTop: '0.4rem', fontSize: '0.68rem', color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>
+                    {this.state.error.stack.split('\n').slice(0, 3).join('\n')}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button
