@@ -5,7 +5,7 @@ import {
   Shield, Brain, Layers, MapPin, Clock, AlertTriangle,
   ArrowRight, Sparkles, Radio, CheckCircle2, Activity,
   Search, Zap, ChevronRight, TrendingUp, Users, FileText,
-  BarChart2, Navigation, Lock, Cpu, Check, Globe, Sliders
+  BarChart2, Navigation, Lock, Cpu, Check, Globe, Sliders, PlusCircle
 } from 'lucide-react';
 import L from 'leaflet';
 import LeafletErrorBoundary from '../components/LeafletErrorBoundary';
