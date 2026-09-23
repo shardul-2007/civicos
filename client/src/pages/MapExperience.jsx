@@ -8,19 +8,17 @@ import ComplaintQuickViewDrawer from '../components/ComplaintQuickViewDrawer';
 import LeafletErrorBoundary from '../components/LeafletErrorBoundary';
 
 const createCustomMarker = (color) => {
-  return L.divIcon({
-    className: 'custom-leaflet-pin',
-    html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 12px ${color};"></div>`,
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
-  });
-};
-
-const markersBySeverity = {
-  CRITICAL: createCustomMarker('#ef4444'),
-  HIGH: createCustomMarker('#f97316'),
-  MEDIUM: createCustomMarker('#f59e0b'),
-  LOW: createCustomMarker('#10b981'),
+  if (typeof window === 'undefined' || !L || typeof L.divIcon !== 'function') return null;
+  try {
+    return L.divIcon({
+      className: 'custom-leaflet-pin',
+      html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 12px ${color};"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
+  } catch (e) {
+    return null;
+  }
 };
 
 const fallbackMapComplaints = [

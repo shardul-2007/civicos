@@ -9,19 +9,17 @@ import LeafletErrorBoundary from '../../components/LeafletErrorBoundary';
 
 // Custom Marker Helper
 const createCustomMarker = (color) => {
-  return L.divIcon({
-    className: 'custom-leaflet-pin',
-    html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px ${color};"></div>`,
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
-  });
-};
-
-const markersBySeverity = {
-  CRITICAL: createCustomMarker('#ef4444'),
-  HIGH: createCustomMarker('#f97316'),
-  MEDIUM: createCustomMarker('#eab308'),
-  LOW: createCustomMarker('#3b82f6'),
+  if (typeof window === 'undefined' || !L || typeof L.divIcon !== 'function') return null;
+  try {
+    return L.divIcon({
+      className: 'custom-leaflet-pin',
+      html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px ${color};"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
+  } catch (e) {
+    return null;
+  }
 };
 
 export default function AdminDashboard() {

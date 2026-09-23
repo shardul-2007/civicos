@@ -13,16 +13,17 @@ import { dashboardAPI } from '../services/api';
 import AiAssistantDrawer from '../components/AiAssistantDrawer';
 import { useLanguage } from '../context/LanguageContext';
 
-const createCustomMarker = (color) => L.divIcon({
-  className: '',
-  html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);box-shadow:0 0 10px ${color}"></div>`,
-  iconSize: [14, 14], iconAnchor: [7, 7],
-});
-const markersBySeverity = {
-  CRITICAL: createCustomMarker('#ef4444'),
-  HIGH:     createCustomMarker('#f97316'),
-  MEDIUM:   createCustomMarker('#f59e0b'),
-  LOW:      createCustomMarker('#10b981'),
+const createCustomMarker = (color) => {
+  if (typeof window === 'undefined' || !L || typeof L.divIcon !== 'function') return null;
+  try {
+    return L.divIcon({
+      className: '',
+      html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);box-shadow:0 0 10px ${color}"></div>`,
+      iconSize: [14, 14], iconAnchor: [7, 7],
+    });
+  } catch (e) {
+    return null;
+  }
 };
 
 const LIVE_STREAM = [
