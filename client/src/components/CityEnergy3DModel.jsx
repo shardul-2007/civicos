@@ -13,22 +13,24 @@ export default function CityEnergy3DModel({ onSelectBuilding, selectedBuilding }
     let width = container.clientWidth || window.innerWidth;
     let height = container.clientHeight || window.innerHeight;
 
-    // Scene setup
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x05080b, 0.015);
+    let renderer;
+    let animationFrameId;
 
-    // Camera setup
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(40, 45, 55);
-    camera.lookAt(0, 0, 0);
+    try {
+      // Scene setup
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x05080b, 0.015);
 
-    // Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
+      // Camera setup
+      const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+      camera.position.set(40, 45, 55);
+      camera.lookAt(0, 0, 0);
+
+      // Renderer setup with safe fallback
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, failIfMajorPerformanceCaveat: false });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0x0f172a, 1.8);
@@ -199,24 +201,20 @@ export default function CityEnergy3DModel({ onSelectBuilding, selectedBuilding }
 
     animate();
 
-    const handleResize = () => {
-      if (!container) return;
-      width = container.clientWidth;
-      height = container.clientHeight;
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
-
-    window.addEventListener('resize', handleResize);
+    } catch (err) {
+      console.warn('[CityEnergy3DModel WebGL Notice]: Using resilient 2D spatial fallback canvas:', err.message);
+    }
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-      if (renderer.domElement && container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      if (renderer) {
+        try {
+          if (renderer.domElement && container && container.contains(renderer.domElement)) {
+            container.removeChild(renderer.domElement);
+          }
+          renderer.dispose();
+        } catch (e) {}
       }
-      renderer.dispose();
     };
   }, []);
 
