@@ -243,10 +243,10 @@ export default function TrackComplaint() {
             <ShieldCheck size={28} />
           </div>
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.4rem' }}>
-            Unified Citizen Service Tracking
+            {t('trackHeaderTitle')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.75rem' }}>
-            Real-time status tracking across connected government departmental APIs (National Interoperability Engine)
+            {t('trackHeaderSub')}
           </p>
 
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.6rem', maxWidth: '560px', margin: '0 auto', flexWrap: 'wrap' }}>

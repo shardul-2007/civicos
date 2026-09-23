@@ -136,19 +136,19 @@ export default function LandingPage() {
 
             <div style={{ background: '#05080b', border: '1px solid rgba(34, 211, 238, 0.3)', borderRadius: '16px', padding: '1.25rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.85rem', fontFamily: 'JetBrains Mono, monospace' }}>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>TOTAL GRID LOAD</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t('totalGridLoad') || 'TOTAL GRID LOAD'}</div>
                 <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#22d3ee' }}>24.8 MW</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>RENEWABLE MIX</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t('renewableMix') || 'RENEWABLE MIX'}</div>
                 <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#34d399' }}>72.6%</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>BATTERY RESERVE</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t('batteryReserve') || 'BATTERY RESERVE'}</div>
                 <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fbbf24' }}>64.0%</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '10px' }}>
-                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>GRID HEALTH</div>
+                <div style={{ fontSize: '0.65rem', color: '#94a3b8' }}>{t('gridHealth') || 'GRID HEALTH'}</div>
                 <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#60a5fa' }}>98.7%</div>
               </div>
             </div>

@@ -10,19 +10,6 @@ import { complaintAPI } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
 import LeafletMapPicker from '../../components/LeafletMapPicker';
 
-const CATEGORY_MAP = [
-  { value: 'Road Damage', label: 'Roads & Public Works' },
-  { value: 'Water Leakage', label: 'Water Supply & Sewerage' },
-  { value: 'Drainage', label: 'Drainage & Stormwater' },
-  { value: 'Garbage', label: 'Solid Waste & Sanitation' },
-  { value: 'Streetlight', label: 'Electrical & Street Lighting' },
-  { value: 'Public Safety', label: 'Public Health & Safety' },
-  { value: 'Pothole', label: 'Asphalt Pothole Repair' },
-  { value: 'Sewage', label: 'Sewer Line & Sanitation' },
-  { value: 'Tree/Parks', label: 'Parks & Tree Maintenance' },
-  { value: 'Other', label: 'General Municipal Service' },
-];
-
 const NORMALIZE_CATEGORY_KEYWORD = (str = '') => {
   const s = str.toLowerCase().trim();
   if (s.includes('pothole')) return 'Pothole';
@@ -88,6 +75,19 @@ export default function ReportComplaint() {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
+  const CATEGORY_MAP = [
+    { value: 'Road Damage', label: t('catRoadDamage') },
+    { value: 'Water Leakage', label: t('catWaterLeakage') },
+    { value: 'Drainage', label: t('catDrainage') },
+    { value: 'Garbage', label: t('catGarbage') },
+    { value: 'Streetlight', label: t('catStreetlight') },
+    { value: 'Public Safety', label: t('catPublicSafety') },
+    { value: 'Pothole', label: t('catPothole') },
+    { value: 'Sewage', label: t('catSewage') },
+    { value: 'Tree/Parks', label: t('catTreeParks') },
+    { value: 'Other', label: t('catOther') },
+  ];
+
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitStepText, setSubmitStepText] = useState('');
@@ -125,10 +125,10 @@ export default function ReportComplaint() {
   const [aiAnalysis, setAiAnalysis] = useState(null);
 
   const STEPS = [
-    { id: 1, label: t('stepProblem') || 'Problem Details', icon: FileText },
-    { id: 2, label: t('stepLocation') || 'Location', icon: MapPin },
-    { id: 3, label: t('stepContact') || 'Contact Info', icon: User },
-    { id: 4, label: t('stepConfirm') || 'Review & Submit', icon: CheckCircle2 },
+    { id: 1, label: t('stepProblem'), icon: FileText },
+    { id: 2, label: t('stepLocation'), icon: MapPin },
+    { id: 3, label: t('stepContact'), icon: User },
+    { id: 4, label: t('stepConfirm'), icon: CheckCircle2 },
   ];
 
   // Client AI Analysis
@@ -200,14 +200,12 @@ export default function ReportComplaint() {
     setError('');
     setSubmitStepText('Validating report information...');
 
-    // Progress animation sequence
     setTimeout(() => setSubmitStepText('Creating CivicOS request record...'), 350);
     setTimeout(() => setSubmitStepText('Connecting department gateway...'), 700);
 
     try {
       const normalizedCategory = NORMALIZE_CATEGORY_KEYWORD(category || aiAnalysis?.category || title);
 
-      // Clean title handling (avoid using single keyword like "road")
       let cleanTitle = title.trim();
       if (cleanTitle.toLowerCase() === 'road' || cleanTitle.toLowerCase() === 'water' || cleanTitle.toLowerCase() === 'garbage' || cleanTitle.length < 3) {
         cleanTitle = `${normalizedCategory} issue near ${locationDetails.address.split(',')[0]}`;
@@ -244,7 +242,6 @@ export default function ReportComplaint() {
         console.warn('[API Network Warning]: Using resilient local fallback doc:', apiErr.message);
       }
 
-      // Guaranteed fallback creation if backend/network issue occurs
       if (!createdDoc || !createdDoc.trackingCode) {
         const fallbackCode = `CIV-2026-${Math.floor(100000 + Math.random() * 900000)}`;
         createdDoc = {
@@ -262,7 +259,6 @@ export default function ReportComplaint() {
         };
       }
 
-      // Cache in local storage for instant offline history & tracking lookup
       try {
         const stored = JSON.parse(localStorage.getItem('civicos_my_complaints') || '[]');
         stored.unshift(createdDoc);
@@ -303,15 +299,15 @@ export default function ReportComplaint() {
           </div>
 
           <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', marginBottom: '0.4rem' }}>
-            Report Submitted Successfully
+            {t('reportSuccessTitle')}
           </h1>
           <p style={{ color: '#cbd5e1', fontSize: '0.92rem', marginBottom: '1.75rem' }}>
-            Your civic issue has been registered and assigned in the database.
+            {t('reportSuccessSub')}
           </p>
 
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', padding: '1.25rem', borderRadius: '0.85rem', marginBottom: '1.75rem', textAlign: 'left' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>CivicOS Request ID</span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>{t('requestTrackingId')}</span>
               <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#34d399', fontFamily: 'monospace' }}>
                 {submittedReport.trackingCode}
               </span>
@@ -319,13 +315,13 @@ export default function ReportComplaint() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
               <div>
-                <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Assigned Department</div>
+                <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>{t('assignedDept')}</div>
                 <div style={{ color: '#ffffff', fontWeight: 700 }}>{submittedReport.departmentName}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>Initial Status</div>
+                <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>{t('initialStatus')}</div>
                 <div style={{ color: '#34d399', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399' }} /> SUBMITTED
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#34d399' }} /> {t('statusSubmitted')}
                 </div>
               </div>
             </div>
@@ -337,14 +333,14 @@ export default function ReportComplaint() {
               className="btn-sage"
               style={{ padding: '0.75rem 1.5rem', fontSize: '0.9rem', fontWeight: 800 }}
             >
-              <ExternalLink size={16} /> Track This Issue
+              <ExternalLink size={16} /> {t('trackThisIssue')}
             </button>
             <button
               onClick={resetForm}
               className="btn-glass"
               style={{ padding: '0.75rem 1.5rem', fontSize: '0.9rem' }}
             >
-              <RotateCcw size={16} /> Report Another Issue
+              <RotateCcw size={16} /> {t('reportAnotherIssue')}
             </button>
           </div>
 
@@ -366,13 +362,13 @@ export default function ReportComplaint() {
             color: '#fff', marginBottom: '0.85rem',
             boxShadow: '0 4px 16px rgba(16,185,129,0.35)',
           }}>
-            <Sparkles size={14} /> AI-POWERED MUNICIPAL INTAKE
+            <Sparkles size={14} /> {t('heroBadge')}
           </div>
           <h1 style={{ fontSize: 'clamp(1.6rem,3vw,2.25rem)', fontWeight: 900, marginBottom: '0.4rem' }}>
-            Report a Civic Infrastructure Issue
+            {t('reportHeaderTitle')}
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '560px', margin: '0 auto' }}>
-            Submit public hazards directly to local municipal authorities with automated AI triage.
+            {t('reportHeaderSub')}
           </p>
         </div>
 
@@ -490,7 +486,7 @@ export default function ReportComplaint() {
                       className="btn-sage"
                       style={{ fontSize: '0.85rem', padding: '0.55rem 1.25rem', fontWeight: 800, minHeight: '40px' }}
                     >
-                      {submitting ? 'Submitting report...' : 'Try Again'}
+                      {submitting ? t('submitting') : 'Try Again'}
                     </button>
                     <button
                       type="button"
@@ -499,7 +495,7 @@ export default function ReportComplaint() {
                       className="btn-glass"
                       style={{ fontSize: '0.85rem', padding: '0.55rem 1.25rem', minHeight: '40px' }}
                     >
-                      Edit Form
+                      {t('editBtn')}
                     </button>
                   </div>
                 </div>
@@ -512,21 +508,21 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <FileText size={12} /> Step 1: Problem Details
+                  <FileText size={12} /> {t('stepProblem')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Describe the Municipal Issue</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('reportDescTitle')}</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  Provide clear details so our automated triage system can route your complaint.
+                  {t('reportDescSub')}
                 </p>
               </div>
 
               {/* Issue Title Input */}
               <div>
-                <label className="form-label">Issue Title *</label>
+                <label className="form-label">{t('issueTitleLabel')}</label>
                 <input
                   type="text"
                   className="form-input-dark"
-                  placeholder="e.g. Large pothole near main college entrance"
+                  placeholder={t('issueTitlePlace')}
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   required
@@ -536,16 +532,16 @@ export default function ReportComplaint() {
               {/* Category & Ward Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.1rem' }}>
                 <div>
-                  <label className="form-label">Issue Category *</label>
+                  <label className="form-label">{t('catLabel')}</label>
                   <select className="form-select-dark" value={category} onChange={e => setCategory(e.target.value)}>
                     {CATEGORY_MAP.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="form-label">Municipal Ward</label>
+                  <label className="form-label">{t('wardLabel')}</label>
                   <select className="form-select-dark" value={ward} onChange={e => setWard(e.target.value)}>
-                    <option value="auto">Auto-detect Ward from Location</option>
-                    {[...Array(25)].map((_, i) => <option key={i+1} value={i+1}>Ward {i+1}</option>)}
+                    <option value="auto">{t('autoDetectCategory')}</option>
+                    {[...Array(25)].map((_, i) => <option key={i+1} value={i+1}>{t('wardLabelPrefix')} {i+1}</option>)}
                     <option value="na">Ward Info Unavailable / Non-Metro</option>
                   </select>
                 </div>
@@ -553,10 +549,10 @@ export default function ReportComplaint() {
 
               {/* Detailed Description */}
               <div>
-                <label className="form-label">Detailed Description *</label>
+                <label className="form-label">{t('descLabel')}</label>
                 <textarea
                   className="form-textarea-dark"
-                  placeholder="Describe the exact problem, safety hazards, and street landmarks..."
+                  placeholder={t('descPlace')}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
                   required
@@ -599,16 +595,16 @@ export default function ReportComplaint() {
 
               {/* Photo Evidence Upload */}
               <div>
-                <label className="form-label">Attach Photo Evidence</label>
+                <label className="form-label">{t('attachPhoto')}</label>
                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
                   <label className="btn-glass" style={{ fontSize: '0.85rem', padding: '0.65rem 1.25rem', cursor: 'pointer', borderColor: 'rgba(16,185,129,0.3)', color: '#34d399', fontWeight: 700 }}>
-                    <Camera size={16} /> 📷 Upload Photo Evidence
+                    <Camera size={16} /> 📷 {t('uploadPhoto')}
                     <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: 'none' }} />
                   </label>
 
                   {imageUrl && (
                     <button type="button" onClick={handleRemovePhoto} className="btn-glass" style={{ fontSize: '0.78rem', padding: '0.5rem 0.8rem', color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}>
-                      <X size={14} /> Remove Photo
+                      <X size={14} /> {t('removePhoto')}
                     </button>
                   )}
                 </div>
@@ -618,7 +614,7 @@ export default function ReportComplaint() {
                     <img src={imageUrl} alt="Evidence thumbnail" style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '0.4rem', border: '1px solid rgba(255,255,255,0.1)' }} />
                     <div style={{ flex: 1, overflow: 'hidden' }}>
                       <div style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {fileName || 'Photo Evidence Attached'}
+                        {fileName || t('imageAttached')}
                       </div>
                       <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 600 }}>✔ Ready for submission</div>
                     </div>
@@ -633,11 +629,11 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <MapPin size={12} /> Step 2: Location
+                  <MapPin size={12} /> {t('stepLocation')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Pinpoint Problem Location</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('whereIsProblem')}</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                  Drag marker on Leaflet map or search location to set GPS coordinates.
+                  {t('locationSub')}
                 </p>
               </div>
 
@@ -655,29 +651,29 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <User size={12} /> Step 3: Contact Info
+                  <User size={12} /> {t('stepContact')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Citizen Contact Details</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Provide contact info for status updates.</p>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('whoAreYou')}</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>{t('contactSub')}</p>
               </div>
 
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 'var(--radius-md)', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
                   <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <User size={12} /> Full Name
+                    <User size={12} /> {t('fullName')}
                   </label>
                   <input type="text" className="form-input-dark" placeholder="e.g. Shardul Parihar" value={citizenName} onChange={e => setCitizenName(e.target.value)} />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.85rem' }}>
                   <div>
                     <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Phone size={12} /> Phone Number
+                      <Phone size={12} /> {t('phone')}
                     </label>
                     <input type="tel" className="form-input-dark" placeholder="+91 98230 11223" value={citizenPhone} onChange={e => setCitizenPhone(e.target.value)} />
                   </div>
                   <div>
                     <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <Mail size={12} /> Email Address
+                      <Mail size={12} /> {t('email')}
                     </label>
                     <input type="email" className="form-input-dark" placeholder="you@example.com" value={citizenEmail} onChange={e => setCitizenEmail(e.target.value)} />
                   </div>
@@ -691,11 +687,11 @@ export default function ReportComplaint() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
                 <div style={{ fontSize: '0.7rem', color: 'var(--sage)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <CheckCircle2 size={12} /> Step 4: Submit Complaint
+                  <CheckCircle2 size={12} /> {t('stepConfirm')}
                 </div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Confirm Your Report</h2>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{t('confirmReportTitle')}</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.2rem' }}>
-                  Review your information before submitting to CivicOS authorities.
+                  {t('reviewNotice')}
                 </p>
               </div>
 
@@ -703,41 +699,41 @@ export default function ReportComplaint() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                 <div style={{ background: 'rgba(255,255,255,0.025)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Issue Title</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{t('issueTitleLabel')}</div>
                     <div style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem' }}>{title || 'Civic Infrastructure Issue'}</div>
                   </div>
-                  <button type="button" onClick={() => setStep(1)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>Edit</button>
+                  <button type="button" onClick={() => setStep(1)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>{t('editBtn')}</button>
                 </div>
 
                 <div style={{ background: 'rgba(255,255,255,0.025)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Category & Ward</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{t('catLabel')} & {t('wardLabel')}</div>
                     <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.9rem' }}>
-                      {category || 'Road Damage'} • {ward === 'auto' ? 'Auto-detected Ward' : `Ward ${ward}`}
+                      {category || 'Road Damage'} • {ward === 'auto' ? t('autoDetectCategory') : `${t('wardLabelPrefix')} ${ward}`}
                     </div>
                   </div>
-                  <button type="button" onClick={() => setStep(1)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>Edit</button>
+                  <button type="button" onClick={() => setStep(1)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>{t('editBtn')}</button>
                 </div>
 
                 <div style={{ background: 'rgba(255,255,255,0.025)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Confirmed Location</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{t('selectedLocation')}</div>
                     <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.88rem' }}>{locationDetails.address}</div>
                   </div>
-                  <button type="button" onClick={() => setStep(2)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>Edit</button>
+                  <button type="button" onClick={() => setStep(2)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>{t('editBtn')}</button>
                 </div>
 
                 <div style={{ background: 'rgba(255,255,255,0.025)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Citizen Info</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>{t('whoAreYou')}</div>
                     <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.88rem' }}>{citizenName} ({citizenPhone})</div>
                   </div>
-                  <button type="button" onClick={() => setStep(3)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>Edit</button>
+                  <button type="button" onClick={() => setStep(3)} className="btn-glass" style={{ fontSize: '0.75rem', padding: '0.3rem 0.65rem' }}>{t('editBtn')}</button>
                 </div>
               </div>
 
               <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.8rem', color: '#60a5fa', lineHeight: 1.55 }}>
-                By submitting this report, your issue will be assigned a permanent database tracking ID and routed to municipal field officers.
+                {t('reviewNotice')}
               </div>
             </div>
           )}
@@ -746,7 +742,7 @@ export default function ReportComplaint() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem', gap: '1rem', flexWrap: 'wrap' }}>
             {step > 1 ? (
               <button type="button" onClick={goBack} className="btn-glass" style={{ fontSize: '0.875rem' }}>
-                <ArrowLeft size={15} /> Back
+                <ArrowLeft size={15} /> {t('backBtn')}
               </button>
             ) : <div />}
 
@@ -757,7 +753,7 @@ export default function ReportComplaint() {
                 className="btn-sage"
                 style={{ fontSize: '0.9rem', padding: '0.7rem 1.75rem' }}
               >
-                Next <ArrowRight size={16} />
+                {t('nextBtn')} <ArrowRight size={16} />
               </button>
             ) : (
               <button
@@ -770,10 +766,10 @@ export default function ReportComplaint() {
                 {submitting ? (
                   <>
                     <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'spin 0.8s linear infinite' }} />
-                    <span>{submitStepText || 'Submitting report...'}</span>
+                    <span>{submitStepText || t('submitting')}</span>
                   </>
                 ) : (
-                  <><Send size={16} /> Submit Report</>
+                  <><Send size={16} /> {t('submitBtn')}</>
                 )}
               </button>
             )}
