@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import FuturisticCommandBar from '../components/FuturisticCommandBar';
 import CityEnergy3DModel from '../components/CityEnergy3DModel';
 import LiveEnergyFlowPanel from '../components/LiveEnergyFlowPanel';
@@ -10,6 +11,7 @@ import AiEnergyAssistantDrawer from '../components/AiEnergyAssistantDrawer';
 
 export default function FuturisticEnergyCommandCenter() {
   const location = useLocation();
+  const { t } = useLanguage();
   const initialView = location.state?.targetView || 'COMMAND';
   const [activeView, setActiveView] = useState(initialView);
   const [scenarioOpen, setScenarioOpen] = useState(false);
@@ -70,7 +72,7 @@ export default function FuturisticEnergyCommandCenter() {
         {/* ── Title Banner ── */}
         <div style={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justify: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
@@ -78,19 +80,19 @@ export default function FuturisticEnergyCommandCenter() {
         }}>
           <div>
             <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#22d3ee', letterSpacing: '0.12em', fontFamily: 'var(--font-mono)' }}>
-              CIVICOS MUNICIPAL OPERATING SYSTEM • SPATIAL COMMAND CENTER
+              {t('energySub') || 'CIVICOS MUNICIPAL OPERATING SYSTEM • SPATIAL COMMAND CENTER'}
             </div>
             <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.03em' }}>
-              CITY ENERGY COMMAND CENTER
+              {t('energyTitle') || 'CITY ENERGY COMMAND CENTER'}
             </h1>
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {[
-              { id: 'COMMAND', label: 'OVERVIEW' },
-              { id: 'GRID', label: 'GRID & FLOW' },
-              { id: 'TWIN', label: 'DIGITAL TWIN' },
-              { id: 'ANALYTICS', label: 'ANALYTICS' }
+              { id: 'COMMAND', label: t('energyOverview') || 'OVERVIEW' },
+              { id: 'GRID', label: `${t('energyGrid') || 'GRID'} & FLOW` },
+              { id: 'TWIN', label: t('energyDigitalTwin') || 'DIGITAL TWIN' },
+              { id: 'ANALYTICS', label: t('energyAnalytics') || 'ANALYTICS' }
             ].map((mode) => {
               const active = activeView === mode.id || (mode.id === 'COMMAND' && activeView === 'OVERVIEW');
               return (

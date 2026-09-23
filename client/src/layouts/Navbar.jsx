@@ -199,7 +199,7 @@ export default function Navbar() {
           </Link>
 
           <Link to="/interoperability" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#60a5fa', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
-            <Globe size={16} color="#60a5fa" /> National Interoperability Gateway
+            <Globe size={16} color="#60a5fa" /> {t('interoperabilityGateway') || 'National Interoperability Gateway'}
           </Link>
 
           <Link to="/report" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: '#059669', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 700 }}>
@@ -211,11 +211,11 @@ export default function Navbar() {
           </Link>
 
           <Link to="/citizen/history" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
-            <Clock size={16} color="#34d399" /> Citizen Portal & History
+            <Clock size={16} color="#34d399" /> {t('citizenHistory') || 'Citizen Portal & History'}
           </Link>
 
           <Link to="/officer" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>
-            <Shield size={16} color="#60a5fa" /> Field Officer Desk
+            <Shield size={16} color="#60a5fa" /> {t('navOfficer') || 'Field Officer Desk'}
           </Link>
 
           <Link to="/admin" onClick={() => setMobileMenuOpen(false)} style={{ textDecoration: 'none', color: '#ffffff', fontSize: '0.88rem', padding: '0.55rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '0.6rem', fontWeight: 600 }}>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Activity, Sliders, Bell, Download, Settings, ShieldCheck,
   Zap, Cpu, Globe, Layers, BarChart2, Radio, Sparkles, Menu, X
@@ -15,15 +16,16 @@ export default function FuturisticCommandBar({
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const NAV_ITEMS = [
-    { id: 'COMMAND', label: 'OVERVIEW', icon: Cpu },
-    { id: 'GRID', label: 'GRID', icon: Zap },
-    { id: 'DEMAND', label: 'DEMAND', icon: Activity },
-    { id: 'SOURCES', label: 'SOURCES', icon: Radio },
-    { id: 'STORAGE', label: 'STORAGE', icon: Layers },
-    { id: 'ANALYTICS', label: 'ANALYTICS', icon: BarChart2 },
-    { id: 'TWIN', label: 'DIGITAL TWIN', icon: Globe },
+    { id: 'COMMAND', label: t('energyOverview') || 'OVERVIEW', icon: Cpu },
+    { id: 'GRID', label: t('energyGrid') || 'GRID', icon: Zap },
+    { id: 'DEMAND', label: t('energyDemand') || 'DEMAND', icon: Activity },
+    { id: 'SOURCES', label: t('energySources') || 'SOURCES', icon: Radio },
+    { id: 'STORAGE', label: t('energyStorage') || 'STORAGE', icon: Layers },
+    { id: 'ANALYTICS', label: t('energyAnalytics') || 'ANALYTICS', icon: BarChart2 },
+    { id: 'TWIN', label: t('energyDigitalTwin') || 'DIGITAL TWIN', icon: Globe },
   ];
 
   const handleNavClick = (viewId) => {
@@ -123,7 +125,7 @@ export default function FuturisticCommandBar({
               letterSpacing: '0.06em',
               fontWeight: 700,
             }}>
-              ENERGY INTELLIGENCE
+              {t('intelligence') || 'ENERGY INTELLIGENCE'}
             </div>
           </div>
         </div>
@@ -196,7 +198,7 @@ export default function FuturisticCommandBar({
               background: '#34d399',
               boxShadow: '0 0 8px #34d399',
             }} />
-            ONLINE
+            {t('onlineStatus') || 'ONLINE'}
           </div>
 
           {/* AI Intelligence Drawer Button */}
@@ -208,7 +210,7 @@ export default function FuturisticCommandBar({
             style={{
               background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(6, 182, 212, 0.12))',
               border: '1px solid rgba(34, 211, 238, 0.6)',
-              borderRadius: '9px',
+              borderRadius: '999px',
               padding: '0.4rem 0.75rem',
               color: '#22d3ee',
               fontSize: '0.72rem',
@@ -221,7 +223,7 @@ export default function FuturisticCommandBar({
               boxShadow: '0 0 14px rgba(34, 211, 238, 0.3)',
             }}
           >
-            <Sparkles size={14} /> AI INTELLIGENCE
+            <Sparkles size={14} /> {t('energyAiIntel') || 'AI INTELLIGENCE'}
           </button>
 
           {/* WHAT IF? Simulator Trigger Button */}
@@ -233,7 +235,7 @@ export default function FuturisticCommandBar({
             style={{
               background: 'rgba(245, 158, 11, 0.15)',
               border: '1px solid rgba(245, 158, 11, 0.5)',
-              borderRadius: '9px',
+              borderRadius: '999px',
               padding: '0.4rem 0.75rem',
               color: '#fbbf24',
               fontSize: '0.72rem',
@@ -245,7 +247,7 @@ export default function FuturisticCommandBar({
               whiteSpace: 'nowrap',
             }}
           >
-            <Sliders size={14} /> WHAT IF? SIMULATOR
+            <Sliders size={14} /> {t('energySimulator') || 'WHAT IF? SIMULATOR'}
           </button>
 
           {/* Mobile Glass Menu Button */}
@@ -300,7 +302,7 @@ export default function FuturisticCommandBar({
               ENERGY OS MODES
             </div>
             <div style={{ fontSize: '0.65rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
-              SYSTEM ACTIVE
+              {t('onlineStatus') || 'ONLINE'}
             </div>
           </div>
 
@@ -358,7 +360,7 @@ export default function FuturisticCommandBar({
                 gap: '0.4rem',
               }}
             >
-              <Sparkles size={14} /> AI INTELLIGENCE
+              <Sparkles size={14} /> {t('energyAiIntel') || 'AI INTELLIGENCE'}
             </button>
             <button
               onClick={() => {
@@ -382,7 +384,7 @@ export default function FuturisticCommandBar({
                 gap: '0.4rem',
               }}
             >
-              <Sliders size={14} /> WHAT IF? SIMULATOR
+              <Sliders size={14} /> {t('energySimulator') || 'WHAT IF? SIMULATOR'}
             </button>
           </div>
         </div>
